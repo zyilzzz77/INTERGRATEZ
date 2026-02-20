@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function BilibiliWatchPage() {
+function BilibiliWatchContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const urlParam = searchParams.get("url");
@@ -332,5 +332,13 @@ export default function BilibiliWatchPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function BilibiliWatchPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-neutral-900" />}>
+            <BilibiliWatchContent />
+        </Suspense>
     );
 }
