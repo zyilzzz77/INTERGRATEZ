@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://inversave.vercel.app
+Host: https://inversave.space
 
 # Sitemaps
-Sitemap: https://inversave.vercel.app/sitemap.xml
+Sitemap: https://inversave.space/sitemap.xml
