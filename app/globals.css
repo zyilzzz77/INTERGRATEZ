@@ -1,26 +1,306 @@
 @import "tailwindcss";
 
 :root {
+  --background: #09090b;
+  --foreground: #fafafa;
+  
+  /* Neutral Palette (Dark Default) */
+  --neutral-950: #09090b;
+  --neutral-900: #18181b;
+  --neutral-800: #27272a;
+  --neutral-700: #3f3f46;
+  --neutral-600: #52525b;
+  --neutral-500: #71717a;
+  --neutral-400: #a1a1aa;
+  --neutral-300: #d4d4d8;
+  --neutral-200: #e4e4e7;
+  --neutral-100: #f4f4f5;
+  --neutral-50: #fafafa;
+
+  /* Base Colors */
+  --color-black-real: #000000;
+  --color-white-real: #ffffff;
+}
+
+.light {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #09090b;
+
+  /* Inverted Neutral Palette for Light Mode */
+  --neutral-950: #ffffff;
+  --neutral-900: #f4f4f5;
+  --neutral-800: #e4e4e7;
+  --neutral-700: #d4d4d8;
+  --neutral-600: #a1a1aa;
+  --neutral-500: #71717a;
+  --neutral-400: #52525b;
+  --neutral-300: #3f3f46;
+  --neutral-200: #27272a;
+  --neutral-100: #18181b;
+  --neutral-50: #09090b;
+
+  /* Invert Black/White utility to match theme */
+  --color-black-real: #ffffff;
+  --color-white-real: #000000;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  
+  /* Override Tailwind Colors with CSS Variables */
+  --color-neutral-950: var(--neutral-950);
+  --color-neutral-900: var(--neutral-900);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-50: var(--neutral-50);
+
+  /* Override Black/White to flip in light mode */
+  --color-black: var(--color-black-real);
+  --color-white: var(--color-white-real);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ───── Base ───── */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+  min-height: 100vh;
+}
+
+/* ───── Dot Grid Background ───── */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ───── Floating Blobs ───── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  pointer-events: none;
+  animation: blob-float 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.blob-1 {
+  width: 400px;
+  height: 400px;
+  background: #7c3aed;
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.blob-2 {
+  width: 350px;
+  height: 350px;
+  background: #06b6d4;
+  top: 50px;
+  right: -80px;
+  animation-delay: -3s;
+}
+
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: #ec4899;
+  bottom: -50px;
+  left: 30%;
+  animation-delay: -5s;
+}
+
+@keyframes blob-float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(20px, -30px) scale(1.05);
+  }
+
+  66% {
+    transform: translate(-15px, 15px) scale(0.95);
+  }
+}
+
+/* ───── Skeleton shimmer ───── */
+.skeleton {
+  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ───── Toast ───── */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  color: #fff;
+  font-weight: 600;
+  z-index: 9999;
+  animation: toast-in 0.35s ease-out, toast-out 0.35s ease-in 2.65s forwards;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, .4);
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.toast-info {
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+}
+
+@keyframes toast-in {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* ───── Card hover ───── */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+}
+
+/* ───── Shine button ───── */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .15), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s;
+}
+
+.btn-shine:hover::after {
+  transform: translateX(100%);
+}
+
+/* ───── Gradient text ───── */
+.gradient-text {
+  background: linear-gradient(135deg, #c084fc, #818cf8, #67e8f9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ───── Float ───── */
+.float-anim {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ───── Badge ───── */
+.badge {
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+
+/* ───── Scrollbar ───── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 3px;
+}
+
+/* ───── Marquee Animation ───── */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+
+.group:hover .animate-marquee {
+  animation-play-state: paused;
 }
