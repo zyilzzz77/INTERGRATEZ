@@ -12,17 +12,17 @@ const links = [
     {
         href: "/",
         label: "Home",
-        icon: <Home className="h-4 w-4" />,
+        icon: <Home className="h-4 w-4 sm:h-5 sm:w-5" />,
     },
     {
         href: "/search",
         label: "Search",
-        icon: <Search className="h-4 w-4" />,
+        icon: <Search className="h-4 w-4 sm:h-5 sm:w-5" />,
     },
     {
         href: "/docs",
         label: "Docs",
-        icon: <BookOpen className="h-4 w-4" />,
+        icon: <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />,
     },
 ];
 
@@ -37,12 +37,12 @@ export default function Navbar() {
             transition={{ type: "spring", stiffness: 100, damping: 20 }}
             className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
         >
-            <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+            <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16">
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-2.5 select-none">
+                <Link href="/" className="flex items-center gap-2 select-none sm:gap-2.5">
                     <motion.div 
                         whileHover={{ rotate: 10, scale: 1.1 }}
-                        className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-primary/20 shadow-md"
+                        className="relative h-8 w-8 overflow-hidden rounded-full border-2 border-primary/20 shadow-md sm:h-10 sm:w-10"
                     >
                         <Image
                             src="/snoopy-logo.webp"
@@ -52,7 +52,7 @@ export default function Navbar() {
                             className="object-cover"
                         />
                     </motion.div>
-                    <span className="text-xl font-extrabold tracking-tight text-foreground">
+                    <span className="text-lg font-extrabold tracking-tight text-foreground sm:text-xl">
                         Inver<span className="text-muted-foreground">save</span>
                     </span>
                 </Link>
@@ -70,7 +70,7 @@ export default function Navbar() {
                                 asChild
                                 variant="ghost"
                                 size="sm"
-                                className={`gap-2 font-semibold relative ${active ? "text-foreground" : "text-muted-foreground"}`}
+                                className={`gap-1.5 px-2 text-xs font-semibold relative sm:gap-2 sm:px-3 sm:text-sm ${active ? "text-foreground" : "text-muted-foreground"}`}
                             >
                                 <Link href={l.href}>
                                     {active && (
@@ -93,7 +93,7 @@ export default function Navbar() {
                         size="icon"
                         onClick={toggleTheme}
                         disabled={!mounted}
-                        className="ml-1"
+                        className="ml-1 h-9 w-9 sm:h-10 sm:w-10"
                         title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
                         aria-label="Toggle Theme"
                     >
@@ -104,9 +104,9 @@ export default function Navbar() {
                             transition={{ duration: 0.2 }}
                         >
                             {theme === "dark" ? (
-                                <Sun className="h-5 w-5" />
+                                <Sun className="h-4 w-4 sm:h-5 sm:w-5" />
                             ) : (
-                                <Moon className="h-5 w-5" />
+                                <Moon className="h-4 w-4 sm:h-5 sm:w-5" />
                             )}
                         </motion.div>
                     </Button>

@@ -9,7 +9,7 @@ const searchPlatforms = [
         href: "/search/youtube",
         label: "YouTube",
         description: "Cari video, lihat durasi & views, lalu download MP4/MP3",
-        icon: <Image src="/logo-yt.webp" alt="YouTube" width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />,
+        icon: <Image src="/logo-yt.webp" alt="YouTube" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-red-500/20 hover:border-red-500/40",
         textColor: "text-white",
@@ -19,7 +19,7 @@ const searchPlatforms = [
         href: "/search/tiktok",
         label: "TikTok",
         description: "Cari video TikTok, lihat stats & download",
-        icon: <Image src="/logo-tiktok.webp" alt="TikTok" width={56} height={56} className="h-14 w-14 object-cover" />,
+        icon: <Image src="/logo-tiktok.webp" alt="TikTok" width={56} height={56} className="h-10 w-10 object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-cyan-500/20 hover:border-cyan-500/40",
         textColor: "text-white",
@@ -29,7 +29,7 @@ const searchPlatforms = [
         href: "/search/instagram",
         label: "Instagram",
         description: "Stalk profil IG — lihat followers, posts & bio",
-        icon: <Image src="/logo-instagram.webp" alt="Instagram" width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />,
+        icon: <Image src="/logo-instagram.webp" alt="Instagram" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-purple-500/20 hover:border-purple-500/40",
         textColor: "text-white",
@@ -39,7 +39,7 @@ const searchPlatforms = [
         href: "/search/spotify",
         label: "Spotify",
         description: "Cari lagu favorit, preview 30 detik, download audio",
-        icon: <Image src="/logo-spotify.webp" alt="Spotify" width={56} height={56} className="h-14 w-14 object-cover" />,
+        icon: <Image src="/logo-spotify.webp" alt="Spotify" width={56} height={56} className="h-10 w-10 object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-green-500/20 hover:border-green-500/40",
         textColor: "text-white",
@@ -49,7 +49,7 @@ const searchPlatforms = [
         href: "/search/pinterest",
         label: "Pinterest",
         description: "Cari foto & gambar inspirasi, download HD",
-        icon: <Image src="/logo-pinterest.webp" alt="Pinterest" width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />,
+        icon: <Image src="/logo-pinterest.webp" alt="Pinterest" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-pink-500/20 hover:border-pink-500/40",
         textColor: "text-white",
@@ -59,7 +59,7 @@ const searchPlatforms = [
         href: "/search/bilibili",
         label: "Bilibili",
         description: "Cari video Bilibili, lihat durasi & views",
-        icon: <Image src="/logo-bilibili.webp" alt="Bilibili" width={56} height={56} className="h-14 w-14 object-cover" />,
+        icon: <Image src="/logo-bilibili.webp" alt="Bilibili" width={56} height={56} className="h-10 w-10 object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-sky-500/20 hover:border-sky-500/40",
         textColor: "text-white",
@@ -69,7 +69,7 @@ const searchPlatforms = [
         href: "/search/applemusic",
         label: "Apple Music",
         description: "Download lagu & album dari Apple Music kualitas tinggi",
-        icon: <Image src="/logo-apple-music.webp" alt="Apple Music" width={56} height={56} className="h-14 w-14 object-cover" />,
+        icon: <Image src="/logo-apple-music.webp" alt="Apple Music" width={56} height={56} className="h-10 w-10 object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-red-500/20 hover:border-red-500/40",
         textColor: "text-white",
@@ -79,7 +79,7 @@ const searchPlatforms = [
         href: "/search/soundcloud",
         label: "SoundCloud",
         description: "Cari & download lagu SoundCloud gratis (MP3)",
-        icon: <Image src="/logo-soundcloud.webp" alt="SoundCloud" width={56} height={56} className="h-14 w-14 object-cover" />,
+        icon: <Image src="/logo-soundcloud.webp" alt="SoundCloud" width={56} height={56} className="h-10 w-10 object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-orange-500/20 hover:border-orange-500/40",
         textColor: "text-white",
@@ -92,7 +92,7 @@ const tools = [
         href: "/search/freefire",
         label: "Free Fire Check",
         description: "Cek detail akun FF — nickname, rank, guild",
-        icon: <Image src="/logo-freefire.webp" alt="Free Fire" width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />,
+        icon: <Image src="/logo-freefire.webp" alt="Free Fire" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-orange-500/20 hover:border-orange-500/40",
         textColor: "text-orange-400",
@@ -102,7 +102,7 @@ const tools = [
         href: "/search/tokopedia",
         label: "Tokopedia Search",
         description: "Cari produk, bandingkan harga & toko dari Tokopedia",
-        icon: <Image src="/logo-tokped.webp" alt="Tokopedia" width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />,
+        icon: <Image src="/logo-tokped.webp" alt="Tokopedia" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-green-500/20 hover:border-green-500/40",
         textColor: "text-white",
@@ -112,7 +112,7 @@ const tools = [
         href: "/search/github",
         label: "GitHub Search",
         description: "Cari profil GitHub, repository, dan statistik user",
-        icon: <Image src="/logo-github.webp" alt="GitHub" width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />,
+        icon: <Image src="/logo-github.webp" alt="GitHub" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         color: "transparent",
         border: "border-white/20 hover:border-white/40",
         textColor: "text-white",
@@ -145,15 +145,15 @@ export default function SearchPage() {
                 transition={{ duration: 0.5 }}
                 className="mb-12 text-center"
             >
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-white shadow-lg ring-1 ring-white/20">
-                    <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white shadow-lg ring-1 ring-white/20 sm:h-16 sm:w-16">
+                <svg className="h-6 w-6 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <h1 className="text-3xl font-black text-neutral-200 sm:text-4xl">
+                <h1 className="text-2xl font-black text-neutral-200 sm:text-4xl">
                     Platform & Tools
                 </h1>
-                <p className="mt-3 text-base text-neutral-400">
+                <p className="mt-3 text-sm text-neutral-400 sm:text-base">
                     Pilih layanan yang ingin kamu gunakan
                 </p>
             </motion.div>
@@ -166,10 +166,10 @@ export default function SearchPage() {
                     transition={{ delay: 0.2 }}
                     className="mb-6 flex items-center gap-3"
                 >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-lg">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-base sm:h-8 sm:w-8 sm:text-lg">
                         🌏
                     </span>
-                    <h2 className="text-xl font-bold text-neutral-200">
+                    <h2 className="text-lg font-bold text-neutral-200 sm:text-xl">
                         Social Media Search
                     </h2>
                 </motion.div>
@@ -184,20 +184,20 @@ export default function SearchPage() {
                         <motion.div key={p.href} variants={item}>
                             <Link
                                 href={p.href}
-                                className={`group flex h-full flex-col items-center gap-3 rounded-2xl border ${p.border} bg-white/5 p-6 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${p.shadow}`}
+                                className={`group flex h-full flex-col items-center gap-3 rounded-2xl border ${p.border} bg-white/5 p-5 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-6 ${p.shadow}`}
                             >
-                                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${p.color === "transparent" ? "" : `bg-gradient-to-br ${p.color} shadow-md`} text-white transition-transform duration-300 group-hover:scale-110`}>
+                                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${p.color === "transparent" ? "" : `bg-gradient-to-br ${p.color} shadow-md`} text-white transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14`}>
                                     {p.icon}
                                 </div>
-                                <h2 className={`text-lg font-bold ${p.textColor}`}>
+                                <h2 className={`text-base font-bold ${p.textColor} sm:text-lg`}>
                                     {p.label}
                                 </h2>
-                                <p className="text-xs leading-relaxed text-neutral-500">
+                                <p className="text-xs leading-relaxed text-neutral-500 sm:text-[13px]">
                                     {p.description}
                                 </p>
-                                <span className={`mt-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold ${p.textColor} transition-colors`}>
+                                <span className={`mt-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold ${p.textColor} transition-colors sm:text-xs`}>
                                     Cari Sekarang
-                                    <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                    <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
                                 </span>
@@ -215,10 +215,10 @@ export default function SearchPage() {
                     transition={{ delay: 0.4 }}
                     className="mb-6 flex items-center gap-3"
                 >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-lg">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-base sm:h-8 sm:w-8 sm:text-lg">
                         🛠️
                     </span>
-                    <h2 className="text-xl font-bold text-neutral-200">
+                    <h2 className="text-lg font-bold text-neutral-200 sm:text-xl">
                         Tools & Utilities
                     </h2>
                 </motion.div>
@@ -233,20 +233,20 @@ export default function SearchPage() {
                         <motion.div key={p.href} variants={item}>
                             <Link
                                 href={p.href}
-                                className={`group flex h-full flex-col items-center gap-3 rounded-2xl border ${p.border} bg-white/5 p-6 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${p.shadow}`}
+                                className={`group flex h-full flex-col items-center gap-3 rounded-2xl border ${p.border} bg-white/5 p-5 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-6 ${p.shadow}`}
                             >
-                                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${p.color === "transparent" ? "" : `bg-gradient-to-br ${p.color} shadow-md`} text-white transition-transform duration-300 group-hover:scale-110`}>
+                                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${p.color === "transparent" ? "" : `bg-gradient-to-br ${p.color} shadow-md`} text-white transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14`}>
                                     {p.icon}
                                 </div>
-                                <h2 className={`text-lg font-bold ${p.textColor}`}>
+                                <h2 className={`text-base font-bold ${p.textColor} sm:text-lg`}>
                                     {p.label}
                                 </h2>
-                                <p className="text-xs leading-relaxed text-neutral-500">
+                                <p className="text-xs leading-relaxed text-neutral-500 sm:text-[13px]">
                                     {p.description}
                                 </p>
-                                <span className={`mt-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold ${p.textColor} transition-colors`}>
+                                <span className={`mt-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold ${p.textColor} transition-colors sm:text-xs`}>
                                     Gunakan Tools
-                                    <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                    <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
                                 </span>

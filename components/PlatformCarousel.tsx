@@ -40,12 +40,12 @@ export default function PlatformCarousel() {
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex -ml-4">
                     {platforms.map((p, index) => (
-                        <div key={`${p.name}-${index}`} className="flex-[0_0_150px] min-w-0 pl-4 sm:flex-[0_0_180px]">
+                        <div key={`${p.name}-${index}`} className="flex-[0_0_140px] min-w-0 pl-4 sm:flex-[0_0_180px]">
                             <div className="p-1">
                                 <Card className="border-white/10 bg-white/5 backdrop-blur-sm transition-all hover:bg-white/10 hover:border-primary/30 group cursor-grab active:cursor-grabbing">
-                                    <CardContent className="flex flex-col items-center justify-center p-6 gap-4">
+                                    <CardContent className="flex flex-col items-center justify-center gap-3 p-5 sm:gap-4 sm:p-6">
                                         <div 
-                                            className="relative flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg ring-1 ring-white/10 transition-transform group-hover:scale-110 group-hover:rotate-3"
+                                            className="relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg ring-1 ring-white/10 transition-transform group-hover:scale-110 group-hover:rotate-3 sm:h-16 sm:w-16"
                                             style={{ backgroundColor: p.color === "#ffffffff" ? "#000000" : p.color }}
                                         >
                                             {p.icon.startsWith("/") ? (
@@ -54,7 +54,7 @@ export default function PlatformCarousel() {
                                                     alt={p.label}
                                                     width={40}
                                                     height={40}
-                                                    className="h-10 w-10 object-contain"
+                                                    className="h-8 w-8 object-contain sm:h-10 sm:w-10"
                                                 />
                                             ) : p.localIconSvg ? (
                                                 <Image
@@ -62,15 +62,15 @@ export default function PlatformCarousel() {
                                                     alt={p.label}
                                                     width={32}
                                                     height={32}
-                                                    className="h-8 w-8 invert"
+                                                    className="h-7 w-7 invert sm:h-8 sm:w-8"
                                                 />
                                             ) : (
-                                                <span className="text-3xl font-bold text-white drop-shadow-md">
+                                                <span className="text-2xl font-bold text-white drop-shadow-md sm:text-3xl">
                                                     {p.icon}
                                                 </span>
                                             )}
                                         </div>
-                                        <Badge variant="secondary" className="font-semibold bg-white/10 hover:bg-white/20 text-white">
+                                        <Badge variant="secondary" className="bg-white/10 text-xs font-semibold text-white hover:bg-white/20 sm:text-sm">
                                             {p.label}
                                         </Badge>
                                     </CardContent>
@@ -86,10 +86,10 @@ export default function PlatformCarousel() {
                 <Button 
                     variant="secondary" 
                     size="icon" 
-                    className="h-12 w-12 rounded-full shadow-xl bg-background/80 backdrop-blur-md border border-white/10 hover:bg-background pointer-events-auto"
+                    className="h-10 w-10 rounded-full border border-white/10 bg-background/80 shadow-xl backdrop-blur-md pointer-events-auto hover:bg-background sm:h-12 sm:w-12"
                     onClick={scrollPrev}
                 >
-                    <ChevronLeft className="h-6 w-6" />
+                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                 </Button>
             </div>
             
@@ -97,10 +97,10 @@ export default function PlatformCarousel() {
                 <Button 
                     variant="secondary" 
                     size="icon" 
-                    className="h-12 w-12 rounded-full shadow-xl bg-background/80 backdrop-blur-md border border-white/10 hover:bg-background pointer-events-auto"
+                    className="h-10 w-10 rounded-full border border-white/10 bg-background/80 shadow-xl backdrop-blur-md pointer-events-auto hover:bg-background sm:h-12 sm:w-12"
                     onClick={scrollNext}
                 >
-                    <ChevronRight className="h-6 w-6" />
+                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
                 </Button>
             </div>
         </div>

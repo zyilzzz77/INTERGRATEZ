@@ -14,6 +14,7 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://inversave.vercel.app"),
   title: "Inversave — Download Video & Audio dari Semua Platform",
   description:
     "Download video dan audio dari YouTube, TikTok, Instagram, Facebook, Twitter, Spotify, dan lainnya. Gratis, cepat, tanpa iklan.",
@@ -27,6 +28,29 @@ export const metadata: Metadata = {
   icons: {
     icon: "/snoopy-logo.webp",
     apple: "/snoopy-logo.webp",
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    title: "Inversave — Download Video & Audio dari Semua Platform",
+    description:
+      "Download video dan audio dari YouTube, TikTok, Instagram, Facebook, Twitter, Spotify, dan lainnya. Gratis, cepat, tanpa iklan.",
+    siteName: "Inversave",
+    images: [
+      {
+        url: "/snoopy-logo.webp",
+        width: 1200,
+        height: 630,
+        alt: "Inversave",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Inversave — Download Video & Audio dari Semua Platform",
+    description:
+      "Download video dan audio dari YouTube, TikTok, Instagram, Facebook, Twitter, Spotify, dan lainnya. Gratis, cepat, tanpa iklan.",
+    images: ["/snoopy-logo.webp"],
   },
 };
 

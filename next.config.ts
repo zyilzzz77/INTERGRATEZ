@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -12,8 +13,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "a1.sndcdn.com" },
       { protocol: "https", hostname: "i.scdn.co" },
       { protocol: "https", hostname: "mosaic.scdn.co" },
-      { protocol: "https", hostname: "scontent.cdninstagram.com" }, // Common IG CDN
-      { protocol: "https", hostname: "scontent-iad3-1.cdninstagram.com" }, // Specific IG CDN seen often
+      { protocol: "https", hostname: "scontent.cdninstagram.com" },
+      { protocol: "https", hostname: "scontent-iad3-1.cdninstagram.com" },
     ],
     localPatterns: [
       {
@@ -27,4 +28,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+});
