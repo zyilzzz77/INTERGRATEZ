@@ -1,10 +1,40 @@
 @import "tailwindcss";
 
+@plugin "tailwindcss-animate";
+
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
+  /* Shadcn - Zinc Theme (Dark Mode Default) */
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
   
-  /* Neutral Palette (Dark Default) */
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 5.9% 10%;
+  
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
+  
+  --radius: 0.5rem;
+
+  /* Existing Neutral Palette (Mapped to match shadcn zinc roughly or keep custom) */
   --neutral-950: #09090b;
   --neutral-900: #18181b;
   --neutral-800: #27272a;
@@ -23,8 +53,34 @@
 }
 
 .light {
-  --background: #ffffff;
-  --foreground: #09090b;
+  /* Shadcn - Zinc Theme (Light Mode) */
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  
+  --primary: 240 5.9% 10%;
+  --primary-foreground: 0 0% 98%;
+  
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 240 10% 3.9%;
 
   /* Inverted Neutral Palette for Light Mode */
   --neutral-950: #ffffff;
@@ -45,9 +101,38 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
   
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
   /* Override Tailwind Colors with CSS Variables */
   --color-neutral-950: var(--neutral-950);
   --color-neutral-900: var(--neutral-900);
@@ -65,15 +150,14 @@
   --color-black: var(--color-black-real);
   --color-white: var(--color-white-real);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
 }
 
 /* ───── Base ───── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), "Inter", system-ui, sans-serif;
   min-height: 100vh;
 }
 
@@ -90,13 +174,20 @@ body {
   filter: blur(80px);
   opacity: 0.15;
   pointer-events: none;
-  animation: blob-float 8s ease-in-out infinite;
-  will-change: transform;
+  animation: blob-float 15s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+@keyframes blob-float {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+  33% { transform: translate(30px, -50px) scale(1.1); opacity: 0.2; }
+  66% { transform: translate(-20px, 20px) scale(0.9); opacity: 0.15; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
 }
 
 .blob-1 {
-  width: 400px;
-  height: 400px;
+  width: 500px;
+  height: 500px;
   background: #7c3aed;
   top: -100px;
   left: -100px;
@@ -104,203 +195,19 @@ body {
 }
 
 .blob-2 {
-  width: 350px;
-  height: 350px;
-  background: #06b6d4;
-  top: 50px;
-  right: -80px;
-  animation-delay: -3s;
+  width: 400px;
+  height: 400px;
+  background: #2563eb;
+  bottom: -50px;
+  right: -50px;
+  animation-delay: -5s;
 }
 
 .blob-3 {
   width: 300px;
   height: 300px;
-  background: #ec4899;
-  bottom: -50px;
+  background: #db2777;
+  top: 40%;
   left: 30%;
-  animation-delay: -5s;
-}
-
-@keyframes blob-float {
-
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-
-  33% {
-    transform: translate(20px, -30px) scale(1.05);
-  }
-
-  66% {
-    transform: translate(-15px, 15px) scale(0.95);
-  }
-}
-
-/* ───── Skeleton shimmer ───── */
-.skeleton {
-  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: 0.5rem;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* ───── Toast ───── */
-.toast {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem;
-  color: #fff;
-  font-weight: 600;
-  z-index: 9999;
-  animation: toast-in 0.35s ease-out, toast-out 0.35s ease-in 2.65s forwards;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, .4);
-}
-
-.toast-error {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-}
-
-.toast-success {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-}
-
-.toast-info {
-  background: linear-gradient(135deg, #a78bfa, #7c3aed);
-}
-
-@keyframes toast-in {
-  from {
-    transform: translateX(120%);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes toast-out {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
-/* ───── Card hover ───── */
-.card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
-}
-
-/* ───── Shine button ───── */
-.btn-shine {
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-shine::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .15), transparent);
-  transform: translateX(-100%);
-  transition: transform 0.5s;
-}
-
-.btn-shine:hover::after {
-  transform: translateX(100%);
-}
-
-/* ───── Gradient text ───── */
-.gradient-text {
-  background: linear-gradient(135deg, #c084fc, #818cf8, #67e8f9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ───── Float ───── */
-.float-anim {
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-/* ───── Badge ───── */
-.badge {
-  padding: 0.2rem 0.65rem;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #fff;
-}
-
-/* ───── Scrollbar ───── */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #3f3f46;
-  border-radius: 3px;
-}
-
-/* ───── Marquee Animation ───── */
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 40s linear infinite;
-  will-change: transform;
-}
-
-.group:hover .animate-marquee {
-  animation-play-state: paused;
+  animation-delay: -10s;
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { Clipboard } from "lucide-react";
+import { showToast } from "./Toast";
 
 interface SearchBarProps {
     placeholder?: string;
@@ -21,9 +23,32 @@ export default function SearchBar({
         if (q) onSearch(q);
     }
 
+    const handlePaste = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) {
+                setQuery(text);
+                // Optional: Auto search on paste? 
+                // Usually for search bars, users might want to edit after paste, so maybe not auto-submit.
+                // But in UrlInput it does auto-download. 
+                // For search, let's just paste.
+            }
+        } catch (err) {
+            showToast("Gagal paste dari clipboard", "error");
+        }
+    };
+
     return (
         <form onSubmit={handleSubmit} className="mx-auto w-full max-w-xl">
             <div className="flex overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-md backdrop-blur-sm transition-shadow focus-within:border-white/20 focus-within:shadow-lg focus-within:shadow-white/5">
+                <button
+                    type="button"
+                    onClick={handlePaste}
+                    className="flex items-center justify-center px-4 text-neutral-400 hover:text-white transition-colors"
+                    title="Paste from clipboard"
+                >
+                    <Clipboard className="h-5 w-5" />
+                </button>
                 <input
                     type="text"
                     value={query}

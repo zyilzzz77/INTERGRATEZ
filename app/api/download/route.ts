@@ -45,10 +45,26 @@ async function fetchProxy(endpoint: string): Promise<unknown> {
 }
 
 /** Wrap a thumbnail URL through our proxy to avoid CORS / referrer blocks */
-function proxyThumb(url: string, req: NextRequest): string {
+function proxyThumb(url: string): string {
     if (!url) return "";
-    const origin = req.nextUrl.origin;
-    return `${origin}/api/proxy-image?url=${encodeURIComponent(url)}`;
+    if (url.startsWith("/api/proxy-image?url=")) return url;
+    return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+}
+
+function pickTikTokThumb(d: any, data: any): string {
+    const imageFromD = Array.isArray(d?.images) ? d.images[0] : "";
+    const imageFromData = Array.isArray(data?.images) ? data.images[0] : "";
+    return (
+        imageFromD ||
+        d?.ai_dynamic_cover ||
+        d?.cover ||
+        d?.origin_cover ||
+        d?.thumbnail ||
+        data?.cover ||
+        data?.thumbnail ||
+        imageFromData ||
+        ""
+    );
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -181,6 +197,14 @@ function normaliseTikTok(data: any): DownloadResult {
         if (d?.audio) formats.push({ quality: "Audio", url: d.audio, type: "mp3" });
     }
 
+    // ── Images (slideshow / photomode) ──
+    if (Array.isArray(d?.images)) {
+        d.images.forEach((img: string, i: number) => {
+            if (!img) return;
+            formats.push({ quality: `Image ${i + 1}`, url: img, type: "jpg" });
+        });
+    }
+
     // ── Deep scan fallback ──
     if (formats.length === 0) {
         formats.push(...deepExtractFormats(data));
@@ -192,15 +216,14 @@ function normaliseTikTok(data: any): DownloadResult {
     }
 
     const title = d?.title || d?.desc || data?.title || data?.desc || "TikTok Video";
-    const thumb = d?.cover || d?.origin_cover || d?.thumbnail ||
-        data?.cover || data?.thumbnail || "";
+    const thumb = pickTikTokThumb(d, data);
     // Duration from API is in milliseconds (e.g. 14834 → "14s")
     const rawDur = d?.duration || data?.duration;
     const dur = rawDur ? (rawDur > 1000 ? `${Math.round(rawDur / 1000)}s` : `${rawDur}s`) : "-";
 
     return {
         title,
-        thumbnail: thumb,
+        thumbnail: proxyThumb(thumb),
         duration: dur,
         platform: "tiktok",
         formats: dedup(formats),
@@ -518,7 +541,7 @@ export async function GET(req: NextRequest) {
 
                             result = {
                                 title: d.title || "TikTok Video",
-                                thumbnail: d.cover || d.origin_cover || "",
+                                thumbnail: proxyThumb(pickTikTokThumb(d, tikData)),
                                 duration: d.duration ? `${d.duration}s` : "-",
                                 platform: "tiktok",
                                 formats: dedup(formats),
@@ -1018,7 +1041,7 @@ export async function GET(req: NextRequest) {
 
         // Proxy all thumbnails through our image proxy
         if (result.thumbnail) {
-            result.thumbnail = proxyThumb(result.thumbnail, req);
+            result.thumbnail = proxyThumb(result.thumbnail);
         }
 
         // Wrap all format URLs through proxy-download for auto-download

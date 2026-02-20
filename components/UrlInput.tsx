@@ -4,6 +4,9 @@ import { useState, FormEvent, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { detectPlatform } from "@/lib/platformDetector";
 import { showToast } from "./Toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader2, X, Clipboard, Download } from "lucide-react";
 
 interface UrlInputProps {
     onResult: (data: unknown) => void;
@@ -37,6 +40,8 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
             return;
         }
 
+        console.log("[UrlInput] Starting download for:", inputUrl, "Platform:", platform.name);
+
         onPlatform(platform.name);
         setLoading(true);
         onLoading(true);
@@ -46,6 +51,8 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
             const res = await fetch(endpoint);
             const data = await res.json();
 
+            console.log("[UrlInput] API Response:", data);
+
             if (data.error) {
                 showToast(data.detail || data.error, "error");
                 onResult(null);
@@ -54,7 +61,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
                 showToast("Berhasil memuat data!", "success");
             }
         } catch (e) {
-            console.error(e);
+            console.error("[UrlInput] Fetch error:", e);
             showToast("Gagal memproses link", "error");
             onResult(null);
         } finally {
@@ -65,6 +72,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
+        console.log("[UrlInput] Form submitted");
         handleDownload();
     };
 
@@ -88,77 +96,62 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
 
     return (
         <form onSubmit={handleSubmit} className="relative w-full max-w-2xl">
-            <div className="relative flex items-center overflow-hidden rounded-2xl bg-neutral-900 p-2 shadow-2xl ring-1 ring-white/10 transition-all focus-within:ring-2 focus-within:ring-blue-500/40">
+            <div className="relative flex items-center overflow-hidden rounded-2xl bg-neutral-900/50 p-2 shadow-2xl ring-1 ring-white/10 transition-all focus-within:ring-2 focus-within:ring-primary/40 backdrop-blur-md">
                 {/* Icon / Paste Button */}
                 <div className="flex-shrink-0 pl-2">
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={handlePaste}
-                        className="group flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white transition-colors hover:bg-white/20"
+                        className="h-10 w-10 rounded-xl text-neutral-400 hover:bg-white/10 hover:text-white"
                         title="Paste Link"
                     >
-                        <svg
-                            className="h-5 w-5 transition-transform group-hover:scale-110"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                            />
-                        </svg>
-                    </button>
+                        <Clipboard className="h-5 w-5" />
+                    </Button>
                 </div>
 
                 {/* Input */}
-                <input
+                <Input
                     type="text"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="Tempel link video di sini..."
-                    className="flex-1 bg-transparent px-4 py-3 text-sm font-medium text-white placeholder:text-neutral-500 focus:outline-none sm:text-base"
+                    className="border-none bg-transparent px-4 py-6 text-base font-medium text-white placeholder:text-neutral-500 focus-visible:ring-0 shadow-none"
                     disabled={loading}
                 />
 
                 {/* Clear / Loading / Submit */}
-                <div className="flex-shrink-0 pr-2">
+                <div className="flex-shrink-0 pr-2 flex items-center gap-2">
                     {url && !loading && (
-                        <button
+                        <Button
                             type="button"
+                            variant="ghost"
+                            size="icon"
                             onClick={handleClear}
-                            className="mr-2 rounded-full p-1 text-neutral-400 hover:bg-white/10 hover:text-white"
+                            className="h-8 w-8 rounded-full text-neutral-400 hover:bg-white/10 hover:text-white"
                         >
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                            <X className="h-4 w-4" />
+                        </Button>
                     )}
 
-                    <button
+                    <Button
                         type="submit"
                         disabled={loading || !url}
-                        className="flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-6 text-sm font-bold text-white shadow-lg shadow-blue-500/30 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                        className="h-10 gap-2 rounded-xl bg-primary px-6 font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:brightness-110"
                     >
                         {loading ? (
                             <>
-                                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
+                                <Loader2 className="h-4 w-4 animate-spin" />
                                 <span>Proses...</span>
                             </>
                         ) : (
                             <>
                                 <span>Unduh</span>
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
+                                <Download className="h-4 w-4" />
                             </>
                         )}
-                    </button>
+                    </Button>
                 </div>
             </div>
         </form>
