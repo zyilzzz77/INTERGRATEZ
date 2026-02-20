@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://inversave.vercel.app
+
+# Sitemaps
+Sitemap: https://inversave.vercel.app/sitemap.xml

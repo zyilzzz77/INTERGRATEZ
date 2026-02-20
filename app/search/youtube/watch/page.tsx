@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 interface YTResult {
@@ -15,7 +15,7 @@ interface YTResult {
     duration: string;
 }
 
-export default function YouTubeWatchPage() {
+function YouTubeWatchContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const urlParam = searchParams.get("url");
@@ -247,5 +247,20 @@ export default function YouTubeWatchPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function YouTubeWatchPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex min-h-screen items-center justify-center bg-neutral-900 text-white">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-red-500 border-t-transparent shadow-lg shadow-red-500/20" />
+                    <p className="animate-pulse font-medium">Memuat halaman...</p>
+                </div>
+            </div>
+        }>
+            <YouTubeWatchContent />
+        </Suspense>
     );
 }

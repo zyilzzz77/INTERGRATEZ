@@ -14,7 +14,7 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://inversave.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://inversave.space"),
   title: "Inversave — Download Video & Audio dari Semua Platform",
   description:
     "Download video dan audio dari YouTube, TikTok, Instagram, Facebook, Twitter, Spotify, dan lainnya. Gratis, cepat, tanpa iklan.",
