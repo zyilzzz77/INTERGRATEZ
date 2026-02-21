@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "mosaic.scdn.co" },
       { protocol: "https", hostname: "scontent.cdninstagram.com" },
       { protocol: "https", hostname: "scontent-iad3-1.cdninstagram.com" },
+      { protocol: "https", hostname: "i.pinimg.com" },
+      { protocol: "https", hostname: "*.pinimg.com" },
     ],
     localPatterns: [
       {

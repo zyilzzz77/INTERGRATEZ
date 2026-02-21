@@ -34,6 +34,33 @@ interface PinterestResult {
     dominant_color: string;
 }
 
+interface PinterestImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+    fallbackSrc?: string;
+}
+
+function PinterestImage({ src, fallbackSrc, alt, className, style, ...props }: PinterestImageProps) {
+    const [imgSrc, setImgSrc] = useState(src);
+    const [hasError, setHasError] = useState(false);
+
+    return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+            src={imgSrc}
+            alt={alt}
+            className={className}
+            style={style}
+            onError={(e) => {
+                if (!hasError && fallbackSrc && imgSrc !== fallbackSrc) {
+                    setImgSrc(fallbackSrc);
+                    setHasError(true);
+                }
+                props.onError?.(e);
+            }}
+            {...props}
+        />
+    );
+}
+
 export default function PinterestSearchPage() {
     const [results, setResults] = useState<PinterestResult[]>([]);
     const [loading, setLoading] = useState(false);
@@ -135,13 +162,15 @@ export default function PinterestSearchPage() {
                             >
                                 {/* Image */}
                                 <div className="relative overflow-hidden">
-                                    <img
+                                    <PinterestImage
+                                        key={r.image}
                                         src={r.image}
+                                        fallbackSrc={r.image_original}
                                         alt={r.title || r.description || "Pinterest image"}
                                         className="w-full"
                                         loading="lazy"
-                                        style={{ backgroundColor: r.dominant_color || "#27272a" }}
-                                        onContextMenu={(e) => e.preventDefault()}
+                                        style={{ backgroundColor: r.dominant_color || "#27272a", minHeight: "150px" }}
+                                        onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
                                         draggable={false}
                                     />
                                     {/* Transparent Overlay for protection */}

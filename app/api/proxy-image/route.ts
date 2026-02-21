@@ -21,12 +21,20 @@ export async function GET(req: NextRequest) {
     }
 
     // Try to decode URL properly if it was encoded
-    let url = decodeURIComponent(urlParam);
+    let url = urlParam; // searchParams.get already decodes once
 
     // If it looks like base64 (no protocol), try to decode
     if (!url.startsWith("http")) {
         try {
-            url = Buffer.from(url, 'base64').toString('utf-8');
+            // Check if it's double encoded or base64
+            if (url.includes("%")) {
+                url = decodeURIComponent(url);
+            } else {
+                const decoded = Buffer.from(url, 'base64').toString('utf-8');
+                if (decoded.startsWith("http")) {
+                    url = decoded;
+                }
+            }
         } catch {
             // ignore
         }
@@ -38,13 +46,19 @@ export async function GET(req: NextRequest) {
             : isBilibiliImage(url)
             ? "https://www.bilibili.tv/"
             : new URL(url).origin;
+        
+        // Ensure origin doesn't have trailing slash for Origin header
         const origin = new URL(referer).origin;
+
         const res = await fetch(url, {
             headers: {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                Referer: referer,
-                Origin: origin,
-                Accept: "image/webp,image/apng,image/*,*/*;q=0.8",
+                "Referer": referer,
+                "Origin": origin,
+                "Sec-Fetch-Dest": "image",
+                "Sec-Fetch-Mode": "no-cors",
+                "Sec-Fetch-Site": "cross-site",
+                "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
             },
             cache: "no-store",
         });
