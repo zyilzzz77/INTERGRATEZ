@@ -53,9 +53,9 @@ async function handleSearch(req: NextRequest) {
         }
 
         // Proxy images through our image proxy
-        const origin = req.nextUrl.origin;
+        // const origin = req.nextUrl.origin;
         const proxyUrl = (url: string) =>
-            url ? `${origin}/api/proxy-image?url=${encodeURIComponent(url)}` : "";
+            url ? `/api/proxy-image?url=${encodeURIComponent(url)}` : "";
 
         const pins = result.pins.map((pin) => ({
             pin: pin.pin,
