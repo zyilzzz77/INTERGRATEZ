@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import SearchBar from "@/components/SearchBar";
 import Image from "next/image";
 import { downloadMedia } from "@/lib/downloads";
@@ -72,6 +72,7 @@ export default function TikTokSearchPage() {
 
     // Track which photo carousel index per card
     const [photoIndexes, setPhotoIndexes] = useState<Record<string, number>>({});
+    const swipeState = useRef<Record<string, { startX: number; startY: number; lastX: number; isSwiping: boolean }>>({});
 
     // Proxy TikTok CDN images to bypass referrer-policy blocking
     function proxyImg(url: string) {
@@ -144,6 +145,59 @@ export default function TikTokSearchPage() {
 
     function setPhotoIndex(id: string, index: number) {
         setPhotoIndexes((prev) => ({ ...prev, [id]: index }));
+    }
+
+    function handleTouchStart(id: string, e: React.TouchEvent<HTMLDivElement>) {
+        const t = e.touches[0];
+        swipeState.current[id] = {
+            startX: t.clientX,
+            startY: t.clientY,
+            lastX: t.clientX,
+            isSwiping: false,
+        };
+    }
+
+    function handleTouchMove(id: string, totalImages: number, e: React.TouchEvent<HTMLDivElement>) {
+        const state = swipeState.current[id];
+        if (!state) return;
+        const t = e.touches[0];
+        state.lastX = t.clientX;
+        const dx = t.clientX - state.startX;
+        const dy = t.clientY - state.startY;
+        if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+            state.isSwiping = true;
+        }
+        if (state.isSwiping) {
+            e.preventDefault();
+            const threshold = 24;
+            if (Math.abs(dx) > threshold) {
+                const currentIdx = photoIndexes[id] || 0;
+                if (dx < 0 && currentIdx < totalImages - 1) {
+                    setPhotoIndex(id, currentIdx + 1);
+                } else if (dx > 0 && currentIdx > 0) {
+                    setPhotoIndex(id, currentIdx - 1);
+                }
+                state.startX = t.clientX;
+                state.startY = t.clientY;
+                state.lastX = t.clientX;
+            }
+        }
+    }
+
+    function handleTouchEnd(id: string, totalImages: number) {
+        const state = swipeState.current[id];
+        if (!state) return;
+        const dx = state.lastX - state.startX;
+        const threshold = 40;
+        if (state.isSwiping && Math.abs(dx) > threshold) {
+            const currentIdx = photoIndexes[id] || 0;
+            if (dx < 0 && currentIdx < totalImages - 1) {
+                setPhotoIndex(id, currentIdx + 1);
+            } else if (dx > 0 && currentIdx > 0) {
+                setPhotoIndex(id, currentIdx - 1);
+            }
+        }
+        delete swipeState.current[id];
     }
 
     const currentResults = mode === "video" ? videoResults : photoResults;
@@ -318,7 +372,13 @@ export default function TikTokSearchPage() {
                                     className="card-hover group flex flex-col overflow-hidden rounded-xl border border-white/5 bg-white/5 backdrop-blur-sm transition-all hover:border-pink-500/30"
                                 >
                                     {/* Image Carousel */}
-                                    <div className="relative aspect-square w-full overflow-hidden bg-neutral-800">
+                                    <div
+                                        className="relative aspect-square w-full overflow-hidden bg-neutral-800"
+                                        onTouchStart={(e) => handleTouchStart(r.id, e)}
+                                        onTouchMove={(e) => handleTouchMove(r.id, totalImages, e)}
+                                        onTouchEnd={() => handleTouchEnd(r.id, totalImages)}
+                                        style={{ touchAction: "pan-y" }}
+                                    >
                                         <img
                                             src={proxyImg(currentImage)}
                                             alt={r.title}

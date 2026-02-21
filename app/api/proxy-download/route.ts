@@ -94,10 +94,14 @@ async function handleRequest(req: NextRequest) {
             });
         }
 
-        // Force MP4 content type if it's m4s but user expects video
         let contentType = res.headers.get("content-type") || "application/octet-stream";
         if (url.includes(".m4s")) {
              contentType = "video/mp4";
+        }
+
+        const isDownload = req.nextUrl.searchParams.get("download") === "true";
+        if (isDownload) {
+            contentType = "application/octet-stream";
         }
 
         const headers: Record<string, string> = {
@@ -106,11 +110,12 @@ async function handleRequest(req: NextRequest) {
             "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
         };
 
-        // Only set attachment if explicitly requested via query param `download=true`
-        // Otherwise treat as inline for streaming
-        const isDownload = req.nextUrl.searchParams.get("download") === "true";
         if (isDownload) {
-            headers["Content-Disposition"] = `attachment; filename="${safeFilename}"`;
+            const encodedFilename = encodeURIComponent(safeFilename);
+            headers["Content-Disposition"] = `attachment; filename="${safeFilename}"; filename*=UTF-8''${encodedFilename}`;
+            headers["X-Content-Type-Options"] = "nosniff";
+            headers["Cache-Control"] = "no-store";
+            headers["Pragma"] = "no-cache";
         } else {
             headers["Content-Disposition"] = `inline`;
         }

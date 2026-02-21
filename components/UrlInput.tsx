@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { detectPlatform } from "@/lib/platformDetector";
 import { showToast } from "./Toast";
@@ -18,6 +18,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
     const searchParams = useSearchParams();
     const [url, setUrl] = useState("");
     const [loading, setLoading] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Auto-fill from URL param
     useEffect(() => {
@@ -76,15 +77,43 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
         handleDownload();
     };
 
+    const requestClipboardText = async () => {
+        if (!navigator.clipboard?.readText) {
+            throw new Error("clipboard-not-supported");
+        }
+        if (navigator.permissions?.query) {
+            try {
+                const permission = await navigator.permissions.query({ name: "clipboard-read" as PermissionName });
+                if (permission.state === "denied") {
+                    throw new Error("clipboard-denied");
+                }
+            } catch {}
+        }
+        return navigator.clipboard.readText();
+    };
+
     const handlePaste = async () => {
         try {
-            const text = await navigator.clipboard.readText();
+            showToast("Minta izin clipboard...", "info");
+            const text = await requestClipboardText();
             if (text) {
                 setUrl(text);
                 handleDownload(text);
+            } else {
+                showToast("Clipboard kosong", "error");
             }
         } catch (err) {
-            showToast("Gagal paste dari clipboard", "error");
+            inputRef.current?.focus();
+            showToast("Izin clipboard ditolak, silakan paste manual", "error");
+        }
+    };
+    
+    const handleInputPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+        const text = e.clipboardData.getData("text");
+        if (text) {
+            e.preventDefault();
+            setUrl(text);
+            handleDownload(text);
         }
     };
 
@@ -116,9 +145,11 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
                     type="text"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
+                    onPaste={handleInputPaste}
                     placeholder="Tempel link video di sini..."
                     className="border-none bg-transparent px-4 py-6 text-base font-medium text-white placeholder:text-neutral-500 focus-visible:ring-0 shadow-none"
                     disabled={loading}
+                    ref={inputRef}
                 />
 
                 {/* Clear / Loading / Submit */}

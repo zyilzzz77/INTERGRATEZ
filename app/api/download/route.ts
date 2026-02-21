@@ -1045,7 +1045,7 @@ export async function GET(req: NextRequest) {
         }
 
         // Wrap all format URLs through proxy-download for auto-download
-        const origin = req.nextUrl.origin;
+        // Use relative URL to avoid HTTP/HTTPS mismatch behind proxy
         const safeTitle = (result.title || "download")
             .replace(/[^a-zA-Z0-9\u00C0-\u024F\u4E00-\u9FFF\s\.\-\(\)]/g, "")
             .trim()
@@ -1058,7 +1058,7 @@ export async function GET(req: NextRequest) {
             const obfuscatedUrl = obfuscate(f.url);
             return {
                 ...f,
-                url: `${origin}/api/proxy-download?url=${encodeURIComponent(obfuscatedUrl)}&filename=${encodeURIComponent(filename)}&download=true`,
+                url: `/api/proxy-download?url=${encodeURIComponent(obfuscatedUrl)}&filename=${encodeURIComponent(filename)}&download=true`,
             };
         });
 
