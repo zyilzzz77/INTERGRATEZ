@@ -12,6 +12,16 @@ function isBilibiliCdn(u: string) {
     );
 }
 
+/** Check if URL belongs to Douyin/TikTok CDN */
+function isDouyinCdn(u: string) {
+    return (
+        u.includes("douyin") ||
+        u.includes("tiktok") ||
+        u.includes("snapcdn.app") ||
+        u.includes("byte-ne.akamaized.net")
+    );
+}
+
 /** Build headers for upstream fetch — special-cases Bilibili CDN */
 function buildHeaders(url: string, range?: string, ifRange?: string): Record<string, string> {
     const headers: Record<string, string> = {};
@@ -34,6 +44,14 @@ function buildHeaders(url: string, range?: string, ifRange?: string): Record<str
             "Sec-Fetch-Dest": "video",
             "Sec-Fetch-Mode": "cors",
             "Sec-Fetch-Site": "cross-site",
+        });
+    } else if (isDouyinCdn(url)) {
+        const isTiktok = url.includes("tiktok") || url.includes("byte-ne.akamaized.net");
+        Object.assign(headers, {
+            "User-Agent":
+                "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+            Referer: isTiktok ? "https://www.tiktok.com/" : "https://www.douyin.com/",
+            Accept: "*/*",
         });
     } else {
         Object.assign(headers, {
@@ -112,7 +130,10 @@ async function handleRequest(req: NextRequest) {
 
         if (isDownload) {
             const encodedFilename = encodeURIComponent(safeFilename);
-            headers["Content-Disposition"] = `attachment; filename="${safeFilename}"; filename*=UTF-8''${encodedFilename}`;
+            // Ensure filename="" is ASCII-safe to prevent server errors
+            const asciiFilename = safeFilename.replace(/[^\x20-\x7E]/g, "_");
+            
+            headers["Content-Disposition"] = `attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodedFilename}`;
             headers["X-Content-Type-Options"] = "nosniff";
             headers["Cache-Control"] = "no-store";
             headers["Pragma"] = "no-cache";

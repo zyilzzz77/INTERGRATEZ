@@ -20,7 +20,7 @@ export default function NotFound() {
                 Halaman Hilang di Angkasa
             </h2>
             <p className="mb-8 max-w-md text-neutral-400">
-                nyari apa ka? Cari di halaman <Link href="/search" className="text-white">cari</Link>
+                nyari apa ka? Cari di halaman <Link href="/search" className="text-white"> Klik Disini</Link>
             </p>
 
             {/* Actions */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion";
 import { CheckCircle2, Info, AlertTriangle } from "lucide-react";
 
 interface ToastItem {
@@ -64,43 +64,53 @@ export default function ToastContainer() {
 
     return (
         <div className="pointer-events-none fixed top-5 right-5 z-[9999] flex flex-col gap-2">
-            <AnimatePresence initial={false}>
-                {toasts.map((t) => {
-                    const cfg = typeConfig[t.type];
-                    const Icon = cfg.icon;
-                    return (
-                        <motion.div
-                            key={t.id}
-                            initial={{ opacity: 0, y: -14, scale: 0.96 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -10, scale: 0.97 }}
-                            transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                            className={`pointer-events-auto relative w-[320px] overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl backdrop-blur-lg ${cfg.ring}`}
-                        >
-                            <div className={`absolute inset-0 -z-10 opacity-30 blur-2xl ${cfg.glow}`} />
-                            <div className="flex items-start gap-3 p-4">
-                                <div className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl ring-1 ${cfg.iconBg} ${cfg.ring}`}>
-                                    <Icon className={`h-4 w-4 ${cfg.iconColor}`} />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="text-[11px] font-semibold uppercase tracking-wider text-white/60">
-                                        {cfg.label}
+            <LazyMotion features={domAnimation}>
+                <AnimatePresence initial={false}>
+                    {toasts.map((t) => {
+                        const cfg = typeConfig[t.type as keyof typeof typeConfig];
+                        const Icon = cfg.icon;
+                        return (
+                            <m.div
+                                key={t.id}
+                                initial={{ opacity: 0, y: -14, scale: 0.96 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -10, scale: 0.97 }}
+                                transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                                className={`pointer-events-auto relative w-[320px] overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl backdrop-blur-lg ${cfg.ring}`}
+                            >
+                                <div className={`absolute inset-0 -z-10 opacity-30 blur-2xl ${cfg.glow}`} />
+                                <div className="flex items-start gap-3 p-4">
+                                    <div className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl ring-1 ${cfg.iconBg} ${cfg.ring}`}>
+                                        <Icon className={`h-4 w-4 ${cfg.iconColor}`} />
                                     </div>
-                                    <div className="mt-0.5 text-sm font-semibold text-white">
-                                        {t.message}
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <div className="text-[11px] font-semibold uppercase tracking-wider text-white/60">
+                                                {cfg.label}
+                                            </div>
+                                            <button 
+                                                onClick={() => setToasts(prev => prev.filter(item => item.id !== t.id))}
+                                                className="text-white/40 hover:text-white transition-colors"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                        <div className="mt-0.5 text-sm font-semibold text-white break-words">
+                                            {t.message}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <motion.div
-                                initial={{ width: "100%" }}
-                                animate={{ width: "0%" }}
-                                transition={{ duration: 3.1, ease: "linear" }}
-                                className={`h-0.5 ${cfg.bar}`}
-                            />
-                        </motion.div>
-                    );
-                })}
-            </AnimatePresence>
+                                <m.div
+                                    initial={{ width: "100%" }}
+                                    animate={{ width: "0%" }}
+                                    transition={{ duration: 3.1, ease: "linear" }}
+                                    className={`h-0.5 ${cfg.bar}`}
+                                />
+                            </m.div>
+                        );
+                    })}
+                </AnimatePresence>
+            </LazyMotion>
         </div>
     );
 }

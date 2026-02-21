@@ -45,16 +45,15 @@ export default function PlatformCarousel() {
                                 <Card className="border-white/10 bg-white/5 backdrop-blur-sm transition-all hover:bg-white/10 hover:border-primary/30 group cursor-grab active:cursor-grabbing">
                                     <CardContent className="flex flex-col items-center justify-center gap-3 p-5 sm:gap-4 sm:p-6">
                                         <div 
-                                            className="relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg ring-1 ring-white/10 transition-transform group-hover:scale-110 group-hover:rotate-3 sm:h-16 sm:w-16"
-                                            style={{ backgroundColor: p.color === "#ffffffff" ? "#000000" : p.color }}
+                                            className="relative flex h-14 w-14 items-center justify-center rounded-2xl transition-transform group-hover:scale-110 group-hover:rotate-3 sm:h-16 sm:w-16"
                                         >
                                             {p.icon.startsWith("/") ? (
                                                 <Image
                                                     src={p.icon}
                                                     alt={p.label}
-                                                    width={40}
-                                                    height={40}
-                                                    className="h-8 w-8 object-contain sm:h-10 sm:w-10"
+                                                    width={64}
+                                                    height={64}
+                                                    className="h-full w-full object-contain drop-shadow-lg"
                                                 />
                                             ) : p.localIconSvg ? (
                                                 <Image
@@ -62,10 +61,10 @@ export default function PlatformCarousel() {
                                                     alt={p.label}
                                                     width={32}
                                                     height={32}
-                                                    className="h-7 w-7 invert sm:h-8 sm:w-8"
+                                                    className="h-8 w-8 invert sm:h-10 sm:w-10"
                                                 />
                                             ) : (
-                                                <span className="text-2xl font-bold text-white drop-shadow-md sm:text-3xl">
+                                                <span className="text-3xl font-bold text-white drop-shadow-md sm:text-4xl">
                                                     {p.icon}
                                                 </span>
                                             )}

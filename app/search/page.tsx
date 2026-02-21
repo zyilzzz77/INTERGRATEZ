@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 
 const searchPlatforms = [
     {
@@ -137,124 +137,126 @@ const item = {
 
 export default function SearchPage() {
     return (
-        <div className="mx-auto max-w-6xl px-4 py-14">
-            {/* Header Utama */}
-            <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="mb-12 text-center"
-            >
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white shadow-lg ring-1 ring-white/20 sm:h-16 sm:w-16">
-                <svg className="h-6 w-6 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+        <LazyMotion features={domAnimation}>
+            <div className="mx-auto max-w-6xl px-4 py-14">
+                {/* Header Utama */}
+                <m.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="mb-12 text-center"
+                >
+                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white shadow-lg ring-1 ring-white/20 sm:h-16 sm:w-16">
+                        <svg className="h-6 w-6 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <h1 className="text-2xl font-black text-neutral-200 sm:text-4xl">
+                        Platform & Tools
+                    </h1>
+                    <p className="mt-3 text-sm text-neutral-400 sm:text-base">
+                        Pilih layanan yang ingin kamu gunakan
+                    </p>
+                </m.div>
+
+                {/* Bagian 1: Search Platforms */}
+                <div className="mb-16">
+                    <m.div 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="mb-6 flex items-center gap-3"
+                    >
+                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-base sm:h-8 sm:w-8 sm:text-lg">
+                            🌏
+                        </span>
+                        <h2 className="text-lg font-bold text-neutral-200 sm:text-xl">
+                            Social Media Search
+                        </h2>
+                    </m.div>
+                    
+                    <m.div 
+                        variants={container}
+                        initial="hidden"
+                        animate="show"
+                        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                    >
+                        {searchPlatforms.map((p) => (
+                            <m.div key={p.href} variants={item}>
+                                <Link
+                                    href={p.href}
+                                    className={`group flex h-full flex-col items-center gap-3 rounded-2xl border ${p.border} bg-white/5 p-5 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-6 ${p.shadow}`}
+                                >
+                                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${p.color === "transparent" ? "" : `bg-gradient-to-br ${p.color} shadow-md`} text-white transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14`}>
+                                        {p.icon}
+                                    </div>
+                                    <h2 className={`text-base font-bold ${p.textColor} sm:text-lg`}>
+                                        {p.label}
+                                    </h2>
+                                    <p className="text-xs leading-relaxed text-neutral-500 sm:text-[13px]">
+                                        {p.description}
+                                    </p>
+                                    <span className={`mt-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold ${p.textColor} transition-colors sm:text-xs`}>
+                                        Cari Sekarang
+                                        <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </span>
+                                </Link>
+                            </m.div>
+                        ))}
+                    </m.div>
                 </div>
-                <h1 className="text-2xl font-black text-neutral-200 sm:text-4xl">
-                    Platform & Tools
-                </h1>
-                <p className="mt-3 text-sm text-neutral-400 sm:text-base">
-                    Pilih layanan yang ingin kamu gunakan
-                </p>
-            </motion.div>
 
-            {/* Bagian 1: Search Platforms */}
-            <div className="mb-16">
-                <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="mb-6 flex items-center gap-3"
-                >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-base sm:h-8 sm:w-8 sm:text-lg">
-                        🌏
-                    </span>
-                    <h2 className="text-lg font-bold text-neutral-200 sm:text-xl">
-                        Social Media Search
-                    </h2>
-                </motion.div>
-                
-                <motion.div 
-                    variants={container}
-                    initial="hidden"
-                    animate="show"
-                    className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                >
-                    {searchPlatforms.map((p) => (
-                        <motion.div key={p.href} variants={item}>
-                            <Link
-                                href={p.href}
-                                className={`group flex h-full flex-col items-center gap-3 rounded-2xl border ${p.border} bg-white/5 p-5 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-6 ${p.shadow}`}
-                            >
-                                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${p.color === "transparent" ? "" : `bg-gradient-to-br ${p.color} shadow-md`} text-white transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14`}>
-                                    {p.icon}
-                                </div>
-                                <h2 className={`text-base font-bold ${p.textColor} sm:text-lg`}>
-                                    {p.label}
-                                </h2>
-                                <p className="text-xs leading-relaxed text-neutral-500 sm:text-[13px]">
-                                    {p.description}
-                                </p>
-                                <span className={`mt-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold ${p.textColor} transition-colors sm:text-xs`}>
-                                    Cari Sekarang
-                                    <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </span>
-                            </Link>
-                        </motion.div>
-                    ))}
-                </motion.div>
+                {/* Bagian 2: Tools */}
+                <div>
+                    <m.div 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="mb-6 flex items-center gap-3"
+                    >
+                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-base sm:h-8 sm:w-8 sm:text-lg">
+                            🛠️
+                        </span>
+                        <h2 className="text-lg font-bold text-neutral-200 sm:text-xl">
+                            Tools & Utilities
+                        </h2>
+                    </m.div>
+
+                    <m.div 
+                        variants={container}
+                        initial="hidden"
+                        animate="show"
+                        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                    >
+                        {tools.map((p) => (
+                            <m.div key={p.href} variants={item}>
+                                <Link
+                                    href={p.href}
+                                    className={`group flex h-full flex-col items-center gap-3 rounded-2xl border ${p.border} bg-white/5 p-5 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-6 ${p.shadow}`}
+                                >
+                                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${p.color === "transparent" ? "" : `bg-gradient-to-br ${p.color} shadow-md`} text-white transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14`}>
+                                        {p.icon}
+                                    </div>
+                                    <h2 className={`text-base font-bold ${p.textColor} sm:text-lg`}>
+                                        {p.label}
+                                    </h2>
+                                    <p className="text-xs leading-relaxed text-neutral-500 sm:text-[13px]">
+                                        {p.description}
+                                    </p>
+                                    <span className={`mt-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold ${p.textColor} transition-colors sm:text-xs`}>
+                                        Gunakan Tools
+                                        <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </span>
+                                </Link>
+                            </m.div>
+                        ))}
+                    </m.div>
+                </div>
             </div>
-
-            {/* Bagian 2: Tools */}
-            <div>
-                <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="mb-6 flex items-center gap-3"
-                >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-base sm:h-8 sm:w-8 sm:text-lg">
-                        🛠️
-                    </span>
-                    <h2 className="text-lg font-bold text-neutral-200 sm:text-xl">
-                        Tools & Utilities
-                    </h2>
-                </motion.div>
-
-                <motion.div 
-                    variants={container}
-                    initial="hidden"
-                    animate="show"
-                    className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                >
-                    {tools.map((p) => (
-                        <motion.div key={p.href} variants={item}>
-                            <Link
-                                href={p.href}
-                                className={`group flex h-full flex-col items-center gap-3 rounded-2xl border ${p.border} bg-white/5 p-5 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-6 ${p.shadow}`}
-                            >
-                                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${p.color === "transparent" ? "" : `bg-gradient-to-br ${p.color} shadow-md`} text-white transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14`}>
-                                    {p.icon}
-                                </div>
-                                <h2 className={`text-base font-bold ${p.textColor} sm:text-lg`}>
-                                    {p.label}
-                                </h2>
-                                <p className="text-xs leading-relaxed text-neutral-500 sm:text-[13px]">
-                                    {p.description}
-                                </p>
-                                <span className={`mt-auto inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold ${p.textColor} transition-colors sm:text-xs`}>
-                                    Gunakan Tools
-                                    <svg className="h-3 w-3 transition-transform group-hover:translate-x-0.5 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </span>
-                            </Link>
-                        </motion.div>
-                    ))}
-                </motion.div>
-            </div>
-        </div>
+        </LazyMotion>
     );
 }

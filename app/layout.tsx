@@ -11,6 +11,7 @@ import BackgroundAnimation from "@/components/BackgroundAnimation";
 const fontSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {

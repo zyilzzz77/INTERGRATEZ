@@ -1,4 +1,3 @@
-import Image from "next/image";
 import HeroSection from "@/components/HeroSection";
 import PlatformCarousel from "@/components/PlatformCarousel";
 import { getAllPlatforms } from "@/lib/platformDetector";

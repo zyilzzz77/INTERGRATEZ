@@ -516,45 +516,81 @@ export async function GET(req: NextRequest) {
             }
             case "tiktok":
             case "douyin": {
-                // 1. Try TikWM (Official Public API)
-                try {
-                    const tikRes = await fetch(`https://tikwm.com/api/?url=${encodeURIComponent(url)}`, {
-                        headers: { "User-Agent": "Mozilla/5.0" },
-                    });
-                    if (tikRes.ok) {
-                        const tikData = await tikRes.json();
-                        if (tikData.code === 0 && tikData.data) {
-                            const d = tikData.data;
-                            const formats: Format[] = [];
-                            
-                            if (d.play) formats.push({ quality: "No Watermark", url: d.play, type: "mp4" });
-                            if (d.wmplay) formats.push({ quality: "Watermark", url: d.wmplay, type: "mp4" });
-                            if (d.hdplay) formats.push({ quality: "HD", url: d.hdplay, type: "mp4" });
-                            if (d.music) formats.push({ quality: "Audio", url: d.music, type: "mp3" });
-                            
-                            // Images (slideshow)
-                            if (d.images && Array.isArray(d.images)) {
-                                d.images.forEach((img: string, i: number) => {
-                                    formats.push({ quality: `Image ${i + 1}`, url: img, type: "jpg" });
-                                });
-                            }
+                // 1. Try TikWM (Official Public API) for TikTok (skip for Douyin)
+                if (platform === "tiktok") {
+                    try {
+                        const tikRes = await fetch(`https://tikwm.com/api/?url=${encodeURIComponent(url)}`, {
+                            headers: { "User-Agent": "Mozilla/5.0" },
+                        });
+                        if (tikRes.ok) {
+                            const tikData = await tikRes.json();
+                            if (tikData.code === 0 && tikData.data) {
+                                const d = tikData.data;
+                                const formats: Format[] = [];
+                                
+                                if (d.play) formats.push({ quality: "No Watermark", url: d.play, type: "mp4" });
+                                if (d.wmplay) formats.push({ quality: "Watermark", url: d.wmplay, type: "mp4" });
+                                if (d.hdplay) formats.push({ quality: "HD", url: d.hdplay, type: "mp4" });
+                                if (d.music) formats.push({ quality: "Audio", url: d.music, type: "mp3" });
+                                
+                                // Images (slideshow)
+                                if (d.images && Array.isArray(d.images)) {
+                                    d.images.forEach((img: string, i: number) => {
+                                        formats.push({ quality: `Image ${i + 1}`, url: img, type: "jpg" });
+                                    });
+                                }
 
-                            result = {
-                                title: d.title || "TikTok Video",
-                                thumbnail: proxyThumb(pickTikTokThumb(d, tikData)),
-                                duration: d.duration ? `${d.duration}s` : "-",
-                                platform: "tiktok",
-                                formats: dedup(formats),
-                                artist: d.author?.nickname ? `@${d.author.nickname}` : undefined,
-                            };
-                            break; // Success, exit switch
+                                result = {
+                                    title: d.title || "TikTok Video",
+                                    thumbnail: proxyThumb(pickTikTokThumb(d, tikData)),
+                                    duration: d.duration ? `${d.duration}s` : "-",
+                                    platform: "tiktok",
+                                    formats: dedup(formats),
+                                    artist: d.author?.nickname ? `@${d.author.nickname}` : undefined,
+                                };
+                                break; // Success, exit switch
+                            }
                         }
+                    } catch (e) {
+                        console.warn("[TikTok] TikWM failed:", e);
                     }
-                } catch (e) {
-                    console.warn("[TikTok] TikWM failed:", e);
                 }
 
-                // 2. Try NexRay
+                // 2. Try NexRay Douyin
+                if (platform === "douyin") {
+                    try {
+                        const douyinRes = await fetch(`https://api.nexray.web.id/downloader/v1/douyin?url=${encodeURIComponent(url)}`, {
+                            headers: { "User-Agent": "Mozilla/5.0" },
+                        });
+                        if (douyinRes.ok) {
+                            const douyinData = await douyinRes.json();
+                            if (douyinData.status && douyinData.result) {
+                                const d = douyinData.result;
+                                const formats: Format[] = [];
+
+                                // Clean URL helper
+                                const clean = (s: string) => (s || "").replace(/`/g, "").trim();
+
+                                if (d.url) formats.push({ quality: "No Watermark", url: clean(d.url), type: "mp4" });
+                                if (d.audio_url) formats.push({ quality: "Audio", url: clean(d.audio_url), type: "mp3" });
+
+                                result = {
+                                    title: d.title || "Douyin Video",
+                                    thumbnail: clean(d.thumbnail),
+                                    duration: d.duration || "-",
+                                    platform: "douyin",
+                                    formats: dedup(formats),
+                                    release_date: d.timestamp || undefined,
+                                };
+                                break;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn("[Douyin] NexRay failed:", e);
+                    }
+                }
+
+                // 3. Try NexRay TikTok
                 try {
                     const nexRes = await fetch(`https://api.nexray.web.id/downloader/tiktok?url=${encodeURIComponent(url)}`, {
                         headers: { "User-Agent": "Mozilla/5.0" },
@@ -570,14 +606,14 @@ export async function GET(req: NextRequest) {
                     console.warn("[TikTok] NexRay failed:", e);
                 }
 
-                // 3. Try Original Proxy (Last Resort)
+                // 4. Try Original Proxy (Last Resort)
                 try {
                     const data = await fetchProxy(`/download/tiktok?url=${encodeURIComponent(url)}`);
                     result = normaliseTikTok(data);
                     if (platform === "douyin") result.platform = "douyin";
                 } catch (e) {
-                     console.error("[TikTok] All APIs failed:", e);
-                     throw new Error("Gagal mengambil data TikTok dari semua sumber");
+                     console.error("[TikTok/Douyin] All APIs failed:", e);
+                     throw new Error("Gagal mengambil data video dari semua sumber");
                 }
                 break;
             }
@@ -670,6 +706,56 @@ export async function GET(req: NextRequest) {
             }
             case "twitter": {
                 result = await fetchTwitter(url);
+                break;
+            }
+            case "threads": {
+                const threadsRes = await fetch(
+                    "https://api.nexray.web.id/downloader/threads?url=" +
+                    encodeURIComponent(url),
+                    { headers: { "User-Agent": "Mozilla/5.0" } }
+                );
+                if (!threadsRes.ok) throw new Error("Threads API " + threadsRes.status);
+                const threadsData = await threadsRes.json();
+                
+                if (!threadsData.status || !threadsData.result)
+                    throw new Error("Gagal mengambil data Threads");
+
+                const tr = threadsData.result;
+                const trFormats: Format[] = [];
+
+                if (Array.isArray(tr.media)) {
+                    tr.media.forEach((m: any, idx: number) => {
+                        if (!m.url) return;
+                        
+                        // Clean URL just in case
+                        const cleanUrl = m.url.replace(/`/g, "").trim();
+                        const isVideo = cleanUrl.includes(".mp4");
+                        
+                        trFormats.push({
+                            quality: isVideo ? `Video ${idx + 1}` : `Image ${idx + 1}`,
+                            url: cleanUrl,
+                            type: isVideo ? "mp4" : "jpg",
+                        });
+                    });
+                }
+
+                if (trFormats.length === 0)
+                    throw new Error("Tidak ada media ditemukan");
+
+                // Clean thumbnail
+                const cleanThumbnail = (tr.thumbnail || "").replace(/`/g, "").trim();
+                const cleanTitle = (tr.title || "Threads Post").trim();
+                const author = tr.author?.username ? `@${tr.author.username}` : "";
+
+                result = {
+                    title: cleanTitle,
+                    thumbnail: cleanThumbnail,
+                    duration: "-",
+                    platform: "threads",
+                    artist: author,
+                    formats: dedup(trFormats),
+                    release_date: tr.create_at || undefined,
+                };
                 break;
             }
             case "capcut": {

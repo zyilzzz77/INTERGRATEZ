@@ -1,3 +1,5 @@
+"use client";
+
 import { showToast } from "@/components/Toast";
 
 export async function downloadMedia(e: React.MouseEvent | null, url: string, filename: string) {
@@ -24,6 +26,7 @@ export async function downloadMedia(e: React.MouseEvent | null, url: string, fil
         a.style.display = 'none';
         a.href = finalUrl;
         a.setAttribute('download', filename);
+        a.target = '_self';
         document.body.appendChild(a);
         a.click();
         
@@ -34,6 +37,5 @@ export async function downloadMedia(e: React.MouseEvent | null, url: string, fil
     } catch (error) {
         console.error("Download error:", error);
         showToast("Gagal memulai download otomatis.", "error");
-        window.open(url, '_blank');
     }
 }

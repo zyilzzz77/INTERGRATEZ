@@ -14,7 +14,7 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "youtube",
         label: "YouTube",
-        color: "#ffffffff",
+        color: "transparent",
         icon: "/logo-yt.webp",
         localIconSvg: "/icons/youtube.svg",
         patterns: [
@@ -27,7 +27,7 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "tiktok",
         label: "TikTok",
-        color: "#ffffffff",
+        color: "transparent",
         icon: "/logo-tiktok.webp",
         localIconSvg: "/icons/tiktok.svg",
         patterns: [
@@ -37,8 +37,8 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "instagram",
         label: "Instagram",
-        color: "#E1306C",
-        icon: "📷",
+        color: "transparent",
+        icon: "/logo-instagram.webp",
         localIconSvg: "/icons/instagram.svg",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel|tv|stories)\//i,
@@ -48,7 +48,7 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "facebook",
         label: "Facebook",
-        color: "#1877F2",
+        color: "transparent",
         icon: "f",
         localIconSvg: "/icons/facebook.svg",
         patterns: [
@@ -59,7 +59,7 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "twitter",
         label: "Twitter / X",
-        color: "#1DA1F2",
+        color: "transparent",
         icon: "𝕏",
         localIconSvg: "/icons/x.svg",
         patterns: [
@@ -69,15 +69,25 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "capcut",
         label: "CapCut",
-        color: "#00E5FF",
+        color: "transparent",
         icon: "/logo-capcut.webp",
         patterns: [/(?:https?:\/\/)?(?:www\.)?capcut\.com\//i],
     },
     {
+        name: "threads",
+        label: "Threads",
+        color: "transparent",
+        icon: "🧵",
+        localIconSvg: "/icons/threads.svg",
+        patterns: [
+            /(?:https?:\/\/)?(?:www\.)?threads\.net\//i,
+        ],
+    },
+    {
         name: "spotify",
         label: "Spotify",
-        color: "#1DB954",
-        icon: "🎵",
+        color: "transparent",
+        icon: "/logo-spotify.webp",
         localIconSvg: "/icons/spotify.svg",
         patterns: [
             /(?:https?:\/\/)?open\.spotify\.com\/(track|album|playlist)\//i,
@@ -86,8 +96,8 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "pinterest",
         label: "Pinterest",
-        color: "#E60023",
-        icon: "📌",
+        color: "transparent",
+        icon: "/logo-pinterest.webp",
         localIconSvg: "/icons/pinterest.svg",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?pinterest\.com\/pin\//i,
@@ -98,7 +108,7 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "douyin",
         label: "Douyin",
-        color: "#FE2C55",
+        color: "transparent",
         icon: "抖",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?douyin\.com\//i,
@@ -108,8 +118,8 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "bilibili",
         label: "Bilibili",
-        color: "#00A1D6",
-        icon: "📺",
+        color: "transparent",
+        icon: "/logo-bilibili.webp",
         localIconSvg: "/icons/bilibili.svg",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?bilibili\.tv\//i,
@@ -119,7 +129,7 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "snackvideo",
         label: "SnackVideo",
-        color: "#FFFC00",
+        color: "transparent",
         icon: "🍿",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?snackvideo\.com\//i,
@@ -129,7 +139,7 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "terabox",
         label: "Terabox",
-        color: "#2B7CE9",
+        color: "transparent",
         icon: "/logo-terabox.webp",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?terabox\.com\//i,
@@ -141,7 +151,7 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "scribd",
         label: "Scribd",
-        color: "#1A7BBA",
+        color: "transparent",
         icon: "📄",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?scribd\.com\/document\//i,
@@ -151,7 +161,7 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "mediafire",
         label: "MediaFire",
-        color: "#326CE5",
+        color: "transparent",
         icon: "🔥",
         localIconSvg: "/icons/mediafire.svg",
         patterns: [
@@ -162,8 +172,8 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "applemusic",
         label: "Apple Music",
-        color: "#FA243C",
-        icon: "🎵",
+        color: "transparent",
+        icon: "/logo-apple-music.webp",
         localIconSvg: "/icons/applemusic.svg",
         patterns: [
             /(?:https?:\/\/)?music\.apple\.com\/.+/i,
@@ -172,8 +182,8 @@ const PLATFORMS: PlatformDef[] = [
     {
         name: "soundcloud",
         label: "SoundCloud",
-        color: "#FF5500",
-        icon: "☁️",
+        color: "transparent",
+        icon: "/logo-soundcloud.webp",
         localIconSvg: "/icons/soundcloud.svg",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?soundcloud\.com\/.+/i,
