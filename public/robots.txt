@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://inversave.space
-
-# Sitemaps
-Sitemap: https://inversave.space/sitemap.xml
