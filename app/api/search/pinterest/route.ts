@@ -66,7 +66,10 @@ async function handleSearch(req: NextRequest) {
             grid_title: pin.grid_title,
             description: pin.description,
             type: pin.type,
-            pinner: pin.pinner,
+            pinner: {
+                ...pin.pinner,
+                image_small_url: proxyUrl(pin.pinner?.image_small_url || ""),
+            },
             board: pin.board,
             reaction_counts: pin.reaction_counts,
             dominant_color: pin.dominant_color,

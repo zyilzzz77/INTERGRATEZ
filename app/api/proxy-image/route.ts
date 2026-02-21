@@ -4,6 +4,10 @@ function isBilibiliImage(u: string) {
     return u.includes("bstarstatic") || u.includes("bilibili") || u.includes("hdslb");
 }
 
+function isPinterestImage(u: string) {
+    return u.includes("pinimg") || u.includes("pinterest");
+}
+
 /**
  * Proxy external images to avoid CORS / referrer-policy issues
  * Usage: /api/proxy-image?url=https://example.com/image.jpg
@@ -27,11 +31,16 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const referer = isBilibiliImage(url) ? "https://www.bilibili.tv/" : new URL(url).origin;
+        const referer = isPinterestImage(url)
+            ? "https://www.pinterest.com/"
+            : isBilibiliImage(url)
+            ? "https://www.bilibili.tv/"
+            : new URL(url).origin;
         const res = await fetch(url, {
             headers: {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 Referer: referer,
+                Origin: referer,
                 Accept: "image/webp,image/apng,image/*,*/*;q=0.8",
             },
             cache: "no-store",
