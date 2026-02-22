@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import { downloadMedia } from "@/lib/downloads";
 
@@ -32,6 +33,8 @@ interface PinterestResult {
     board: Board;
     reaction_counts: Record<string, number>;
     dominant_color: string;
+    video_url?: string;
+    duration?: number;
 }
 
 interface PinterestImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -39,8 +42,10 @@ interface PinterestImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
 }
 
 function PinterestImage({ src, fallbackSrc, alt, className, style, ...props }: PinterestImageProps) {
-    const [imgSrc, setImgSrc] = useState(src);
+    const [imgSrc, setImgSrc] = useState(src || fallbackSrc || "");
     const [hasError, setHasError] = useState(false);
+
+    if (!imgSrc) return null;
 
     return (
         // eslint-disable-next-line @next/next/no-img-element
@@ -62,6 +67,7 @@ function PinterestImage({ src, fallbackSrc, alt, className, style, ...props }: P
 }
 
 export default function PinterestSearchPage() {
+    const [searchType, setSearchType] = useState<"photo" | "video">("photo");
     const [results, setResults] = useState<PinterestResult[]>([]);
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
@@ -76,7 +82,7 @@ export default function PinterestSearchPage() {
 
         try {
             const res = await fetch(
-                `/api/search/pinterest?q=${encodeURIComponent(query)}`
+                `/api/search/pinterest?q=${encodeURIComponent(query)}&type=${searchType}`
             );
             const data = await res.json();
 
@@ -118,8 +124,40 @@ export default function PinterestSearchPage() {
                 </p>
             </div>
 
+            {/* Type Toggle */}
+            <div className="mb-6 flex justify-center gap-2">
+                <button
+                    onClick={() => {
+                        if (searchType === "photo") return;
+                        setSearchType("photo");
+                        setResults([]);
+                        setHasSearched(false);
+                    }}
+                    className={`rounded-full px-6 py-2 text-sm font-bold transition-all ${searchType === "photo"
+                        ? "bg-white text-black shadow-lg shadow-white/20"
+                        : "bg-white/10 text-white hover:bg-white/20"
+                        }`}
+                >
+                    Photo
+                </button>
+                <button
+                    onClick={() => {
+                        if (searchType === "video") return;
+                        setSearchType("video");
+                        setResults([]);
+                        setHasSearched(false);
+                    }}
+                    className={`rounded-full px-6 py-2 text-sm font-bold transition-all ${searchType === "video"
+                        ? "bg-white text-black shadow-lg shadow-white/20"
+                        : "bg-white/10 text-white hover:bg-white/20"
+                        }`}
+                >
+                    Video
+                </button>
+            </div>
+
             <SearchBar
-                placeholder="Cari gambar di Pinterest..."
+                placeholder={`Cari ${searchType === "photo" ? "gambar" : "video"} di Pinterest...`}
                 onSearch={handleSearch}
                 loading={loading}
             />
@@ -187,14 +225,16 @@ export default function PinterestSearchPage() {
 
                                     {r.pinner?.full_name && (
                                         <div className="mt-1.5 flex items-center gap-1.5">
-                                            <img
-                                                src={r.pinner.image_small_url}
-                                                alt={r.pinner.full_name}
-                                                className="h-4 w-4 rounded-full"
-                                                loading="lazy"
-                                                onContextMenu={(e) => e.preventDefault()}
-                                                draggable={false}
-                                            />
+                                            {r.pinner.image_small_url && (
+                                                <img
+                                                    src={r.pinner.image_small_url}
+                                                    alt={r.pinner.full_name}
+                                                    className="h-4 w-4 rounded-full"
+                                                    loading="lazy"
+                                                    onContextMenu={(e) => e.preventDefault()}
+                                                    draggable={false}
+                                                />
+                                            )}
                                             <span className="truncate text-[10px] text-neutral-500">
                                                 {r.pinner.full_name}
                                             </span>
@@ -223,27 +263,78 @@ export default function PinterestSearchPage() {
                                 </div>
 
                                 {/* Action buttons */}
-                                <div className="flex gap-1 px-2.5 pb-2.5">
-                                    {r.image_original && (
+                                <div className="flex flex-col gap-1 px-2.5 pb-2.5">
+                                    <div className="flex gap-1">
+                                        {r.type === 'video' && r.video_url ? (
+                                            <Link
+                                                href={`/pinterest/watch?v=${btoa(r.video_url)}&title=${encodeURIComponent(r.title || r.description || "-")}&pinnerName=${encodeURIComponent(r.pinner?.full_name || "-")}&pinnerAvatar=${btoa(r.pinner?.image_small_url || "")}&pinId=${r.id}`}
+                                                className="flex-1 rounded-lg bg-red-500 px-2.5 py-1.5 text-center text-[11px] font-bold text-white transition hover:bg-red-600 flex items-center justify-center gap-1"
+                                            >
+                                                ▶ Play Video
+                                            </Link>
+                                        ) : r.image_original ? (
+                                            <button
+                                                onClick={(e) => {
+                                                    const url = `/api/proxy-download?url=${encodeURIComponent(r.image_original)}&filename=pinterest-${r.id}.jpg&download=true`;
+                                                    downloadMedia(e, url, `pinterest-${r.id}.jpg`);
+                                                }}
+                                                className="flex-1 rounded-lg bg-white px-2.5 py-1.5 text-center text-[11px] font-bold text-black transition hover:bg-neutral-200"
+                                            >
+                                                ⬇ Download
+                                            </button>
+                                        ) : null}
+                                        {r.pin_url && (
+                                            <a
+                                                href={r.pin_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-bold text-neutral-400 transition hover:border-pink-500/30 hover:text-pink-400 flex items-center justify-center"
+                                            >
+                                                ↗ Pin
+                                            </a>
+                                        )}
+                                    </div>
+                                    {r.type === 'video' && r.video_url && (
                                         <button
-                                            onClick={(e) => {
-                                                const url = `/api/proxy-download?url=${encodeURIComponent(r.image_original)}&filename=pinterest-${r.id}.jpg&download=true`;
-                                                downloadMedia(e, url, `pinterest-${r.id}.jpg`);
+                                            onClick={async () => {
+                                                const { showToast } = await import("@/components/Toast");
+                                                showToast("Sedang Memproses video... Tunggu Hingga Maksimal 2 menit", "info");
+
+                                                try {
+                                                    const url = `/api/convert-m3u8?url=${encodeURIComponent(r.video_url!)}`;
+                                                    const response = await fetch(url);
+
+                                                    if (!response.ok) {
+                                                        throw new Error("Gagal memproses video");
+                                                    }
+
+                                                    showToast("Video berhasil diproses. Sedang mendownload...", "success");
+
+                                                    const blob = await response.blob();
+                                                    const downloadUrl = window.URL.createObjectURL(blob);
+
+                                                    const a = document.createElement('a');
+                                                    a.style.display = 'none';
+                                                    a.href = downloadUrl;
+                                                    a.download = `pinterest-video-${r.id}.mp4`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+
+                                                    setTimeout(() => {
+                                                        document.body.removeChild(a);
+                                                        window.URL.revokeObjectURL(downloadUrl);
+                                                        showToast("Download Video Selesai!", "success");
+                                                    }, 100);
+
+                                                } catch (error) {
+                                                    console.error("Video conversion download error:", error);
+                                                    showToast("Gagal mengunduh video.", "error");
+                                                }
                                             }}
-                                            className="flex-1 rounded-lg bg-white px-2.5 py-1.5 text-center text-[11px] font-bold text-black transition hover:bg-neutral-200"
+                                            className="w-full rounded-lg bg-white/10 px-2.5 py-1.5 text-center text-[11px] font-bold text-white transition hover:bg-white/20 mt-1"
                                         >
-                                            ⬇ Download
+                                            ⬇ Download Video (.mp4)
                                         </button>
-                                    )}
-                                    {r.pin_url && (
-                                        <a
-                                            href={r.pin_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-bold text-neutral-400 transition hover:border-pink-500/30 hover:text-pink-400"
-                                        >
-                                            ↗ Pin
-                                        </a>
                                     )}
                                 </div>
                             </div>

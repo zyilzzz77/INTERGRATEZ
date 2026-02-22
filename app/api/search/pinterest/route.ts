@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchPinterest } from "@/lib/pinterest";
+import { deductCredit } from "@/lib/credits";
 
 const CORS = {
     "Access-Control-Allow-Origin": "*",
@@ -40,6 +41,81 @@ async function handleSearch(req: NextRequest) {
             return NextResponse.json(
                 { success: false, error: "Query parameter required" },
                 { status: 400, headers: CORS },
+            );
+        }
+
+        const canAfford = await deductCredit();
+        if (!canAfford) {
+            return NextResponse.json(
+                { success: false, error: "Kredit tidak mencukupi" },
+                { status: 403, headers: CORS },
+            );
+        }
+
+        const type = req.nextUrl.searchParams.get("type") || "photo";
+
+        if (type === "video") {
+            const videoRes = await fetch(`https://api.neoxr.eu/api/pinterest-v2?q=${encodeURIComponent(query)}&show=50&type=video&apikey=OXlJB9`);
+            const videoData = await videoRes.json();
+
+            if (!videoData.status || !videoData.data) {
+                return NextResponse.json(
+                    { success: false, error: "Pinterest video search failed" },
+                    { status: 500, headers: CORS },
+                );
+            }
+
+            const proxyUrl = (url: string) =>
+                url ? `/api/proxy-image?url=${encodeURIComponent(url)}` : "";
+
+            const pins = videoData.data.map((item: any) => {
+                const videoContent = item.content?.[0] || {};
+                return {
+                    id: item.source.split('/').pop() || String(Math.random()),
+                    images_url: proxyUrl(videoContent.thumbnail),
+                    images_url_original: videoContent.thumbnail,
+                    grid_title: item.title && item.title !== '-' ? item.title : '',
+                    description: item.description && item.description !== '-' ? item.description : '',
+                    pin: item.source,
+                    created_at: '',
+                    type: 'video',
+                    pinner: {
+                        full_name: item.author?.full_name || '',
+                        image_small_url: proxyUrl(item.author?.image_small_url || ''),
+                        follower_count: item.author?.follower_count || 0,
+                    },
+                    board: null,
+                    reaction_counts: {},
+                    dominant_color: '#27272a',
+                    video_url: videoContent.url,
+                    duration: videoContent.duration,
+                };
+            });
+
+            return NextResponse.json(
+                {
+                    success: true,
+                    keyword: query,
+                    count: pins.length,
+                    pins,
+                    items: pins.map((p: any) => ({
+                        id: p.id,
+                        image: p.images_url,
+                        image_original: p.images_url_original,
+                        title: p.grid_title,
+                        description: p.description,
+                        pin_url: p.pin,
+                        created_at: p.created_at,
+                        type: p.type,
+                        pinner: p.pinner,
+                        board: p.board,
+                        reaction_counts: p.reaction_counts,
+                        dominant_color: p.dominant_color,
+                        video_url: p.video_url,
+                        duration: p.duration,
+                    })),
+                },
+                { headers: CORS }
             );
         }
 

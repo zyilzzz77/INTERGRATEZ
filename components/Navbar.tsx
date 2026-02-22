@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "./ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { Home, Search, BookOpen, Moon, Sun } from "lucide-react";
+import UserMenu from "@/components/UserMenu";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 
 const links = [
@@ -32,7 +33,7 @@ export default function Navbar() {
 
     return (
         <LazyMotion features={domAnimation}>
-            <m.nav 
+            <m.nav
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
@@ -40,10 +41,10 @@ export default function Navbar() {
             >
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 select-none sm:gap-2.5">
-                        <m.div 
+                    <Link href="/" className="flex items-center gap-1.5 select-none sm:gap-2.5">
+                        <m.div
                             whileHover={{ rotate: 10, scale: 1.1 }}
-                            className="relative h-8 w-8 overflow-hidden rounded-full border-2 border-primary/20 shadow-md sm:h-10 sm:w-10"
+                            className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-primary/20 shadow-md sm:h-10 sm:w-10"
                         >
                             <Image
                                 src="/snoopy-logo.webp"
@@ -53,13 +54,13 @@ export default function Navbar() {
                                 className="object-cover"
                             />
                         </m.div>
-                        <span className="text-lg font-extrabold tracking-tight text-foreground sm:text-xl">
+                        <span className="hidden sm:inline text-lg font-extrabold tracking-tight text-foreground sm:text-xl">
                             Inver<span className="text-muted-foreground">save</span>
                         </span>
                     </Link>
 
                     {/* Nav Pills */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5 sm:gap-1">
                         {links.map((l) => {
                             const active =
                                 l.href === "/"
@@ -71,7 +72,7 @@ export default function Navbar() {
                                     asChild
                                     variant="ghost"
                                     size="sm"
-                                    className={`gap-1.5 px-2 text-xs font-semibold relative sm:gap-2 sm:px-3 sm:text-sm ${active ? "text-foreground" : "text-muted-foreground"}`}
+                                    className={`gap-1 px-2 text-xs font-semibold relative sm:gap-2 sm:px-3 sm:text-sm ${active ? "text-foreground" : "text-muted-foreground"}`}
                                 >
                                     <Link href={l.href}>
                                         {active && (
@@ -82,7 +83,7 @@ export default function Navbar() {
                                             />
                                         )}
                                         {l.icon}
-                                        {l.label}
+                                        <span className="hidden sm:inline">{l.label}</span>
                                     </Link>
                                 </Button>
                             );
@@ -111,6 +112,9 @@ export default function Navbar() {
                                 )}
                             </m.div>
                         </Button>
+
+                        {/* User Menu */}
+                        <UserMenu />
                     </div>
                 </div>
             </m.nav>

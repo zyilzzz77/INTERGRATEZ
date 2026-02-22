@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPinData } from "@/lib/pinterest";
+import { deductCredit } from "@/lib/credits";
 
 // Helper to obfuscate URL
 function obfuscate(str: string) {
@@ -421,6 +422,13 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Missing platform parameter" }, { status: 400, headers: CORS });
         }
 
+        // Deduct credit before processing
+        // Exceptions can be added here if needed, but the prompt says 1 download/search = 1 credit.
+        const canAfford = await deductCredit();
+        if (!canAfford) {
+            return NextResponse.json({ error: "Kredit tidak mencukupi. Silakan top up." }, { status: 403, headers: CORS });
+        }
+
         let result: DownloadResult;
 
         switch (platform) {
@@ -435,7 +443,7 @@ export async function GET(req: NextRequest) {
                 try {
                     const nexUrl = `https://api.nexray.web.id/downloader/v1/ytmp4?url=${encodeURIComponent(url)}&resolusi=1080`;
                     const res = await fetch(nexUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
-                    
+
                     if (res.ok) {
                         const data = await res.json();
                         if (data.status && data.result) {
@@ -443,7 +451,7 @@ export async function GET(req: NextRequest) {
                             title = r.title || title;
                             thumbnail = r.thumbnail || thumbnail;
                             artist = r.author || artist;
-                            
+
                             if (r.duration) {
                                 const sec = Number(r.duration);
                                 const m = Math.floor(sec / 60);
@@ -487,7 +495,7 @@ export async function GET(req: NextRequest) {
                 // Add resolution options using resolve-youtube API
                 // We list all potential resolutions. NexRay will handle availability (or fail).
                 const resolutions = ["2160", "1440", "1080", "720", "480", "360", "240", "144"];
-                
+
                 for (const res of resolutions) {
                     formats.push({
                         quality: `${res}p`,
@@ -527,12 +535,12 @@ export async function GET(req: NextRequest) {
                             if (tikData.code === 0 && tikData.data) {
                                 const d = tikData.data;
                                 const formats: Format[] = [];
-                                
+
                                 if (d.play) formats.push({ quality: "No Watermark", url: d.play, type: "mp4" });
                                 if (d.wmplay) formats.push({ quality: "Watermark", url: d.wmplay, type: "mp4" });
                                 if (d.hdplay) formats.push({ quality: "HD", url: d.hdplay, type: "mp4" });
                                 if (d.music) formats.push({ quality: "Audio", url: d.music, type: "mp3" });
-                                
+
                                 // Images (slideshow)
                                 if (d.images && Array.isArray(d.images)) {
                                     d.images.forEach((img: string, i: number) => {
@@ -612,8 +620,8 @@ export async function GET(req: NextRequest) {
                     result = normaliseTikTok(data);
                     if (platform === "douyin") result.platform = "douyin";
                 } catch (e) {
-                     console.error("[TikTok/Douyin] All APIs failed:", e);
-                     throw new Error("Gagal mengambil data video dari semua sumber");
+                    console.error("[TikTok/Douyin] All APIs failed:", e);
+                    throw new Error("Gagal mengambil data video dari semua sumber");
                 }
                 break;
             }
@@ -716,7 +724,7 @@ export async function GET(req: NextRequest) {
                 );
                 if (!threadsRes.ok) throw new Error("Threads API " + threadsRes.status);
                 const threadsData = await threadsRes.json();
-                
+
                 if (!threadsData.status || !threadsData.result)
                     throw new Error("Gagal mengambil data Threads");
 
@@ -726,11 +734,11 @@ export async function GET(req: NextRequest) {
                 if (Array.isArray(tr.media)) {
                     tr.media.forEach((m: any, idx: number) => {
                         if (!m.url) return;
-                        
+
                         // Clean URL just in case
                         const cleanUrl = m.url.replace(/`/g, "").trim();
                         const isVideo = cleanUrl.includes(".mp4");
-                        
+
                         trFormats.push({
                             quality: isVideo ? `Video ${idx + 1}` : `Image ${idx + 1}`,
                             url: cleanUrl,
@@ -1032,7 +1040,7 @@ export async function GET(req: NextRequest) {
                 try {
                     const vredenUrl = `https://api.vreden.my.id/api/v1/download/applemusic?url=${encodeURIComponent(url)}`;
                     const vRes = await fetch(vredenUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
-                    
+
                     if (vRes.ok) {
                         const vData = await vRes.json();
                         // Adjust parsing based on Vreden's response structure

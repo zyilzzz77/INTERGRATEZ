@@ -85,6 +85,16 @@ const searchPlatforms = [
         textColor: "text-white",
         shadow: "hover:shadow-orange-500/10",
     },
+    {
+        href: "/dramabox",
+        label: "DramaBox",
+        description: "Stream DramaBox dan tonton drama china trending",
+        icon: <span className="text-3xl sm:text-4xl">🎭</span>,
+        color: "transparent",
+        border: "border-purple-500/20 hover:border-purple-500/40",
+        textColor: "text-white",
+        shadow: "hover:shadow-purple-500/10",
+    },
 ];
 
 const tools = [

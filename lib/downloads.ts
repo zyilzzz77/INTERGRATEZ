@@ -4,11 +4,11 @@ import { showToast } from "@/components/Toast";
 
 export async function downloadMedia(e: React.MouseEvent | null, url: string, filename: string) {
     if (e) e.preventDefault();
-    
+
     showToast("Mulai mengunduh...", "info");
 
     try {
-        const isAlreadyProxy = url.includes("/api/proxy-download");
+        const isAlreadyProxy = url.includes("/api/proxy-download") || url.includes("/api/convert-m3u8");
         let finalUrl = url;
 
         if (!isAlreadyProxy) {
@@ -29,7 +29,7 @@ export async function downloadMedia(e: React.MouseEvent | null, url: string, fil
         a.target = '_self';
         document.body.appendChild(a);
         a.click();
-        
+
         setTimeout(() => {
             document.body.removeChild(a);
         }, 100);

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { deductCredit } from "@/lib/credits";
 
 const CORS = {
     "Access-Control-Allow-Origin": "*",
@@ -17,6 +18,14 @@ export async function GET(req: NextRequest) {
             return NextResponse.json(
                 { error: "Missing query" },
                 { status: 400, headers: CORS }
+            );
+        }
+
+        const canAfford = await deductCredit();
+        if (!canAfford) {
+            return NextResponse.json(
+                { error: "Kredit tidak mencukupi" },
+                { status: 403, headers: CORS }
             );
         }
 

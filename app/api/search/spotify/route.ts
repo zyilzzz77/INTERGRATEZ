@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { deductCredit } from "@/lib/credits";
 
 const CORS = {
     "Access-Control-Allow-Origin": "*",
@@ -15,6 +16,11 @@ export async function GET(req: NextRequest) {
         const q = req.nextUrl.searchParams.get("q");
         if (!q) {
             return NextResponse.json({ error: "Missing query" }, { status: 400, headers: CORS });
+        }
+
+        const canAfford = await deductCredit();
+        if (!canAfford) {
+            return NextResponse.json({ error: "Kredit tidak mencukupi" }, { status: 403, headers: CORS });
         }
 
         const url = `https://api.nexray.web.id/search/spotify?q=${encodeURIComponent(q)}`;

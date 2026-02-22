@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ToastContainer from "@/components/Toast";
+import AuthProvider from "@/components/AuthProvider";
 import SmoothScroll from "@/components/SmoothScroll";
 import BackgroundAnimation from "@/components/BackgroundAnimation";
 
@@ -68,19 +69,21 @@ export default function RootLayout({
         <BackgroundAnimation />
         <SmoothScroll>
           <ErrorBoundary>
-              <ThemeProvider>
-                  <Navbar />
-                  <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+            <ThemeProvider>
+              <AuthProvider>
+                <Navbar />
+                <main className="min-h-[calc(100vh-4rem)]">{children}</main>
 
-                  {/* Footer */}
-                  <footer className="border-t border-white/5 bg-black/40 backdrop-blur-sm">
+                {/* Footer */}
+                <footer className="border-t border-white/5 bg-black/40 backdrop-blur-sm">
                   <div className="mx-auto max-w-6xl px-4 py-6 text-center text-sm text-neutral-500">
-                      © {new Date().getFullYear()} <span className="font-bold text-neutral-300">Inversave</span>. Made with zyilzz
+                    © {new Date().getFullYear()} <span className="font-bold text-neutral-300">Inversave</span>. Made with zyilzz
                   </div>
-                  </footer>
+                </footer>
 
-                  <ToastContainer />
-              </ThemeProvider>
+                <ToastContainer />
+              </AuthProvider>
+            </ThemeProvider>
           </ErrorBoundary>
         </SmoothScroll>
       </body>

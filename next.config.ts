@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "scontent-iad3-1.cdninstagram.com" },
       { protocol: "https", hostname: "i.pinimg.com" },
       { protocol: "https", hostname: "*.pinimg.com" },
+      { protocol: "https", hostname: "cdn.wapify.workers.dev" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
     localPatterns: [
       {
