@@ -17,15 +17,33 @@ const fontSans = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://inversave.space"),
-  title: "Inversave — Download Video & Audio dari Semua Platform",
+  title: "Inversave — Situs Download Video Semua Sosmed & Streaming Gratis",
   description:
-    "Download video dan audio dari YouTube, TikTok, Instagram, Facebook, Twitter, Spotify, dan lainnya. Gratis, cepat, tanpa iklan.",
+    "Download video dan audio dari YouTube, TikTok, Instagram, Bilibili, Spotify terlengkap secara gratis tanpa aplikasi. Platform multi downloader terbaik 2025.",
   keywords: [
-    "video downloader",
-    "youtube downloader",
-    "tiktok downloader",
-    "instagram downloader",
-    "spotify downloader",
+    "situs download video gratis",
+    "Haqqi AnnaZili X SIJA 2",
+    "SMKN 69 JAKARTA",
+    "savefrom.net",
+    "savefrom",
+    "Dramabox Streaming",
+    "Dramabox",
+    "rest api dramabox",
+    "rest api melolo",
+    "rest api freereels",
+    "rest api snaptik",
+    "rest api savefrom",
+    "rest api savefrom.net",
+    "Dramabox.cc",
+    "website download video terlengkap",
+    "all in one downloader online",
+    "download video sosmed gratis",
+    "multi downloader online gratis",
+    "video downloader indonesia terbaik",
+    "unduh video online tanpa registrasi",
+    "download video gratis tanpa aplikasi 2025",
+    "tools download video online gratis",
+    "website streaming dan download video"
   ],
   icons: {
     icon: "/snoopy-logo.webp",
@@ -34,9 +52,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    title: "Inversave — Download Video & Audio dari Semua Platform",
+    title: "Inversave — Situs Download Video Semua Sosmed & Streaming Gratis",
     description:
-      "Download video dan audio dari YouTube, TikTok, Instagram, Facebook, Twitter, Spotify, dan lainnya. Gratis, cepat, tanpa iklan.",
+      "Download video dan audio dari YouTube, TikTok, Instagram, Bilibili, Spotify terlengkap secara gratis tanpa aplikasi. Platform multi downloader terbaik 2025.",
     siteName: "Inversave",
     images: [
       {

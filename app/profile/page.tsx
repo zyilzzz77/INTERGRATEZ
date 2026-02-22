@@ -3,11 +3,28 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
-    Key, Lock, Shield, MoreHorizontal, Wallet, Users,
-    Gem, Calendar, Fingerprint, Mail, Hash, Activity, Cpu
+    Activity,
+    LogOut,
+    Mail,
+    UserCircle,
+    Fingerprint,
+    Hash,
+    Clock,
+    Coins,
+    Key,
+    Lock,
+    Shield,
+    MoreHorizontal,
+    Wallet,
+    Users,
+    Gem,
+    Calendar,
+    Cpu
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import WeeklyChart from "@/components/WeeklyChart";
+import UserIpDisplay from "@/components/UserIpDisplay";
+import RealtimeCredits from "@/components/RealtimeCredits";
 
 export default async function ProfilePage() {
     const session = await auth();
@@ -141,6 +158,20 @@ export default async function ProfilePage() {
                     {/* Left: Chart Area (compact, real-time) */}
                     <div className="lg:col-span-2">
                         <WeeklyChart />
+                        {/* Active Limit Header */}
+                        <div className="grid grid-cols-2 gap-3 sm:hidden mb-6">
+                            <div className="rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-4 ring-1 ring-amber-500/20">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="rounded-lg bg-amber-500/20 p-1.5">
+                                        <Coins className="h-4 w-4 text-amber-500" />
+                                    </div>
+                                    <span className="text-[10px] font-bold uppercase text-amber-500 tracking-wider">Active Limit</span>
+                                </div>
+                                <p className="text-2xl font-black text-amber-500">
+                                    <RealtimeCredits initialCredits={dbUser.credits} />
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Right: Account Details */}
@@ -165,7 +196,9 @@ export default async function ProfilePage() {
                                 <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-neutral-400 shrink-0" />
                                 <div className="min-w-0">
                                     <p className="text-[10px] sm:text-xs font-semibold text-neutral-500">Limit</p>
-                                    <p className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate">{dbUser.credits.toLocaleString()}</p>
+                                    <p className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate">
+                                        <RealtimeCredits initialCredits={dbUser.credits} />
+                                    </p>
                                 </div>
                             </div>
 
@@ -179,6 +212,9 @@ export default async function ProfilePage() {
                                     </p>
                                 </div>
                             </div>
+
+                            {/* Detected IP */}
+                            <UserIpDisplay />
 
                             {/* Expiry */}
                             {dbUser.creditsExpiry && (
