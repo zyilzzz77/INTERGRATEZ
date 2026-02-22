@@ -102,6 +102,7 @@ function WatchContent() {
     const [loading, setLoading] = useState(true);
     const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
     const [tokenRetry, setTokenRetry] = useState(0);
+    const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 
     // Suppress unhandled media errors from browser policies
     useEffect(() => {
@@ -117,10 +118,10 @@ function WatchContent() {
     }, []);
 
     // Fetch drama data
-    const fetchDramaData = async (selectChapterId?: string, isBackgroundRefresh = false) => {
+    const fetchDramaData = async (selectChapterId?: string, isRefresh = false) => {
         if (!id || !uri) return;
         try {
-            const res = await fetch(`/api/dramabox?id=${id}&uri=${uri}&isRefresh=${isBackgroundRefresh}`);
+            const res = await fetch(`/api/dramabox?id=${id}&uri=${uri}&isRefresh=${isRefresh}`);
             const json = await res.json();
 
             if (!res.ok) {
@@ -135,14 +136,12 @@ function WatchContent() {
             if (json.status && json.data) {
                 setData(json.data);
 
-                // Only update currentChapter if we are explicitly selecting one, or initial load
-                if (!isBackgroundRefresh) {
-                    if (selectChapterId && json.data.chapters) {
-                        const found = json.data.chapters.find((c: Chapter) => c.id === selectChapterId);
-                        if (found) setCurrentChapter(found);
-                    } else if (json.data.chapters?.length > 0) {
-                        setCurrentChapter(json.data.chapters[0]);
-                    }
+                if (selectChapterId && json.data.chapters) {
+                    const found = json.data.chapters.find((c: Chapter) => c.id === selectChapterId);
+                    if (found) setCurrentChapter(found);
+                } else if (!isRefresh && json.data.chapters?.length > 0) {
+                    // Initial load fallback to first chapter
+                    setCurrentChapter(json.data.chapters[0]);
                 }
             }
         } catch (error) {
@@ -172,13 +171,15 @@ function WatchContent() {
     const handleVideoError = async () => {
         if (tokenRetry >= 2 || isFetchingRef.current) return; // max 2 retries, protect against concurrent calls
         isFetchingRef.current = true;
+        setIsRefreshingToken(true);
         console.warn(`Token expired, refreshing... (${tokenRetry + 1}/2)`);
 
-        // Wait for the fresh data to arrive
-        await fetchDramaData(currentChapter?.id);
+        // Wait for the fresh data to arrive, skip credit deduction
+        await fetchDramaData(currentChapter?.id, true);
 
         // Only trigger remount (by updating retry counter) AFTER we have the new URL
         setTokenRetry(prev => prev + 1);
+        setIsRefreshingToken(false);
         isFetchingRef.current = false;
     };
 
@@ -249,7 +250,7 @@ function WatchContent() {
                                 onContextMenu={(e) => e.preventDefault()}
                             >
                                 {currentChapter ? (
-                                    <div className="h-full w-full bg-black flex items-center justify-center">
+                                    <div className="relative h-full w-full bg-black flex items-center justify-center">
                                         <video
                                             key={`${currentChapter.id}-${tokenRetry}`}
                                             src={videoUrl}
@@ -264,6 +265,14 @@ function WatchContent() {
                                         >
                                             Browser Anda tidak mendukung tag video.
                                         </video>
+
+                                        {isRefreshingToken && (
+                                            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm text-white transition-opacity duration-300">
+                                                <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-red-500" />
+                                                <p className="text-sm font-medium animate-pulse">Memperbarui sesi video...</p>
+                                                <p className="mt-1 text-xs text-white/50">Mohon tunggu sebentar</p>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="flex h-full items-center justify-center text-neutral-500">
