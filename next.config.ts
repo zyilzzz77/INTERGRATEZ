@@ -19,6 +19,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.pinimg.com" },
       { protocol: "https", hostname: "cdn.wapify.workers.dev" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "static-v1.mydramawave.com" },
+      { protocol: "https", hostname: "v-mps.crazymaplestudios.com" },
     ],
     localPatterns: [
       {

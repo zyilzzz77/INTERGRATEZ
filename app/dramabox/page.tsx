@@ -33,25 +33,25 @@ function LoadingState() {
             <div className="relative mb-8 flex items-center justify-center">
                 {/* Outer pulsing ring */}
                 <m.div
-                    animate={{ 
-                        scale: [1, 1.15, 1], 
-                        opacity: [0.1, 0.05, 0.1] 
+                    animate={{
+                        scale: [1, 1.15, 1],
+                        opacity: [0.1, 0.05, 0.1]
                     }}
-                    transition={{ 
-                        duration: 2, 
-                        repeat: Infinity, 
-                        ease: "easeInOut" 
+                    transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
                     }}
                     className="absolute h-28 w-28 rounded-full bg-white"
                 />
-                
+
                 {/* Main Circle */}
                 <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-xl shadow-white/5 overflow-hidden">
-                    <Image 
-                        src="/logo-dramabox.png" 
-                        alt="DramaBox Logo" 
-                        width={80} 
-                        height={80} 
+                    <Image
+                        src="/logo-dramabox.png"
+                        alt="DramaBox Logo"
+                        width={80}
+                        height={80}
                         className="h-full w-full object-cover"
                     />
                 </div>
@@ -61,10 +61,10 @@ function LoadingState() {
             <div className="h-1.5 w-48 overflow-hidden rounded-full bg-neutral-800">
                 <m.div
                     animate={{ x: ["-100%", "100%"] }}
-                    transition={{ 
-                        duration: 1.5, 
-                        repeat: Infinity, 
-                        ease: "easeInOut" 
+                    transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
                     }}
                     className="h-full w-full rounded-full bg-white"
                 />
@@ -83,7 +83,7 @@ export default function DramaBoxPage() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const res = await fetch("https://api.neoxr.eu/api/dramabox-trending?apikey=OXlJB9");
+                const res = await fetch("/api/dramabox/list");
                 const json: DramaBoxResponse = await res.json();
                 if (json.status && Array.isArray(json.data)) {
                     setData(json.data);
@@ -107,7 +107,7 @@ export default function DramaBoxPage() {
 
         setIsSearching(true);
         try {
-            const res = await fetch(`https://api.neoxr.eu/api/dramabox?q=${encodeURIComponent(searchQuery)}&apikey=OXlJB9`);
+            const res = await fetch(`/api/dramabox/list?q=${encodeURIComponent(searchQuery)}`);
             const json: DramaBoxResponse = await res.json();
             if (json.status && Array.isArray(json.data)) {
                 setSearchResults(json.data);
@@ -131,11 +131,11 @@ export default function DramaBoxPage() {
                 {/* Header */}
                 <div className="mb-10 text-center">
                     <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-red-500 to-orange-600 shadow-lg ring-1 ring-white/20 overflow-hidden">
-                        <Image 
-                            src="/logo-dramabox.png" 
-                            alt="DramaBox Logo" 
-                            width={80} 
-                            height={80} 
+                        <Image
+                            src="/logo-dramabox.png"
+                            alt="DramaBox Logo"
+                            width={80}
+                            height={80}
                             className="h-full w-full object-cover"
                         />
                     </div>
@@ -165,7 +165,7 @@ export default function DramaBoxPage() {
                                     <path d="m21 21-4.3-4.3" />
                                 </svg>
                             </div>
-                            <button 
+                            <button
                                 type="submit"
                                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white transition-hover hover:bg-red-500"
                             >
@@ -179,7 +179,7 @@ export default function DramaBoxPage() {
                 {isLoading ? (
                     <LoadingState />
                 ) : (
-                    <m.div 
+                    <m.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
@@ -200,7 +200,7 @@ export default function DramaBoxPage() {
                                         loading="lazy"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-80" />
-                                    
+
                                     {/* Top Right Label (Like "Dubbed") */}
                                     {item.labels && item.labels[0] && (
                                         <div className="absolute top-2 right-2 rounded-md bg-red-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm">
@@ -234,12 +234,12 @@ export default function DramaBoxPage() {
                                     <h3 className="line-clamp-2 text-sm font-bold text-white group-hover:text-red-400 leading-tight">
                                         {item.title}
                                     </h3>
-                                    
+
                                     {/* Secondary Info (Tags/Genre/Protagonist) */}
                                     <div className="mt-2 flex flex-wrap gap-1">
                                         {item.tags && item.tags.length > 0 ? (
                                             item.tags.slice(0, 1).map((tag, idx) => (
-                                                <span 
+                                                <span
                                                     key={idx}
                                                     className="text-[10px] text-neutral-400"
                                                 >

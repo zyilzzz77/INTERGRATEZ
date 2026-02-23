@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { Coins, LogOut, CreditCard, User, ChevronDown } from "lucide-react";
+import { Coins, LogOut, CreditCard, User, ChevronDown, BookOpen } from "lucide-react";
 
 export default function UserMenu() {
     const { data: session, status } = useSession();
@@ -159,6 +159,14 @@ export default function UserMenu() {
                         >
                             <CreditCard className="h-4 w-4 text-emerald-400" />
                             Top Up Kredit
+                        </Link>
+                        <Link
+                            href="/docs"
+                            onClick={() => setOpen(false)}
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white transition hover:bg-white/5"
+                        >
+                            <BookOpen className="h-4 w-4 text-purple-400" />
+                            Dokumentasi API
                         </Link>
                         <Link
                             href="/profile"

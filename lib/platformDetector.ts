@@ -49,7 +49,7 @@ const PLATFORMS: PlatformDef[] = [
         name: "facebook",
         label: "Facebook",
         color: "transparent",
-        icon: "f",
+        icon: "/logo-facebook.webp",
         localIconSvg: "/icons/facebook.svg",
         patterns: [
             /(?:https?:\/\/)?(?:www\.|web\.|m\.|touch\.)?facebook\.com\/.+/i,
@@ -60,7 +60,7 @@ const PLATFORMS: PlatformDef[] = [
         name: "twitter",
         label: "Twitter / X",
         color: "transparent",
-        icon: "𝕏",
+        icon: "/logo-twiter.webp",
         localIconSvg: "/icons/x.svg",
         patterns: [
             /(?:https?:\/\/)?(?:www\.|mobile\.)?(?:twitter|x)\.com\/.+\/status\//i,
@@ -77,7 +77,7 @@ const PLATFORMS: PlatformDef[] = [
         name: "threads",
         label: "Threads",
         color: "transparent",
-        icon: "🧵",
+        icon: "/logo-threads.webp",
         localIconSvg: "/icons/threads.svg",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?threads\.net\//i,
@@ -109,7 +109,7 @@ const PLATFORMS: PlatformDef[] = [
         name: "douyin",
         label: "Douyin",
         color: "transparent",
-        icon: "抖",
+        icon: "/logo-douyin-1.webp",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?douyin\.com\//i,
             /(?:https?:\/\/)?v\.douyin\.com\//i,
@@ -130,7 +130,7 @@ const PLATFORMS: PlatformDef[] = [
         name: "snackvideo",
         label: "SnackVideo",
         color: "transparent",
-        icon: "🍿",
+        icon: "/logo-snack-video.webp",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?snackvideo\.com\//i,
             /(?:https?:\/\/)?sck\.io\//i,
@@ -152,7 +152,7 @@ const PLATFORMS: PlatformDef[] = [
         name: "scribd",
         label: "Scribd",
         color: "transparent",
-        icon: "📄",
+        icon: "/logo-scribd.webp",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?scribd\.com\/document\//i,
             /(?:https?:\/\/)?(?:www\.)?scribd\.com\/doc\//i,
@@ -162,7 +162,7 @@ const PLATFORMS: PlatformDef[] = [
         name: "mediafire",
         label: "MediaFire",
         color: "transparent",
-        icon: "🔥",
+        icon: "/logo-mediafire.webp",
         localIconSvg: "/icons/mediafire.svg",
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?mediafire\.com\/file\//i,
@@ -188,6 +188,18 @@ const PLATFORMS: PlatformDef[] = [
         patterns: [
             /(?:https?:\/\/)?(?:www\.)?soundcloud\.com\/.+/i,
             /(?:https?:\/\/)?on\.soundcloud\.com\/.+/i,
+        ],
+    },
+    {
+        name: "snapchat",
+        label: "Snapchat",
+        color: "transparent",
+        icon: "/logo-snapchat.png",
+        localIconSvg: "/icons/snapchat.svg",
+        patterns: [
+            /(?:https?:\/\/)?(?:www\.)?snapchat\.com\//i,
+            /(?:https?:\/\/)?(?:www\.)?t\.snapchat\.org\//i,
+            /(?:https?:\/\/)?story\.snapchat\.com\//i,
         ],
     },
 ];

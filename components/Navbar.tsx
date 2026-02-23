@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "./ThemeProvider";
 import { Button } from "@/components/ui/button";
-import { Home, Search, BookOpen, Moon, Sun } from "lucide-react";
+import { Home, Search, Moon, Sun } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 
@@ -19,11 +19,6 @@ const links = [
         href: "/search",
         label: "Search",
         icon: <Search className="h-4 w-4 sm:h-5 sm:w-5" />,
-    },
-    {
-        href: "/docs",
-        label: "Docs",
-        icon: <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />,
     },
 ];
 

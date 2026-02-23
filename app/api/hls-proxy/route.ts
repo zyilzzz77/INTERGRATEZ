@@ -22,10 +22,19 @@ export async function GET(req: NextRequest) {
     }
 
     try {
+        // Derive origin from the target URL for correct Referer
+        let origin: string;
+        try {
+            const parsed = new URL(url);
+            origin = parsed.origin;
+        } catch {
+            origin = "https://www.pinterest.com";
+        }
+
         const headers: Record<string, string> = {
             "User-Agent": UA,
-            "Referer": "https://www.pinterest.com/",
-            "Origin": "https://www.pinterest.com",
+            "Referer": origin + "/",
+            "Origin": origin,
             "Accept": "*/*",
         };
 

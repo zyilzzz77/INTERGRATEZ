@@ -23,6 +23,7 @@ const platformColors: Record<string, string> = {
     applemusic: "#FA243C",
     soundcloud: "#FF5500",
     threads: "#000000",
+    snapchat: "#FFFC00",
 };
 
 export default function PlatformDetector({ platform, color }: PlatformBadgeProps) {

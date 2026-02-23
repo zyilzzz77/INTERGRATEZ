@@ -1125,6 +1125,31 @@ export async function GET(req: NextRequest) {
                 };
                 break;
             }
+            // ─── SNAPCHAT ───
+            case "snapchat": {
+                const NEOXR_KEY = "OXlJB9";
+                const snapRes = await fetch(
+                    `https://api.neoxr.eu/api/snapchat?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
+                    { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
+                );
+                if (!snapRes.ok) throw new Error("Snapchat API " + snapRes.status);
+                const snapData = await snapRes.json();
+                if (!snapData.status || !snapData.data?.url)
+                    throw new Error("Gagal mengambil data Snapchat");
+
+                result = {
+                    title: "Snapchat Video",
+                    thumbnail: "",
+                    duration: "-",
+                    platform: "snapchat",
+                    formats: [{
+                        quality: "📹 Download Video",
+                        url: snapData.data.url,
+                        type: "mp4",
+                    }],
+                };
+                break;
+            }
 
             default:
                 return NextResponse.json({ error: "Platform tidak didukung" }, { status: 400, headers: CORS });

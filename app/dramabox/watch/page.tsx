@@ -104,6 +104,9 @@ function WatchContent() {
     const [tokenRetry, setTokenRetry] = useState(0);
     const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const playerContainerRef = useRef<HTMLDivElement | null>(null);
+
     // Suppress unhandled media errors from browser policies
     useEffect(() => {
         const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
@@ -116,6 +119,39 @@ function WatchContent() {
         window.addEventListener('unhandledrejection', handleUnhandledRejection);
         return () => window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     }, []);
+
+    // Seamless source swap: update video src without remounting element (preserves fullscreen)
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video || !currentChapter) return;
+
+        const newUrl = cleanUrl(currentChapter.videoUrl);
+        if (!newUrl) return;
+
+        // Check if we are currently in fullscreen
+        const isFullscreen = !!document.fullscreenElement;
+
+        video.poster = cleanUrl(currentChapter.cover);
+        video.src = newUrl;
+        video.load();
+
+        const playPromise = video.play();
+        if (playPromise) {
+            playPromise.catch(() => {
+                // Autoplay blocked — user needs to interact
+            });
+        }
+
+        // Re-enter fullscreen if we were in it (some browsers exit on src change)
+        if (isFullscreen && playerContainerRef.current) {
+            // Small delay to let the new source settle
+            setTimeout(() => {
+                if (!document.fullscreenElement && playerContainerRef.current) {
+                    playerContainerRef.current.requestFullscreen?.().catch(() => { });
+                }
+            }, 100);
+        }
+    }, [currentChapter, tokenRetry]);
 
     // Fetch drama data
     const fetchDramaData = async (selectChapterId?: string, isRefresh = false) => {
@@ -177,7 +213,7 @@ function WatchContent() {
         // Wait for the fresh data to arrive, skip credit deduction
         await fetchDramaData(currentChapter?.id, true);
 
-        // Only trigger remount (by updating retry counter) AFTER we have the new URL
+        // Only trigger source swap (by updating retry counter) AFTER we have the new URL
         setTokenRetry(prev => prev + 1);
         setIsRefreshingToken(false);
         isFetchingRef.current = false;
@@ -213,8 +249,6 @@ function WatchContent() {
         }
     };
 
-    const videoUrl = currentChapter ? cleanUrl(currentChapter.videoUrl) : '';
-
     return (
         <LazyMotion features={domAnimation}>
             {loading ? (
@@ -246,15 +280,14 @@ function WatchContent() {
                         <div className="w-full lg:w-[70%]">
                             {/* Player */}
                             <div
+                                ref={playerContainerRef}
                                 className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl ring-1 ring-white/10"
                                 onContextMenu={(e) => e.preventDefault()}
                             >
                                 {currentChapter ? (
                                     <div className="relative h-full w-full bg-black flex items-center justify-center">
                                         <video
-                                            key={`${currentChapter.id}-${tokenRetry}`}
-                                            src={videoUrl}
-                                            poster={cleanUrl(currentChapter.cover)}
+                                            ref={videoRef}
                                             className="h-full w-full max-h-[80vh] object-contain"
                                             controls
                                             autoPlay
@@ -288,7 +321,7 @@ function WatchContent() {
                                 transition={{ delay: 0.2 }}
                                 className="mt-6"
                             >
-                                <h1 className="text-2xl font-bold text-white sm:text-3xl">
+                                <h1 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
                                     {data.title}
                                 </h1>
                                 <h2 className="mt-2 text-lg font-medium text-red-400">
@@ -296,7 +329,7 @@ function WatchContent() {
                                 </h2>
 
                                 {/* Stats */}
-                                <div className="mt-4 flex flex-wrap gap-4 text-sm text-neutral-400">
+                                <div className="mt-4 flex flex-wrap gap-4 text-sm text-neutral-600 dark:text-neutral-400">
                                     <span className="flex items-center gap-1">
                                         👁️ {data.statistics.views.toLocaleString()} Views
                                     </span>
@@ -311,16 +344,16 @@ function WatchContent() {
                                 {/* Tags */}
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     {data.labels.map((label, i) => (
-                                        <span key={i} className="rounded-full bg-white/10 px-3 py-1 text-xs text-white">
+                                        <span key={i} className="rounded-full bg-neutral-200 dark:bg-white/10 px-3 py-1 text-xs text-neutral-800 dark:text-white">
                                             {label}
                                         </span>
                                     ))}
                                 </div>
 
                                 {/* Synopsis */}
-                                <div className="mt-6 rounded-xl bg-white/5 p-6 ring-1 ring-white/10 transition-colors hover:bg-white/10">
-                                    <h3 className="mb-2 font-bold text-white">Sinopsis</h3>
-                                    <p className="text-sm leading-relaxed text-neutral-300">
+                                <div className="mt-6 rounded-xl bg-neutral-100 dark:bg-white/5 p-6 ring-1 ring-black/5 dark:ring-white/10 transition-colors hover:bg-neutral-200 dark:hover:bg-white/10">
+                                    <h3 className="mb-2 font-bold text-neutral-900 dark:text-white">Sinopsis</h3>
+                                    <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                                         {data.synopsis}
                                     </p>
                                 </div>
@@ -334,10 +367,10 @@ function WatchContent() {
                             transition={{ delay: 0.3 }}
                             className="w-full lg:w-[30%]"
                         >
-                            <div className="lg:sticky lg:top-24 flex h-[600px] flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden isolate">
-                                <div className="flex-none border-b border-white/10 p-4 bg-neutral-900/50 backdrop-blur-md z-10">
-                                    <h3 className="text-lg font-bold text-white">Daftar Episode</h3>
-                                    <p className="text-xs text-neutral-400">Total {data.chapters.length} Episode</p>
+                            <div className="lg:sticky lg:top-24 flex h-[600px] flex-col rounded-2xl bg-neutral-100 dark:bg-white/5 ring-1 ring-black/5 dark:ring-white/10 overflow-hidden isolate">
+                                <div className="flex-none border-b border-black/5 dark:border-white/10 p-4 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md z-10">
+                                    <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Daftar Episode</h3>
+                                    <p className="text-xs text-neutral-600 dark:text-neutral-400">Total {data.chapters.length} Episode</p>
                                 </div>
 
                                 <div
@@ -369,8 +402,8 @@ function WatchContent() {
                                                         console.error("Failed deduct action", e);
                                                     }
                                                 }}
-                                                className={`flex items-center gap-3 rounded-xl p-2 transition-all hover:bg-white/10 text-left ${currentChapter?.id === chapter.id
-                                                    ? "bg-red-600/20 ring-1 ring-red-500/50"
+                                                className={`flex items-center gap-3 rounded-xl p-2 transition-all hover:bg-black/5 dark:hover:bg-white/10 text-left ${currentChapter?.id === chapter.id
+                                                    ? "bg-red-500/10 dark:bg-red-600/20 ring-1 ring-red-500/30 dark:ring-red-500/50"
                                                     : "bg-transparent"
                                                     }`}
                                             >
@@ -394,11 +427,11 @@ function WatchContent() {
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className={`truncate text-sm font-medium ${currentChapter?.id === chapter.id ? "text-red-400" : "text-white"
+                                                    <p className={`truncate text-sm font-medium ${currentChapter?.id === chapter.id ? "text-red-500 dark:text-red-400" : "text-neutral-900 dark:text-white"
                                                         }`}>
                                                         Episode {chapter.chapter}
                                                     </p>
-                                                    <p className="text-[10px] text-neutral-500">
+                                                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
                                                         {chapter.release_at}
                                                     </p>
                                                 </div>
