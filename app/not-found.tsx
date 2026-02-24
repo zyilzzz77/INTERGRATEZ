@@ -9,8 +9,16 @@ export default function NotFound() {
                     404
                 </h1>
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="float-anim rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 p-6 text-6xl shadow-2xl shadow-orange-500/20">
-                        🛸
+                    <div className="float-anim flex items-center justify-center rounded-3xl bg-gradient-to-br from-neutral-800 to-black p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-white/5">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-20 w-20 text-neutral-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                            <path d="M12 4c-3.31 0-6 2.69-6 6 0 1.83.82 3.45 2.1 4.54.49.42.79 1.03.8 1.68v2.28c0 .83.67 1.5 1.5 1.5h3.2c.83 0 1.5-.67 1.5-1.5v-2.28c0-.65.31-1.26.8-1.68C17.18 13.45 18 11.83 18 10c0-3.31-2.69-6-6-6z" className="fill-neutral-900" />
+                            <circle cx="9" cy="11.5" r="2.5" className="fill-red-500 animate-pulse drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] shadow-red-500" stroke="none" />
+                            <circle cx="15" cy="11.5" r="2.5" className="fill-red-500 animate-pulse drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] shadow-red-500" stroke="none" />
+                            <path d="M12 14.5l-1 1h2l-1-1z" className="fill-neutral-600" stroke="none" />
+                            <path d="M10 17v2" />
+                            <path d="M12 17v2" />
+                            <path d="M14 17v2" />
+                        </svg>
                     </div>
                 </div>
             </div>

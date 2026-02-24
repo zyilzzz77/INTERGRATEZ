@@ -2,14 +2,16 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Coins, Clock, ChevronRight, QrCode, ExternalLink, Loader2, X, Copy, Check, CheckCircle2, RefreshCw } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Zap, Coins, Clock, ChevronRight, QrCode, ExternalLink, Loader2, X, Copy, Check, CheckCircle2, RefreshCw, History } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import Link from "next/link";
+import RealtimeCredits from "@/components/RealtimeCredits";
 
-const ADMIN_FEE_PERCENT = 7.9;
+const ADMIN_FEE_PERCENT = 7.5;
 const calcAdminFee = (amount: number) => Math.ceil(amount * ADMIN_FEE_PERCENT / 100);
 const calcTotal = (amount: number) => amount + calcAdminFee(amount);
 
@@ -27,32 +29,32 @@ const packages = [
     {
         id: "starter",
         name: "Starter",
-        price: 15000,
-        credits: 4500,
+        price: 5000,
+        credits: 250,
         period: "30 Hari",
         popular: false,
     },
     {
         id: "basic",
         name: "Basic",
-        price: 35000,
-        credits: 12000,
+        price: 10000,
+        credits: 750,
         period: "30 Hari",
         popular: true,
     },
     {
         id: "pro",
         name: "Pro",
-        price: 75000,
-        credits: 25000,
+        price: 25000,
+        credits: 3500,
         period: "30 Hari",
         popular: false,
     },
     {
         id: "premium",
         name: "Premium",
-        price: 150000,
-        credits: 55000,
+        price: 50000,
+        credits: 15000,
         period: "30 Hari",
         popular: false,
     },
@@ -69,6 +71,23 @@ export default function TopUpPage() {
     const [paymentSuccess, setPaymentSuccess] = useState(false);
     const [checkingStatus, setCheckingStatus] = useState(false);
     const pollingRef = useRef<NodeJS.Timeout | null>(null);
+    const [creditInfo, setCreditInfo] = useState<{ credits: number; role: string }>({ credits: 0, role: "free" });
+
+    // Fetch real credit info on mount and after successful payment
+    useEffect(() => {
+        const fetchCredits = async () => {
+            try {
+                const res = await fetch("/api/user/credits");
+                const data = await res.json();
+                if (data.credits !== undefined) {
+                    setCreditInfo({ credits: data.credits, role: data.role || "free" });
+                }
+            } catch { /* ignore */ }
+        };
+        fetchCredits();
+        const interval = setInterval(fetchCredits, 5000);
+        return () => clearInterval(interval);
+    }, [paymentSuccess]);
 
     // Auto-poll payment status every 5 seconds
     useEffect(() => {
@@ -76,9 +95,13 @@ export default function TopUpPage() {
             const checkPayment = async () => {
                 setCheckingStatus(true);
                 try {
-                    const res = await fetch(`/api/payment/check?id=${paymentData.id}`);
+                    const res = await fetch("/api/topup/check", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ paymentId: paymentData.id }),
+                    });
                     const data = await res.json();
-                    if (data.status === true) {
+                    if (data.status === "paid") {
                         setPaymentSuccess(true);
                         if (pollingRef.current) clearInterval(pollingRef.current);
                     }
@@ -122,32 +145,34 @@ export default function TopUpPage() {
         }
     };
 
-    const customCredits = typeof customNominal === "number" ? Math.floor((customNominal / 1000) * 300) : 0;
+    const customCredits = typeof customNominal === "number" ? Math.floor((customNominal / 1000) * 50) : 0;
 
     /* ─── Create Payment ───────────────────────────────── */
-    const createPayment = async (amount: number, packageName?: string) => {
+    const createPayment = async (packageId?: string, customAmount?: number) => {
         setIsLoading(true);
         setPaymentError(null);
 
         try {
-            const message = packageName
-                ? `Top Up Kredit - Paket ${packageName}`
-                : `Top Up Kredit - Custom ${formatIDR(amount)}`;
-
-            const res = await fetch("/api/payment/create", {
+            const res = await fetch("/api/topup/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount, message }),
+                body: JSON.stringify(packageId ? { packageId } : { customAmount: String(customAmount) }),
             });
 
             const data = await res.json();
 
-            if (!data.status) {
-                setPaymentError(data.message || "Gagal membuat pembayaran.");
+            if (!data.success) {
+                setPaymentError(data.error || "Gagal membuat pembayaran.");
                 return;
             }
 
-            setPaymentData(data.data);
+            setPaymentData({
+                id: data.transaction.paymentId,
+                amount: data.transaction.amount,
+                expired_at: data.transaction.expiredAt || "",
+                url: data.transaction.payUrl || "",
+                qr_image: data.transaction.qrImage || "",
+            });
         } catch {
             setPaymentError("Terjadi kesalahan jaringan. Coba lagi.");
         } finally {
@@ -156,15 +181,13 @@ export default function TopUpPage() {
     };
 
     const handlePackagePayment = (pkgId: string) => {
-        const pkg = packages.find((p) => p.id === pkgId);
-        if (!pkg) return;
         setSelectedPackage(pkgId);
-        createPayment(calcTotal(pkg.price), pkg.name);
+        createPayment(pkgId);
     };
 
     const handleCustomPayment = () => {
         if (typeof customNominal === "number" && customNominal >= 1000) {
-            createPayment(calcTotal(customNominal));
+            createPayment(undefined, customNominal);
         }
     };
 
@@ -187,10 +210,21 @@ export default function TopUpPage() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl font-sans min-h-screen">
             {/* Page Header */}
-            <div className="mb-6 text-left">
-                <h1 className="text-3xl font-extrabold text-foreground tracking-tight sm:text-4xl">Top Up Kredit</h1>
-                <p className="mt-2 text-muted-foreground">Pilih paket yang sesuai dengan kebutuhan download-mu.</p>
-                <p className="mt-1.5 text-xs text-muted-foreground/70 italic">* Harga yang tertera belum termasuk biaya admin payment gateway.</p>
+            <div className="mb-6 flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-foreground tracking-tight sm:text-4xl">Top Up Kredit</h1>
+                    <p className="mt-2 text-muted-foreground">Pilih paket yang sesuai dengan kebutuhan download-mu.</p>
+                    <p className="mt-1.5 text-xs text-muted-foreground/70 italic">* Harga yang tertera belum termasuk biaya admin payment gateway.</p>
+                </div>
+                <Link href="/topup/history">
+                    <Button
+                        variant="outline"
+                        className="rounded-xl border-border hover:bg-secondary font-bold gap-2 shrink-0"
+                    >
+                        <History className="w-4 h-4" />
+                        <span className="hidden sm:inline">Riwayat</span>
+                    </Button>
+                </Link>
             </div>
 
             {/* 1. Credit Balance Banner */}
@@ -199,91 +233,67 @@ export default function TopUpPage() {
                     <p className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wider">Kredit kamu saat ini</p>
                     <div className="flex items-center gap-2">
                         <Zap className="w-6 h-6 text-foreground fill-foreground" />
-                        <span className="text-4xl font-black tracking-tighter text-foreground">9.999</span>
+                        <span className="text-4xl font-black tracking-tighter text-foreground">
+                            <RealtimeCredits initialCredits={creditInfo.credits} />
+                        </span>
                     </div>
                 </div>
                 <div className="hidden sm:block">
                     <div className="bg-secondary rounded-full px-4 py-2 text-sm text-muted-foreground font-medium">
-                        Status: <span className="text-foreground font-bold">Premium</span>
+                        Status: <span className="text-foreground font-bold capitalize">{creditInfo.role === "premium" ? "Premium" : "Free"}</span>
                     </div>
                 </div>
             </div>
 
             <div className="mb-8">
                 {/* 2. Pricing Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-12">
                     {packages.map((pkg) => (
                         <motion.div
                             key={pkg.id}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.99 }}
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         >
                             <Card
-                                className={`relative h-full cursor-pointer transition-all duration-300 ${selectedPackage === pkg.id
-                                    ? "border-primary border-2 shadow-lg bg-secondary/50"
+                                className={`relative h-full cursor-pointer transition-all duration-300 rounded-2xl ${selectedPackage === pkg.id
+                                    ? "border-primary border-2 shadow-lg shadow-primary/10 bg-secondary/50"
                                     : "border-border hover:border-muted-foreground/30 hover:shadow-md bg-card"
                                     }`}
                                 onClick={() => setSelectedPackage(pkg.id)}
                             >
                                 {pkg.popular && (
-                                    <Badge className="absolute -top-3 right-5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-4 py-1 font-bold text-xs shadow-sm">
+                                    <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-3 py-0.5 font-bold text-[10px] shadow-sm whitespace-nowrap">
                                         POPULAR
                                     </Badge>
                                 )}
-                                <CardHeader className="pb-4">
-                                    <div className="flex justify-between items-start">
-                                        <CardTitle className="font-bold text-xl text-muted-foreground uppercase tracking-wide">{pkg.name}</CardTitle>
-                                        {selectedPackage === pkg.id && (
-                                            <motion.div
-                                                initial={{ scale: 0, opacity: 0 }}
-                                                animate={{ scale: 1, opacity: 1 }}
-                                                className="w-6 h-6 bg-primary rounded-full flex items-center justify-center"
-                                            >
-                                                <div className="w-2.5 h-2.5 bg-primary-foreground rounded-full" />
-                                            </motion.div>
-                                        )}
-                                    </div>
-                                    <div className="mt-2 flex items-baseline gap-1">
-                                        <span className="text-4xl font-black tracking-tight text-foreground">{formatIDR(pkg.price)}</span>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4 pb-6">
-                                    <div className="h-px w-full bg-border my-4" />
-                                    <div className="flex items-center gap-4 text-foreground">
-                                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                                            <Coins className="w-5 h-5 text-foreground" />
+                                <div className="p-4 sm:p-5 space-y-3">
+                                    {/* Period Badge */}
+                                    <Badge variant="outline" className="bg-secondary/50 border-border text-muted-foreground text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                                        {pkg.period}
+                                    </Badge>
+
+                                    {/* Package Name */}
+                                    <h3 className="font-extrabold text-foreground text-lg tracking-tight">{pkg.name}</h3>
+
+                                    {/* Credits & Period */}
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                                            <Coins className="w-3.5 h-3.5 shrink-0" />
+                                            <span className="text-xs font-medium">{pkg.credits.toLocaleString("id-ID")} Kredit</span>
                                         </div>
-                                        <div>
-                                            <p className="font-bold text-foreground text-lg leading-tight">{pkg.credits.toLocaleString("id-ID")} <span className="text-base font-medium text-muted-foreground">Kredit</span></p>
+                                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                                            <Clock className="w-3.5 h-3.5 shrink-0" />
+                                            <span className="text-xs font-medium">{pkg.period}</span>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4 text-foreground">
-                                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                                            <Clock className="w-5 h-5 text-foreground" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-muted-foreground leading-tight">Masa Aktif: <span className="font-bold text-foreground text-base">{pkg.period}</span></p>
-                                        </div>
+
+                                    {/* Price */}
+                                    <div className="pt-1">
+                                        <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{formatIDR(pkg.price)}</p>
                                     </div>
-                                    {/* Admin Fee */}
-                                    <div className="h-px w-full bg-border my-2" />
-                                    <div className="space-y-1 text-sm">
-                                        <div className="flex justify-between text-muted-foreground">
-                                            <span>Harga Paket</span>
-                                            <span>{formatIDR(pkg.price)}</span>
-                                        </div>
-                                        <div className="flex justify-between text-muted-foreground">
-                                            <span>Biaya Admin</span>
-                                            <span>{formatIDR(calcAdminFee(pkg.price))}</span>
-                                        </div>
-                                        <div className="flex justify-between font-bold text-foreground text-base pt-1">
-                                            <span>Total Bayar</span>
-                                            <span>{formatIDR(calcTotal(pkg.price))}</span>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                                <CardFooter>
+
+                                    {/* Button */}
                                     <Button
                                         variant={selectedPackage === pkg.id ? "default" : "outline"}
                                         disabled={isLoading}
@@ -291,21 +301,18 @@ export default function TopUpPage() {
                                             e.stopPropagation();
                                             handlePackagePayment(pkg.id);
                                         }}
-                                        className={`w-full py-6 text-base font-bold transition-all duration-300 group ${selectedPackage === pkg.id
-                                            ? "bg-primary text-primary-foreground shadow-md hover:bg-primary/90"
-                                            : "border-2 border-border text-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                                        className={`w-full h-9 text-sm font-bold rounded-xl transition-all duration-300 ${selectedPackage === pkg.id
+                                            ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                                            : "border border-border text-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
                                             }`}
                                     >
                                         {isLoading && selectedPackage === pkg.id ? (
-                                            <>
-                                                <Loader2 className="mr-2 w-5 h-5 animate-spin" />
-                                                Memproses...
-                                            </>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
                                         ) : (
                                             "Pilih Paket"
                                         )}
                                     </Button>
-                                </CardFooter>
+                                </div>
                             </Card>
                         </motion.div>
                     ))}
@@ -439,6 +446,7 @@ export default function TopUpPage() {
                     </div>
                 </div>
             </div>
+
 
             {/* ─── Payment Modal ────────────────────────────── */}
             <AnimatePresence>

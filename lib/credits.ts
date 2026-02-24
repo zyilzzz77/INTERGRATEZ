@@ -7,10 +7,10 @@ const GUEST_DEFAULT = 100;
 
 // Top-up packages
 export const TOPUP_PACKAGES = [
-    { id: "starter", name: "Starter", price: 5000, credits: 1500, days: 14 },
-    { id: "basic", name: "Basic", price: 10000, credits: 3000, days: 14 },
-    { id: "pro", name: "Pro", price: 25000, credits: 7500, days: 14 },
-    { id: "premium", name: "Premium", price: 50000, credits: 15000, days: 14 },
+    { id: "starter", name: "Starter", price: 5000, credits: 250, days: 30 },
+    { id: "basic", name: "Basic", price: 10000, credits: 750, days: 30 },
+    { id: "pro", name: "Pro", price: 25000, credits: 3500, days: 30 },
+    { id: "premium", name: "Premium", price: 50000, credits: 15000, days: 30 },
 ];
 
 export interface CreditInfo {

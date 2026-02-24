@@ -202,6 +202,24 @@ const PLATFORMS: PlatformDef[] = [
             /(?:https?:\/\/)?story\.snapchat\.com\//i,
         ],
     },
+    {
+        name: "videy",
+        label: "Video",
+        color: "transparent",
+        icon: "/logo-tiktok.webp",
+        patterns: [
+            /(?:https?:\/\/)?(?:www\.)?videy\.co\//i,
+        ],
+    },
+    {
+        name: "anime",
+        label: "Anime Search",
+        color: "transparent",
+        icon: "⛩️",
+        patterns: [
+            /(?:https?:\/\/)?(?:www\.)?animebatch\.id\//i,
+        ],
+    },
 ];
 
 // detectPlatform

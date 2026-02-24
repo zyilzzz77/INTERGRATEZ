@@ -87,7 +87,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
                 if (permission.state === "denied") {
                     throw new Error("clipboard-denied");
                 }
-            } catch {}
+            } catch { }
         }
         return navigator.clipboard.readText();
     };
@@ -107,7 +107,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
             showToast("Izin clipboard ditolak, silakan paste manual", "error");
         }
     };
-    
+
     const handleInputPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
         const text = e.clipboardData.getData("text");
         if (text) {
@@ -125,7 +125,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
 
     return (
         <form onSubmit={handleSubmit} className="relative w-full max-w-2xl">
-            <div className="relative flex items-center overflow-hidden rounded-2xl bg-neutral-900/50 p-2 shadow-2xl ring-1 ring-white/10 transition-all focus-within:ring-2 focus-within:ring-primary/40 backdrop-blur-md">
+            <div className="relative flex items-center overflow-hidden rounded-2xl bg-secondary p-2 shadow-lg ring-1 ring-border transition-all focus-within:ring-2 focus-within:ring-primary/40">
                 {/* Icon / Paste Button */}
                 <div className="flex-shrink-0 pl-2">
                     <Button
@@ -133,7 +133,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
                         variant="ghost"
                         size="icon"
                         onClick={handlePaste}
-                        className="h-10 w-10 rounded-xl text-neutral-400 hover:bg-white/10 hover:text-white"
+                        className="h-10 w-10 rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground"
                         title="Paste Link"
                     >
                         <Clipboard className="h-5 w-5" />
@@ -147,7 +147,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
                     onChange={(e) => setUrl(e.target.value)}
                     onPaste={handleInputPaste}
                     placeholder="Tempel link video di sini..."
-                    className="border-none bg-transparent px-4 py-6 text-base font-medium text-white placeholder:text-neutral-500 focus-visible:ring-0 shadow-none"
+                    className="border-none bg-transparent px-4 py-6 text-base font-medium text-foreground placeholder:text-muted-foreground focus-visible:ring-0 shadow-none"
                     disabled={loading}
                     ref={inputRef}
                 />
@@ -160,7 +160,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
                             variant="ghost"
                             size="icon"
                             onClick={handleClear}
-                            className="h-8 w-8 rounded-full text-neutral-400 hover:bg-white/10 hover:text-white"
+                            className="h-8 w-8 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
                         >
                             <X className="h-4 w-4" />
                         </Button>

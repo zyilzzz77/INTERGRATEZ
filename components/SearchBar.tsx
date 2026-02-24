@@ -34,7 +34,7 @@ export default function SearchBar({
                 if (permission.state === "denied") {
                     throw new Error("clipboard-denied");
                 }
-            } catch {}
+            } catch { }
         }
         return navigator.clipboard.readText();
     };
@@ -57,7 +57,7 @@ export default function SearchBar({
             showToast("Izin clipboard ditolak, silakan paste manual", "error");
         }
     };
-    
+
     const handleInputPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
         const text = e.clipboardData.getData("text");
         if (text) {
@@ -68,11 +68,11 @@ export default function SearchBar({
 
     return (
         <form onSubmit={handleSubmit} className="mx-auto w-full max-w-xl">
-            <div className="flex overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-md backdrop-blur-sm transition-shadow focus-within:border-white/20 focus-within:shadow-lg focus-within:shadow-white/5">
+            <div className="flex overflow-hidden rounded-full border border-neutral-800 bg-neutral-900 shadow-md transition-shadow focus-within:border-neutral-700 focus-within:shadow-lg">
                 <button
                     type="button"
                     onClick={handlePaste}
-                    className="flex items-center justify-center px-4 text-neutral-400 hover:text-white transition-colors"
+                    className="flex items-center justify-center px-5 pl-6 text-neutral-500 hover:text-white transition-colors"
                     title="Paste from clipboard"
                 >
                     <Clipboard className="h-5 w-5" />
@@ -83,13 +83,13 @@ export default function SearchBar({
                     onChange={(e) => setQuery(e.target.value)}
                     onPaste={handleInputPaste}
                     placeholder={placeholder}
-                    className="flex-1 bg-transparent px-5 py-3.5 text-sm text-white outline-none placeholder:text-neutral-500"
+                    className="flex-1 bg-transparent px-2 py-4 text-sm text-white outline-none placeholder:text-neutral-500"
                     ref={inputRef}
                 />
                 <button
                     type="submit"
                     disabled={loading}
-                    className="m-1.5 flex items-center gap-1.5 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-black transition hover:bg-neutral-200 disabled:opacity-50"
+                    className="m-1.5 mr-2 flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-bold text-black transition hover:bg-neutral-200 disabled:opacity-50"
                 >
                     {loading ? (
                         <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">

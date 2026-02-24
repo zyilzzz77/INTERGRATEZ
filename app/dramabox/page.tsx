@@ -183,78 +183,91 @@ export default function DramaBoxPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+                        className="flex flex-col gap-4"
                     >
-                        {displayData.map((item) => (
-                            <Link
-                                href={`/dramabox/watch?id=${item.id}&uri=${item.uri}`}
-                                key={item.id}
-                                className="group relative flex flex-col overflow-hidden rounded-xl border border-white/5 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-red-500/30 hover:shadow-lg hover:shadow-red-500/10 cursor-pointer"
-                            >
-                                {/* Cover Image */}
-                                <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-800">
-                                    <img
-                                        src={item.cover.trim()}
-                                        alt={item.title}
-                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                        loading="lazy"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-80" />
+                        {/* Section Title */}
+                        {displayData.length > 0 && (
+                            <h2 className="text-xl font-bold text-white sm:text-2xl flex items-center gap-2">
+                                {searchQuery ? (
+                                    <>🔍 Hasil Pencarian: <span className="text-red-400">"{searchQuery}"</span></>
+                                ) : (
+                                    <>🔥 Trending Drama</>
+                                )}
+                            </h2>
+                        )}
 
-                                    {/* Top Right Label (Like "Dubbed") */}
-                                    {item.labels && item.labels[0] && (
-                                        <div className="absolute top-2 right-2 rounded-md bg-red-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm">
-                                            {item.labels[0]}
-                                        </div>
-                                    )}
+                        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                            {displayData.map((item) => (
+                                <Link
+                                    href={`/dramabox/watch?id=${item.id}&uri=${item.uri}`}
+                                    key={item.id}
+                                    className="group relative flex flex-col overflow-hidden rounded-xl border border-white/5 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-red-500/30 hover:shadow-lg hover:shadow-red-500/10 cursor-pointer"
+                                >
+                                    {/* Cover Image */}
+                                    <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-800">
+                                        <img
+                                            src={item.cover.trim()}
+                                            alt={item.title}
+                                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            loading="lazy"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-80" />
 
-                                    {/* Stats Overlay */}
-                                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                                        <div className="flex items-center gap-2 text-[10px] font-medium text-white/90">
-                                            {item.statistics ? (
-                                                <>
+                                        {/* Top Right Label (Like "Dubbed") */}
+                                        {item.labels && item.labels[0] && (
+                                            <div className="absolute top-2 right-2 rounded-md bg-red-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm">
+                                                {item.labels[0]}
+                                            </div>
+                                        )}
+
+                                        {/* Stats Overlay */}
+                                        <div className="absolute bottom-0 left-0 right-0 p-3">
+                                            <div className="flex items-center gap-2 text-[10px] font-medium text-white/90">
+                                                {item.statistics ? (
+                                                    <>
+                                                        <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                                                            👁️ {item.statistics.views.toLocaleString()}
+                                                        </span>
+                                                        <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                                                            📑 {item.statistics.chapters}
+                                                        </span>
+                                                    </>
+                                                ) : (
                                                     <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                                                        👁️ {item.statistics.views.toLocaleString()}
+                                                        🎬 Tonton Sekarang
                                                     </span>
-                                                    <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                                                        📑 {item.statistics.chapters}
-                                                    </span>
-                                                </>
-                                            ) : (
-                                                <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                                                    🎬 Tonton Sekarang
-                                                </span>
-                                            )}
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Info */}
-                                <div className="flex flex-1 flex-col p-3">
-                                    <h3 className="line-clamp-2 text-sm font-bold text-white group-hover:text-red-400 leading-tight">
-                                        {item.title}
-                                    </h3>
+                                    {/* Info */}
+                                    <div className="flex flex-1 flex-col p-3">
+                                        <h3 className="line-clamp-2 text-sm font-bold text-white group-hover:text-red-400 leading-tight">
+                                            {item.title}
+                                        </h3>
 
-                                    {/* Secondary Info (Tags/Genre/Protagonist) */}
-                                    <div className="mt-2 flex flex-wrap gap-1">
-                                        {item.tags && item.tags.length > 0 ? (
-                                            item.tags.slice(0, 1).map((tag, idx) => (
-                                                <span
-                                                    key={idx}
-                                                    className="text-[10px] text-neutral-400"
-                                                >
-                                                    {tag}
+                                        {/* Secondary Info (Tags/Genre/Protagonist) */}
+                                        <div className="mt-2 flex flex-wrap gap-1">
+                                            {item.tags && item.tags.length > 0 ? (
+                                                item.tags.slice(0, 1).map((tag, idx) => (
+                                                    <span
+                                                        key={idx}
+                                                        className="text-[10px] text-neutral-400"
+                                                    >
+                                                        {tag}
+                                                    </span>
+                                                ))
+                                            ) : item.protagonist ? (
+                                                <span className="text-[10px] text-neutral-400 line-clamp-1">
+                                                    {item.protagonist}
                                                 </span>
-                                            ))
-                                        ) : item.protagonist ? (
-                                            <span className="text-[10px] text-neutral-400 line-clamp-1">
-                                                {item.protagonist}
-                                            </span>
-                                        ) : null}
+                                            ) : null}
+                                        </div>
                                     </div>
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            ))}
+                        </div>
                     </m.div>
                 )}
             </div>

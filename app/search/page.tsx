@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { LazyMotion, domAnimation, m } from "framer-motion";
-import { ChevronRight, Search, Wrench } from "lucide-react";
+import { ChevronRight, Search, Wrench, ImageMinus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const searchPlatforms = [
@@ -62,35 +62,12 @@ const searchPlatforms = [
         icon: <Image src="/logo-dramabox.webp" alt="DramaBox" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
     },
     {
-        href: "/freereels",
-        label: "FreeReels",
-        description: "Nonton drama gratis Sub Indo HD — tanpa aplikasi",
-        icon: (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-10 w-10 sm:h-12 sm:w-12 text-foreground">
-                <rect width="20" height="20" x="2" y="2" rx="2.18" ry="2.18" />
-                <line x1="7" x2="7" y1="2" y2="22" />
-                <line x1="17" x2="17" y1="2" y2="22" />
-                <line x1="2" x2="22" y1="12" y2="12" />
-                <line x1="2" x2="7" y1="7" y2="7" />
-                <line x1="2" x2="7" y1="17" y2="17" />
-                <line x1="17" x2="22" y1="7" y2="7" />
-                <line x1="17" x2="22" y1="17" y2="17" />
-            </svg>
-        ),
+        href: "/search/dracin",
+        label: "iQIYI Streaming",
+        description: "Cari drama & film China, lihat cast, episode & streaming",
+        icon: <Image src="/logo-drakor.webp" alt="iQIYI" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
     },
-    {
-        href: "/reelshort",
-        label: "ReelShort",
-        description: "Nonton drama pendek viral gratis — langsung dari browser",
-        icon: (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-10 w-10 sm:h-12 sm:w-12 text-red-500">
-                <rect width="20" height="20" x="2" y="2" rx="2.18" ry="2.18" />
-                <line x1="7" x2="7" y1="2" y2="22" />
-                <line x1="17" x2="17" y1="2" y2="22" />
-                <line x1="2" x2="22" y1="12" y2="12" />
-            </svg>
-        ),
-    },
+
 ];
 
 const tools = [
@@ -111,6 +88,12 @@ const tools = [
         label: "GitHub Search",
         description: "Cari profil GitHub, repository, dan statistik user",
         icon: <Image src="/logo-github.webp" alt="GitHub" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
+    },
+    {
+        href: "/search/remove-bg",
+        label: "Remove Background",
+        description: "Hapus background gambar otomatis — upload JPG, download PNG",
+        icon: <ImageMinus className="h-10 w-10 sm:h-12 sm:w-12 text-purple-400" />,
     },
 ];
 

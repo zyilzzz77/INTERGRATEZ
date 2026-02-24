@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "a1.sndcdn.com" },
       { protocol: "https", hostname: "i.scdn.co" },
       { protocol: "https", hostname: "mosaic.scdn.co" },
+      { protocol: "https", hostname: "image-cdn-ak.spotifycdn.com" },
       { protocol: "https", hostname: "scontent.cdninstagram.com" },
       { protocol: "https", hostname: "scontent-iad3-1.cdninstagram.com" },
       { protocol: "https", hostname: "i.pinimg.com" },
@@ -21,6 +22,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "static-v1.mydramawave.com" },
       { protocol: "https", hostname: "v-mps.crazymaplestudios.com" },
+      { protocol: "https", hostname: "s.neoxr.eu" },
+      { protocol: "https", hostname: "files.catbox.moe" },
     ],
     localPatterns: [
       {

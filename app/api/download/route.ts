@@ -437,63 +437,32 @@ export async function GET(req: NextRequest) {
                 let thumbnail = "";
                 let duration = "-";
                 let artist = "";
-                let release_date = "";
 
-                // 1. Try NexRay v1 API (New Primary)
+                // Fetch metadata from neoxr API (using 360p just for metadata)
                 try {
-                    const nexUrl = `https://api.nexray.web.id/downloader/v1/ytmp4?url=${encodeURIComponent(url)}&resolusi=1080`;
-                    const res = await fetch(nexUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+                    const metaUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=video&quality=360p&apikey=OXlJB9`;
+                    const res = await fetch(metaUrl, {
+                        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+                        cache: "no-store",
+                    });
 
                     if (res.ok) {
                         const data = await res.json();
-                        if (data.status && data.result) {
-                            const r = data.result;
-                            title = r.title || title;
-                            thumbnail = r.thumbnail || thumbnail;
-                            artist = r.author || artist;
-
-                            if (r.duration) {
-                                const sec = Number(r.duration);
-                                const m = Math.floor(sec / 60);
-                                const s = sec % 60;
-                                duration = `${m}:${s.toString().padStart(2, "0")}`;
-                            }
+                        if (data.status) {
+                            title = data.title || title;
+                            thumbnail = data.thumbnail || thumbnail;
+                            duration = data.fduration || duration;
+                            artist = data.channel || artist;
                         }
                     }
                 } catch (e) {
-                    console.warn("[YouTube] NexRay v1 metadata failed:", e);
-                }
-
-                // 2. Fallback to NexRay if title is still default (Slow but reliable?)
-                if (title === "YouTube Video") {
-                    try {
-                        // Use 360p to fetch metadata
-                        const nexUrl = `https://api.nexray.web.id/downloader/ytmp4?url=${encodeURIComponent(url)}&resolusi=360`;
-                        const res = await fetch(nexUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (data.status && data.result) {
-                                const r = data.result;
-                                title = r.title || title;
-                                thumbnail = r.thumbnail || thumbnail;
-                                if (r.duration) {
-                                    const sec = Number(r.duration);
-                                    const m = Math.floor(sec / 60);
-                                    const s = sec % 60;
-                                    duration = `${m}:${s.toString().padStart(2, "0")}`;
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        console.error("[YouTube] NexRay metadata failed:", e);
-                    }
+                    console.warn("[YouTube] Neoxr metadata failed:", e);
                 }
 
                 const formats: Format[] = [];
                 const origin = req.nextUrl.origin;
 
-                // Add resolution options using resolve-youtube API
-                // We list all potential resolutions. NexRay will handle availability (or fail).
+                // Add resolution options using resolve-youtube API (lazy-load via neoxr)
                 const resolutions = ["2160", "1440", "1080", "720", "480", "360", "240", "144"];
 
                 for (const res of resolutions) {
@@ -518,7 +487,6 @@ export async function GET(req: NextRequest) {
                     platform: "youtube",
                     formats: dedup(formats),
                     artist,
-                    release_date,
                 };
                 break;
             }
@@ -1145,6 +1113,31 @@ export async function GET(req: NextRequest) {
                     formats: [{
                         quality: "📹 Download Video",
                         url: snapData.data.url,
+                        type: "mp4",
+                    }],
+                };
+                break;
+            }
+            // ─── VIDEY (secret) ───
+            case "videy": {
+                const NEOXR_KEY = "OXlJB9";
+                const videyRes = await fetch(
+                    `https://api.neoxr.eu/api/videy?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
+                    { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
+                );
+                if (!videyRes.ok) throw new Error("Videy API " + videyRes.status);
+                const videyData = await videyRes.json();
+                if (!videyData.status || !videyData.data?.url)
+                    throw new Error("Gagal mengambil data video");
+
+                result = {
+                    title: "Video",
+                    thumbnail: "",
+                    duration: "-",
+                    platform: "videy",
+                    formats: [{
+                        quality: "📹 Download Video",
+                        url: videyData.data.url,
                         type: "mp4",
                     }],
                 };

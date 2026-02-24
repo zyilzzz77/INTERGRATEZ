@@ -21,7 +21,7 @@ function HeroContent() {
     return (
         <LazyMotion features={domAnimation}>
             <div className="relative mx-auto max-w-3xl text-center">
-                <m.div 
+                <m.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
@@ -33,16 +33,16 @@ function HeroContent() {
                     </Badge>
                 </m.div>
 
-                <m.h1 
+                <m.h1
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
                     className="text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl text-foreground"
                 >
-                    <span className="text-white">Inver</span><span className="text-neutral-400">save</span>
+                    <span className="text-foreground">Inver</span><span className="text-muted-foreground">save</span>
                 </m.h1>
 
-                <m.p 
+                <m.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
@@ -52,7 +52,7 @@ function HeroContent() {
                 </m.p>
 
                 {/* URL Input */}
-                <m.div 
+                <m.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.3 }}
@@ -68,7 +68,7 @@ function HeroContent() {
 
                 {/* Detected platform badge */}
                 {detectedPlatform && !loading && !result && (
-                    <m.p 
+                    <m.p
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className="mt-4 text-sm font-medium text-muted-foreground"

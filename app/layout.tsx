@@ -30,7 +30,6 @@ export const metadata: Metadata = {
     "Dramabox",
     "rest api dramabox",
     "rest api melolo",
-    "rest api freereels",
     "rest api snaptik",
     "rest api savefrom",
     "rest api savefrom.net",
@@ -93,9 +92,9 @@ export default function RootLayout({
                 <main className="min-h-[calc(100vh-4rem)]">{children}</main>
 
                 {/* Footer */}
-                <footer className="border-t border-white/5 bg-black/40 backdrop-blur-sm">
-                  <div className="mx-auto max-w-6xl px-4 py-6 text-center text-sm text-neutral-500">
-                    © {new Date().getFullYear()} <span className="font-bold text-neutral-300">Inversave</span>. Made with zyilzz
+                <footer className="border-t border-border bg-background">
+                  <div className="mx-auto max-w-6xl px-4 py-6 text-center text-sm text-muted-foreground">
+                    © {new Date().getFullYear()} <span className="font-bold text-foreground">Inversave</span>. Made with zyilzz
                   </div>
                 </footer>
 

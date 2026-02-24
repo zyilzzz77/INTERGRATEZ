@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const SAWERIA_CHECK_URL = "https://api.neoxr.eu/api/saweria-check";
+const SAWERIA_USER_ID = "a4a04e34-3392-4c93-adcc-06eb79264c03";
+const SAWERIA_API_KEY = "OXlJB9";
+
 export async function POST(req: NextRequest) {
     try {
         const session = await auth();
@@ -37,14 +41,31 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        // Check payment status via Tako API
-        const apiKey = process.env.TAKO_API_KEY || "OXlJB9";
-        const takoRes = await fetch(
-            `https://api.neoxr.eu/api/tako-check?id=${paymentId}&apikey=${apiKey}`
-        );
-        const takoData = await takoRes.json();
+        // Check payment status via Saweria API
+        const url = `${SAWERIA_CHECK_URL}?userid=${SAWERIA_USER_ID}&id=${encodeURIComponent(paymentId)}&apikey=${SAWERIA_API_KEY}`;
+        const response = await fetch(url);
 
-        if (takoData.status === true) {
+        if (!response.ok) {
+            console.error(`Saweria check API returned status ${response.status}`);
+            return NextResponse.json({
+                success: true,
+                status: "pending",
+                message: "Gagal mengecek status. Menunggu...",
+            });
+        }
+
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+            return NextResponse.json({
+                success: true,
+                status: "pending",
+                message: "Menunggu pembayaran...",
+            });
+        }
+
+        const data = await response.json();
+
+        if (data.status === true) {
             // Payment confirmed! Add credits to user
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + transaction.days);

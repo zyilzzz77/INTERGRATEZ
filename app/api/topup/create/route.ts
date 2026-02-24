@@ -3,6 +3,10 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { TOPUP_PACKAGES } from "@/lib/credits";
 
+const SAWERIA_API_URL = "https://api.neoxr.eu/api/saweria-create";
+const SAWERIA_USER_ID = "a4a04e34-3392-4c93-adcc-06eb79264c03";
+const SAWERIA_API_KEY = "OXlJB9";
+
 export async function POST(req: NextRequest) {
     try {
         const session = await auth();
@@ -16,7 +20,7 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { packageId, customAmount } = body;
 
-        let amountForTako: number;
+        let amount: number;
         let creditsToGive: number;
         let activeDays: number;
         let packageName: string;
@@ -29,36 +33,56 @@ export async function POST(req: NextRequest) {
             if (amountNum % 1000 !== 0) {
                 return NextResponse.json({ error: "Nominal top up harus kelipatan Rp 1.000" }, { status: 400 });
             }
-            amountForTako = amountNum;
-            creditsToGive = Math.floor(amountNum / 1000) * 300;
+            amount = amountNum;
+            creditsToGive = Math.floor(amountNum / 1000) * 50;
             activeDays = 30;
-            packageName = `Custom Nominal (Rp ${amountForTako})`;
+            packageName = `Custom Nominal (Rp ${amount})`;
         } else if (packageId) {
             const pkg = TOPUP_PACKAGES.find(p => p.id === packageId);
             if (!pkg) {
                 return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 });
             }
-            amountForTako = pkg.price;
+            amount = pkg.price;
             creditsToGive = pkg.credits;
             activeDays = pkg.days;
             packageName = pkg.name;
         } else {
             return NextResponse.json({ error: "Silakan pilih paket atau masukkan nominal custom" }, { status: 400 });
         }
+        // Add 7.5% admin fee to the amount
+        const ADMIN_FEE_PERCENT = 7.5;
+        const adminFee = Math.ceil(amount * ADMIN_FEE_PERCENT / 100);
+        const totalAmount = amount + adminFee;
 
-        // Call Tako API to create payment
-        const apiKey = process.env.TAKO_API_KEY || "OXlJB9";
-        const username = process.env.TAKO_USERNAME || "inversave";
+        // Call Saweria API to create payment (with fee included)
         const message = encodeURIComponent(`Top Up ${packageName} - ${creditsToGive} Credits`);
+        const saweriaUrl = `${SAWERIA_API_URL}?userid=${SAWERIA_USER_ID}&amount=${totalAmount}&message=${message}&apikey=${SAWERIA_API_KEY}`;
 
-        const takoRes = await fetch(
-            `https://api.neoxr.eu/api/tako-create?username=${username}&amount=${amountForTako}&message=${message}&apikey=${apiKey}`
-        );
-        const takoData = await takoRes.json();
+        const response = await fetch(saweriaUrl);
 
-        if (!takoData.status || !takoData.data) {
+        if (!response.ok) {
+            console.error(`Saweria API returned status ${response.status}`);
             return NextResponse.json(
-                { error: "Gagal membuat pembayaran" },
+                { error: `Layanan pembayaran sedang gangguan (HTTP ${response.status}). Coba lagi nanti.` },
+                { status: 502 }
+            );
+        }
+
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+            const text = await response.text();
+            console.error("Saweria API returned non-JSON:", text.substring(0, 200));
+            return NextResponse.json(
+                { error: "Layanan pembayaran sedang tidak tersedia. Coba lagi nanti." },
+                { status: 502 }
+            );
+        }
+
+        const data = await response.json();
+
+        if (!data.status || !data.data) {
+            return NextResponse.json(
+                { error: "Gagal membuat pembayaran. Coba lagi." },
                 { status: 500 }
             );
         }
@@ -67,13 +91,13 @@ export async function POST(req: NextRequest) {
         const transaction = await prisma.transaction.create({
             data: {
                 userId: session.user.id,
-                paymentId: takoData.data.id,
-                amount: amountForTako,
+                paymentId: data.data.id,
+                amount: totalAmount,
                 credits: creditsToGive,
                 days: activeDays,
                 status: "pending",
-                payUrl: takoData.data.url,
-                qrImage: takoData.data.qr_image,
+                payUrl: data.data.url || data.data.receipt,
+                qrImage: data.data.qr_image,
             },
         });
 
@@ -81,17 +105,17 @@ export async function POST(req: NextRequest) {
             success: true,
             transaction: {
                 id: transaction.id,
-                paymentId: takoData.data.id,
-                amount: amountForTako,
+                paymentId: data.data.id,
+                amount: totalAmount,
                 credits: creditsToGive,
                 days: activeDays,
-                qrImage: takoData.data.qr_image,
-                payUrl: takoData.data.url,
-                expiredAt: takoData.data.expired_at,
+                qrImage: data.data.qr_image,
+                payUrl: data.data.url || data.data.receipt,
+                expiredAt: data.data.expired_at,
             },
         });
     } catch (error) {
         console.error("Create TopUp Error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return NextResponse.json({ error: "Terjadi kesalahan server." }, { status: 500 });
     }
 }
