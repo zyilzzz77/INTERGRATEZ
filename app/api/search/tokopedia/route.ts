@@ -10,9 +10,9 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const apiKey = "fdv_ZlC8qRyJLrcGcjcedw1eZg";
+        const apiKey = process.env.FERDEV_API_KEY;
         const apiUrl = `https://api.ferdev.my.id/search/tokopedia?query=${encodeURIComponent(q)}&apikey=${apiKey}`;
-        
+
         const response = await fetch(apiUrl, {
             headers: {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"

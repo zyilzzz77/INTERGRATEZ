@@ -13,7 +13,7 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest) {
     try {
-        const apikey = process.env.TAKO_API_KEY || "OXlJB9";
+        const apikey = process.env.TAKO_API_KEY;
         const q = req.nextUrl.searchParams.get("q");
 
         let url: string;

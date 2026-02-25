@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Kredit tidak mencukupi" }, { status: 403, headers: CORS });
         }
 
-        const apiKey = "OXlJB9";
+        const apiKey = process.env.NEOXR_API_KEY;
         const apiUrl = `https://api.neoxr.eu/api/spotify?url=${encodeURIComponent(url)}&apikey=${apiKey}`;
 
         const res = await fetch(apiUrl, { cache: "no-store" });

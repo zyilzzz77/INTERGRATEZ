@@ -7,6 +7,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import ToastContainer from "@/components/Toast";
 import AuthProvider from "@/components/AuthProvider";
 import SmoothScroll from "@/components/SmoothScroll";
+import { FingerprintProvider } from "@/components/FingerprintProvider";
 import BackgroundAnimation from "@/components/BackgroundAnimation";
 
 const fontSans = Plus_Jakarta_Sans({
@@ -88,17 +89,19 @@ export default function RootLayout({
           <ErrorBoundary>
             <ThemeProvider>
               <AuthProvider>
-                <Navbar />
-                <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+                <FingerprintProvider>
+                  <Navbar />
+                  <main className="min-h-[calc(100vh-4rem)]">{children}</main>
 
-                {/* Footer */}
-                <footer className="border-t border-border bg-background">
-                  <div className="mx-auto max-w-6xl px-4 py-6 text-center text-sm text-muted-foreground">
-                    © {new Date().getFullYear()} <span className="font-bold text-foreground">Inversave</span>. Made with zyilzz
-                  </div>
-                </footer>
+                  {/* Footer */}
+                  <footer className="border-t border-border bg-background">
+                    <div className="mx-auto max-w-6xl px-4 py-6 text-center text-sm text-muted-foreground">
+                      © {new Date().getFullYear()} <span className="font-bold text-foreground">Inversave</span>. Made with zyilzz
+                    </div>
+                  </footer>
 
-                <ToastContainer />
+                  <ToastContainer />
+                </FingerprintProvider>
               </AuthProvider>
             </ThemeProvider>
           </ErrorBoundary>

@@ -85,3 +85,14 @@ model RequestLog {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model GuestCredit {
+  id          String   @id @default(cuid())
+  ip          String
+  fingerprint String
+  credits     Int      @default(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([ip, fingerprint])
+}

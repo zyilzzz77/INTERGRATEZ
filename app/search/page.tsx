@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { LazyMotion, domAnimation, m } from "framer-motion";
-import { ChevronRight, Search, Wrench, ImageMinus } from "lucide-react";
+import { ChevronRight, Search, Wrench, ImageMinus, Wand2, ImagePlus, Zap, Link2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const searchPlatforms = [
@@ -94,6 +94,30 @@ const tools = [
         label: "Remove Background",
         description: "Hapus background gambar otomatis — upload JPG, download PNG",
         icon: <ImageMinus className="h-10 w-10 sm:h-12 sm:w-12 text-purple-400" />,
+    },
+    {
+        href: "/search/teks2animate",
+        label: "Teks2Animate",
+        description: "Ubah teks jadi gambar anime otomatis dengan AI",
+        icon: <Wand2 className="h-10 w-10 sm:h-12 sm:w-12 text-cyan-400" />,
+    },
+    {
+        href: "/search/tekstoimages",
+        label: "TeksToImages",
+        description: "Generate gambar realistis dari teks dengan AI",
+        icon: <ImagePlus className="h-10 w-10 sm:h-12 sm:w-12 text-orange-400" />,
+    },
+    {
+        href: "/search/shortener",
+        label: "URL Shortener",
+        description: "Persingkat URL panjang jadi link pendek",
+        icon: <Link2 className="h-10 w-10 sm:h-12 sm:w-12 text-indigo-400" />,
+    },
+    {
+        href: "/search/remini",
+        label: "Remini HD",
+        description: "Enhance foto buram jadi HD otomatis dengan AI",
+        icon: <Zap className="h-10 w-10 sm:h-12 sm:w-12 text-amber-400" />,
     },
 ];
 

@@ -1,9 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 
 export default function RealtimeCredits({ initialCredits }: { initialCredits: number }) {
     const [credits, setCredits] = useState<number>(initialCredits);
+    const { data: session } = useSession();
+    const hasSynced = useRef(false);
+
+    useEffect(() => {
+        // Sync guest credits to user account after login (once)
+        if (session?.user && !hasSynced.current) {
+            hasSynced.current = true;
+            fetch("/api/user/sync-credits", { method: "POST" })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.synced && data.credits !== undefined) {
+                        setCredits(data.credits);
+                    }
+                })
+                .catch(() => { });
+        }
+    }, [session]);
 
     useEffect(() => {
         const fetchCredits = async () => {

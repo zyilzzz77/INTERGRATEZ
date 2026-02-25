@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        const apiUrl = `https://api.neoxr.eu/api/yt-playlist?url=${encodeURIComponent(playlistUrl)}&apikey=OXlJB9`;
+        const apiUrl = `https://api.neoxr.eu/api/yt-playlist?url=${encodeURIComponent(playlistUrl)}&apikey=${process.env.NEOXR_API_KEY}`;
 
         const res = await fetch(apiUrl, {
             cache: "no-store",

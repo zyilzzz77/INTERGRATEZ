@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const SAWERIA_CHECK_URL = "https://api.neoxr.eu/api/saweria-check";
-const SAWERIA_USER_ID = "a4a04e34-3392-4c93-adcc-06eb79264c03";
-const SAWERIA_API_KEY = "OXlJB9";
+const SAWERIA_USER_ID = process.env.SAWERIA_USER_ID;
+const SAWERIA_API_KEY = process.env.TAKO_API_KEY;
 
 export async function GET(req: NextRequest) {
     try {

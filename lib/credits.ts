@@ -1,8 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 
-const GUEST_COOKIE = "guest_credits";
 const GUEST_DEFAULT = 100;
 
 // Top-up packages
@@ -22,6 +21,62 @@ export interface CreditInfo {
 }
 
 /**
+ * Extract client IP from request headers (clean IPv4 is set by middleware)
+ */
+function getClientIp(headersList: Headers): string {
+    // Middleware now guarantees x-real-ip is a clean IPv4 string
+    const ip = headersList.get("x-real-ip");
+    return ip || "127.0.0.1";
+}
+
+/**
+ * Extract fingerprint from request headers (set by middleware from cookie)
+ */
+function getFingerprint(headersList: Headers): string {
+    return headersList.get("x-fingerprint") || "unknown";
+}
+
+/**
+ * Get or create guest credit record based on IP + fingerprint
+ */
+async function getOrCreateGuestCredit(ip: string, fingerprint: string) {
+    // If both are unknown, we can't track — fallback to 0 credits to force login
+    if (ip === "unknown" && fingerprint === "unknown") {
+        return { credits: 0 };
+    }
+
+    // Try to find by exact IP + fingerprint combo
+    let record = await prisma.guestCredit.findUnique({
+        where: { ip_fingerprint: { ip, fingerprint } },
+    });
+
+    if (record) return record;
+
+    // Check if there's a record with the same IP (different browser/fingerprint)
+    // This prevents gaming via different browsers on same device
+    if (ip !== "unknown") {
+        const existingByIp = await prisma.guestCredit.findFirst({
+            where: { ip },
+            orderBy: { createdAt: "asc" }, // Get the oldest/first record
+        });
+
+        if (existingByIp) {
+            // Create new record but sync credits with existing IP record
+            record = await prisma.guestCredit.create({
+                data: { ip, fingerprint, credits: existingByIp.credits },
+            });
+            return record;
+        }
+    }
+
+    // Brand new device — give default credits
+    record = await prisma.guestCredit.create({
+        data: { ip, fingerprint, credits: GUEST_DEFAULT },
+    });
+    return record;
+}
+
+/**
  * Get credit info for the current user (authenticated or guest)
  */
 export async function getCreditInfo(): Promise<CreditInfo> {
@@ -36,8 +91,6 @@ export async function getCreditInfo(): Promise<CreditInfo> {
         if (user) {
             // Check if credits have expired
             if (user.creditsExpiry && new Date() > user.creditsExpiry) {
-                // Credits expired, reset to 0 for purchased credits
-                // but keep the base 100 free credits
                 await prisma.user.update({
                     where: { id: session.user.id },
                     data: { credits: 100, creditsExpiry: null, role: "free" },
@@ -61,13 +114,15 @@ export async function getCreditInfo(): Promise<CreditInfo> {
         }
     }
 
-    // Guest user - use cookie
-    const cookieStore = await cookies();
-    const guestCredits = cookieStore.get(GUEST_COOKIE);
-    const credits = guestCredits ? parseInt(guestCredits.value, 10) : GUEST_DEFAULT;
+    // Guest user — use IP + fingerprint from DB
+    const headersList = await headers();
+    const ip = getClientIp(headersList);
+    const fingerprint = getFingerprint(headersList);
+
+    const guestRecord = await getOrCreateGuestCredit(ip, fingerprint);
 
     return {
-        credits: isNaN(credits) ? GUEST_DEFAULT : credits,
+        credits: guestRecord.credits,
         isGuest: true,
     };
 }
@@ -93,15 +148,13 @@ export async function deductCredit(): Promise<boolean> {
                 where: { id: session.user.id },
                 data: { credits: 100, creditsExpiry: null, role: "free" },
             });
-            // Still deduct from the reset 100
             await prisma.user.update({
                 where: { id: session.user.id },
                 data: { credits: { decrement: 1 } },
             });
-            // Log usage
             await prisma.requestLog.create({
                 data: { userId: session.user.id, action: "download" },
-            }).catch(() => { }); // Silent fail if table doesn't exist yet
+            }).catch(() => { });
             return true;
         }
 
@@ -109,25 +162,25 @@ export async function deductCredit(): Promise<boolean> {
             where: { id: session.user.id },
             data: { credits: { decrement: 1 } },
         });
-        // Log usage
         await prisma.requestLog.create({
             data: { userId: session.user.id, action: "download" },
-        }).catch(() => { }); // Silent fail if table doesn't exist yet
+        }).catch(() => { });
         return true;
     }
 
-    // Guest user
-    const cookieStore = await cookies();
-    const guestCredits = cookieStore.get(GUEST_COOKIE);
-    const credits = guestCredits ? parseInt(guestCredits.value, 10) : GUEST_DEFAULT;
-    const current = isNaN(credits) ? GUEST_DEFAULT : credits;
+    // Guest user — deduct from DB based on IP + fingerprint
+    const headersList = await headers();
+    const ip = getClientIp(headersList);
+    const fingerprint = getFingerprint(headersList);
 
-    if (current <= 0) return false;
+    const guestRecord = await getOrCreateGuestCredit(ip, fingerprint);
 
-    cookieStore.set(GUEST_COOKIE, String(current - 1), {
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-        path: "/",
+    if (guestRecord.credits <= 0) return false;
+
+    // Deduct from all records with the same IP (keep them in sync)
+    await prisma.guestCredit.updateMany({
+        where: { ip },
+        data: { credits: { decrement: 1 } },
     });
 
     return true;

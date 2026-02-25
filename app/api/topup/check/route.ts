@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendTopupSuccessEmail } from "@/lib/mail";
 
 const SAWERIA_CHECK_URL = "https://api.neoxr.eu/api/saweria-check";
-const SAWERIA_USER_ID = "a4a04e34-3392-4c93-adcc-06eb79264c03";
-const SAWERIA_API_KEY = "OXlJB9";
+const SAWERIA_USER_ID = process.env.SAWERIA_USER_ID;
+const SAWERIA_API_KEY = process.env.TAKO_API_KEY;
 
 export async function POST(req: NextRequest) {
     try {
@@ -84,6 +85,14 @@ export async function POST(req: NextRequest) {
                     },
                 }),
             ]);
+
+            // Send notification email asynchronously
+            if (session?.user?.email && session?.user?.name) {
+                const pkgName = `${transaction.credits} Koin (${transaction.days} Hari)`;
+                sendTopupSuccessEmail(session.user.email, session.user.name, pkgName, transaction.amount, transaction.credits).catch((err) => {
+                    console.error("[Email] Failed to send topup email:", err);
+                });
+            }
 
             return NextResponse.json({
                 success: true,

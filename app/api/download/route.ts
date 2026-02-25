@@ -440,7 +440,7 @@ export async function GET(req: NextRequest) {
 
                 // Fetch metadata from neoxr API (using 360p just for metadata)
                 try {
-                    const metaUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=video&quality=360p&apikey=OXlJB9`;
+                    const metaUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=video&quality=360p&apikey=${process.env.NEOXR_API_KEY}`;
                     const res = await fetch(metaUrl, {
                         headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
                         cache: "no-store",
@@ -1068,7 +1068,7 @@ export async function GET(req: NextRequest) {
             }
             // ─── SOUNDCLOUD ───
             case "soundcloud": {
-                const scUrl = `https://api.ferdev.my.id/downloader/soundcloud?link=${encodeURIComponent(url)}&apikey=fdv_ZlC8qRyJLrcGcjcedw1eZg`;
+                const scUrl = `https://api.ferdev.my.id/downloader/soundcloud?link=${encodeURIComponent(url)}&apikey=${process.env.FERDEV_API_KEY}`;
                 const scRes = await fetch(scUrl, {
                     headers: { "User-Agent": "Mozilla/5.0" },
                 });
@@ -1095,7 +1095,7 @@ export async function GET(req: NextRequest) {
             }
             // ─── SNAPCHAT ───
             case "snapchat": {
-                const NEOXR_KEY = "OXlJB9";
+                const NEOXR_KEY = process.env.NEOXR_API_KEY;
                 const snapRes = await fetch(
                     `https://api.neoxr.eu/api/snapchat?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
                     { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
@@ -1120,7 +1120,7 @@ export async function GET(req: NextRequest) {
             }
             // ─── VIDEY (secret) ───
             case "videy": {
-                const NEOXR_KEY = "OXlJB9";
+                const NEOXR_KEY = process.env.NEOXR_API_KEY;
                 const videyRes = await fetch(
                     `https://api.neoxr.eu/api/videy?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
                     { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }

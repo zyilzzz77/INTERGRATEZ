@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        console.log("[remove-bg] File received:", file.name, file.type, file.size, "bytes");
+        console.log("[remini] File received:", file.name, file.type, file.size, "bytes");
 
         // Validate file type
         const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -56,72 +56,72 @@ export async function POST(req: NextRequest) {
         const catboxForm = new FormData();
         catboxForm.append("reqtype", "fileupload");
 
-        // Convert File to Blob from ArrayBuffer for Node.js compatibility
         const arrayBuffer = await file.arrayBuffer();
         const blob = new Blob([arrayBuffer], { type: file.type });
         catboxForm.append("fileToUpload", blob, file.name || "image.jpg");
 
-        console.log("[remove-bg] Uploading to catbox.moe...");
+        console.log("[remini] Uploading to catbox.moe...");
         const uploadRes = await fetch("https://catbox.moe/user/api.php", {
             method: "POST",
             body: catboxForm,
         });
 
         const imageUrl = (await uploadRes.text()).trim();
-        console.log("[remove-bg] Catbox response:", uploadRes.status, imageUrl);
+        console.log("[remini] Catbox response:", uploadRes.status, imageUrl);
 
         if (!uploadRes.ok || !imageUrl.startsWith("http")) {
             throw new Error(`Image upload failed: ${uploadRes.status} - ${imageUrl}`);
         }
 
-        console.log("[remove-bg] Image uploaded:", imageUrl);
+        console.log("[remini] Image uploaded:", imageUrl);
 
-        // 4. Call neoxr Remove BG API
+        // 4. Call neoxr Remini API
         const apiKey = process.env.NEOXR_API_KEY;
-        const apiUrl = `https://api.neoxr.eu/api/nobg?image=${encodeURIComponent(imageUrl)}&apikey=${apiKey}`;
+        const apiUrl = `https://api.neoxr.eu/api/remini?image=${encodeURIComponent(imageUrl)}&apikey=${apiKey}`;
 
-        console.log("[remove-bg] Calling remove-bg API...");
+        console.log("[remini] Calling Remini API...");
         const apiRes = await fetch(apiUrl, { cache: "no-store" });
 
         const apiText = await apiRes.text();
-        console.log("[remove-bg] API response:", apiRes.status, apiText.slice(0, 300));
+        console.log("[remini] API response:", apiRes.status, apiText.slice(0, 300));
 
         if (!apiRes.ok) {
-            throw new Error(`Remove BG API error: ${apiRes.status} - ${apiText.slice(0, 200)}`);
+            throw new Error(`Remini API error: ${apiRes.status} - ${apiText.slice(0, 200)}`);
         }
 
         let apiData;
         try {
             apiData = JSON.parse(apiText);
         } catch {
-            throw new Error(`Remove BG API returned non-JSON: ${apiText.slice(0, 200)}`);
+            throw new Error(`Remini API returned non-JSON: ${apiText.slice(0, 200)}`);
         }
 
-        if (!apiData.status || !apiData.data?.no_background) {
+        if (!apiData.status || !apiData.data?.url) {
             return NextResponse.json(
-                { error: apiData.message || "Gagal menghapus background" },
+                { error: apiData.message || "Gagal enhance foto" },
                 { status: 500, headers: CORS }
             );
         }
 
-        console.log("[remove-bg] Success:", apiData.data.no_background);
+        console.log("[remini] Success:", apiData.data.url);
 
         return NextResponse.json(
             {
                 status: true,
                 original: imageUrl,
-                result: apiData.data.no_background,
+                result: apiData.data.url,
+                size: apiData.data.size,
             },
             { headers: CORS }
         );
     } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Unknown error";
-        console.error("[remove-bg] ERROR:", message);
+        console.error("[remini] ERROR:", message);
         if (err instanceof Error && err.stack) {
-            console.error("[remove-bg] Stack:", err.stack);
+            console.error("[remini] Stack:", err.stack);
         }
         return NextResponse.json(
-            { error: "Gagal menghapus background", detail: message },
+            { error: "Gagal enhance foto", detail: message },
             { status: 500, headers: CORS }
         );
     }

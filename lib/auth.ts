@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { sendLoginSuccessEmail } from "@/lib/mail";
 
 function generateAccountId(): string {
     return crypto.randomBytes(4).toString("hex").toUpperCase(); // 8 chars, e.g. "A3F2B1C9"
@@ -32,6 +33,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 where: { id: user.id! },
                 data: { accountId },
             });
+        },
+        async signIn({ user }) {
+            console.log("[Auth Event] signIn fired for:", user.email, user.name);
+            if (user.email && user.name) {
+                // Send email asynchronously (fire-and-forget)
+                sendLoginSuccessEmail(user.email, user.name).catch((err) => {
+                    console.error("[Auth Event] Failed to send login email:", err);
+                });
+            } else {
+                console.log("[Auth Event] Skipped email: email or name missing", { email: user.email, name: user.name });
+            }
         },
     },
     callbacks: {

@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        const apikey = process.env.TAKO_API_KEY || "OXlJB9";
+        const apikey = process.env.TAKO_API_KEY;
         const url = `https://api.neoxr.eu/api/dramabox-get-v2?id=${encodeURIComponent(id)}&uri=${encodeURIComponent(uri)}&apikey=${apikey}`;
 
         // Retry logic for timeout/network errors
