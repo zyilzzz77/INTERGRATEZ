@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
@@ -73,6 +73,71 @@ function LoadingState() {
     );
 }
 
+/** Optimized image component with shimmer skeleton, eager loading, and error fallback */
+function DramaImage({ src, alt, priority }: { src: string; alt: string; priority: boolean }) {
+    const [loaded, setLoaded] = useState(false);
+    const [error, setError] = useState(false);
+    const [retryCount, setRetryCount] = useState(0);
+    const [imgSrc, setImgSrc] = useState(src);
+    const MAX_RETRIES = 2;
+
+    const handleLoad = useCallback(() => setLoaded(true), []);
+    const handleError = useCallback(() => {
+        if (retryCount < MAX_RETRIES) {
+            // Retry after 2 seconds with cache-busting param
+            setTimeout(() => {
+                setRetryCount((c) => c + 1);
+                setImgSrc(`${src}${src.includes("?") ? "&" : "?"}retry=${retryCount + 1}`);
+            }, 2000);
+        } else {
+            setError(true);
+            setLoaded(true);
+        }
+    }, [retryCount, src]);
+
+    return (
+        <>
+            {/* Shimmer skeleton — visible until image loads */}
+            {!loaded && (
+                <div className="absolute inset-0 z-10">
+                    <div className="h-full w-full animate-pulse bg-neutral-700" />
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)",
+                            animation: "shimmer 1.5s infinite",
+                        }}
+                    />
+                </div>
+            )}
+
+            {error ? (
+                /* Fallback icon when all retries exhausted */
+                <div className="flex h-full w-full items-center justify-center bg-neutral-800 text-neutral-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-10 w-10">
+                        <rect x="2" y="2" width="20" height="20" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <path d="m21 15-5-5L5 21" />
+                    </svg>
+                </div>
+            ) : (
+                <img
+                    src={imgSrc}
+                    alt={alt}
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                    className={`h-full w-full object-cover transition-all duration-500 group-hover:scale-110 ${loaded ? "opacity-100" : "opacity-0"}`}
+                    loading={priority ? "eager" : "lazy"}
+                    decoding={priority ? "sync" : "async"}
+                    fetchPriority={priority ? "high" : "auto"}
+                    crossOrigin="anonymous"
+                    onLoad={handleLoad}
+                    onError={handleError}
+                />
+            )}
+        </>
+    );
+}
+
 export default function DramaBoxPage() {
     const [data, setData] = useState<DramaBoxItem[]>([]);
     const [searchResults, setSearchResults] = useState<DramaBoxItem[]>([]);
@@ -127,6 +192,14 @@ export default function DramaBoxPage() {
 
     return (
         <LazyMotion features={domAnimation}>
+            {/* Shimmer keyframes */}
+            <style jsx global>{`
+                @keyframes shimmer {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                }
+            `}</style>
+
             <div className="mx-auto max-w-6xl px-4 py-10">
                 {/* Header */}
                 <div className="mb-10 text-center">
@@ -197,7 +270,7 @@ export default function DramaBoxPage() {
                         )}
 
                         <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                            {displayData.map((item) => (
+                            {displayData.map((item, index) => (
                                 <Link
                                     href={`/dramabox/watch?id=${item.id}&uri=${item.uri}`}
                                     key={item.id}
@@ -205,23 +278,22 @@ export default function DramaBoxPage() {
                                 >
                                     {/* Cover Image */}
                                     <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-800">
-                                        <img
+                                        <DramaImage
                                             src={item.cover.trim()}
                                             alt={item.title}
-                                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                            loading="lazy"
+                                            priority={index < 6}
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-80" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-80 z-20 pointer-events-none" />
 
                                         {/* Top Right Label (Like "Dubbed") */}
                                         {item.labels && item.labels[0] && (
-                                            <div className="absolute top-2 right-2 rounded-md bg-red-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm">
+                                            <div className="absolute top-2 right-2 z-20 rounded-md bg-red-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm">
                                                 {item.labels[0]}
                                             </div>
                                         )}
 
                                         {/* Stats Overlay */}
-                                        <div className="absolute bottom-0 left-0 right-0 p-3">
+                                        <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
                                             <div className="flex items-center gap-2 text-[10px] font-medium text-white/90">
                                                 {item.statistics ? (
                                                     <>

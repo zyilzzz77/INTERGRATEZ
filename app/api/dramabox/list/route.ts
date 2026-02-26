@@ -35,7 +35,20 @@ export async function GET(req: NextRequest) {
                     headers: { "User-Agent": "Mozilla/5.0" },
                     timeout: 30000 + (attempt * 15000), // 30s, 45s, 60s
                 });
-                return NextResponse.json(res.data, { headers: CORS });
+
+                const data = res.data;
+
+                // Proxy cover image URLs through /api/proxy-image for faster & more reliable loading on mobile
+                if (data?.data && Array.isArray(data.data)) {
+                    data.data = data.data.map((item: any) => ({
+                        ...item,
+                        cover: item.cover
+                            ? `/api/proxy-image?url=${encodeURIComponent(item.cover.trim())}`
+                            : item.cover,
+                    }));
+                }
+
+                return NextResponse.json(data, { headers: CORS });
             } catch (err: any) {
                 lastError = err;
                 const isTimeout = err.code === "ECONNABORTED" || err.message?.includes("timeout");
