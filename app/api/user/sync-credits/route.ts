@@ -55,17 +55,22 @@ export async function POST(req: NextRequest) {
         const isNewFreeUser = user.role === "free" && !user.creditsExpiry;
 
         if (isNewFreeUser) {
-            // Sync: set user credits to guest credits (don't reset!)
+            // BUG FIX: Take the maximum of guest credits and default 100.
+            // This prevents overwriting the user's default 100 credits with 0
+            // when a guest who used all their credits logs in.
+            const FREE_DEFAULT = 100;
+            const finalCredits = Math.max(guestRecord.credits, FREE_DEFAULT);
+
             await prisma.user.update({
                 where: { id: session.user.id },
-                data: { credits: guestRecord.credits },
+                data: { credits: finalCredits },
             });
 
-            console.log(`[sync-credits] Synced user ${session.user.id}: ${guestRecord.credits} credits from guest (IP: ${ip})`);
+            console.log(`[sync-credits] Synced user ${session.user.id}: ${finalCredits} credits (guest: ${guestRecord.credits}, default: ${FREE_DEFAULT}, IP: ${ip})`);
 
             return NextResponse.json({
                 synced: true,
-                credits: guestRecord.credits,
+                credits: finalCredits,
             });
         }
 
