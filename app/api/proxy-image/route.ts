@@ -44,6 +44,10 @@ function isPinterestImage(u: string) {
     return u.includes("pinimg") || u.includes("pinterest");
 }
 
+function isNetshortImage(u: string) {
+    return u.includes("awscover.netshort.com") || u.includes("netshort.com");
+}
+
 /**
  * Proxy external images to avoid CORS / referrer-policy issues.
  * Features: in-memory cache, 10 s timeout, long browser cache.
@@ -89,15 +93,25 @@ export async function GET(req: NextRequest) {
 
     /* ── Fetch from origin ── */
     try {
+        // Normalize URL to properly encode non-ASCII chars (e.g. Chinese 比)
+        let fetchUrl = url;
+        try {
+            fetchUrl = new URL(url).href;
+        } catch {
+            // keep original if URL constructor fails
+        }
+
         const referer = isPinterestImage(url)
             ? "https://www.pinterest.com/"
             : isBilibiliImage(url)
                 ? "https://www.bilibili.tv/"
-                : new URL(url).origin;
+                : isNetshortImage(url)
+                    ? "https://netshort.com/"
+                    : new URL(fetchUrl).origin;
 
         const origin = new URL(referer).origin;
 
-        const res = await fetch(url, {
+        const res = await fetch(fetchUrl, {
             headers: {
                 "User-Agent":
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",

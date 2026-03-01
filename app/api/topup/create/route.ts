@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { TOPUP_PACKAGES } from "@/lib/credits";
+import { TOPUP_PACKAGES, VIP_PACKAGES } from "@/lib/credits";
 
 const SAWERIA_API_URL = "https://api.neoxr.eu/api/saweria-create";
 const SAWERIA_USER_ID = process.env.SAWERIA_USER_ID;
@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
 
         let amount: number;
         let creditsToGive: number;
+        let bonusToGive: number;
         let activeDays: number;
         let packageName: string;
 
@@ -35,15 +36,17 @@ export async function POST(req: NextRequest) {
             }
             amount = amountNum;
             creditsToGive = Math.floor(amountNum / 1000) * 50;
+            bonusToGive = 0;
             activeDays = 30;
             packageName = `Custom Nominal (Rp ${amount})`;
         } else if (packageId) {
-            const pkg = TOPUP_PACKAGES.find(p => p.id === packageId);
+            const pkg = [...TOPUP_PACKAGES, ...VIP_PACKAGES].find(p => p.id === packageId) as { id: string, name: string, price: number, credits: number, bonus?: number, days: number, role: string } | undefined;
             if (!pkg) {
                 return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 });
             }
             amount = pkg.price;
             creditsToGive = pkg.credits;
+            bonusToGive = pkg.bonus ?? 0;
             activeDays = pkg.days;
             packageName = pkg.name;
         } else {
@@ -94,6 +97,7 @@ export async function POST(req: NextRequest) {
                 paymentId: data.data.id,
                 amount: totalAmount,
                 credits: creditsToGive,
+                bonusCredits: bonusToGive,
                 days: activeDays,
                 status: "pending",
                 payUrl: data.data.url || data.data.receipt,

@@ -11,9 +11,7 @@ const VideoPreviewCard = dynamic(() => import("@/components/VideoPreviewCard"), 
     loading: () => <SkeletonCard />,
 });
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-function HeroContent() {
+function HeroContent({ dict }: { dict: any }) {
     const [result, setResult] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [detectedPlatform, setDetectedPlatform] = useState<string | null>(null);
@@ -29,7 +27,7 @@ function HeroContent() {
                 >
                     <Badge variant="secondary" className="px-4 py-1.5 text-sm gap-2">
                         <span className="inline-block h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                        8+ Platform Didukung
+                        {dict.heroBadge || "8+ Platform Didukung"}
                     </Badge>
                 </m.div>
 
@@ -48,7 +46,7 @@ function HeroContent() {
                     transition={{ duration: 0.5, delay: 0.2 }}
                     className="mx-auto mt-4 max-w-xl text-base text-muted-foreground sm:text-lg"
                 >
-                    Tools Downloader & Stream Premium — Nikmati kemudahan download video, audio, dan foto dari berbagai platform favoritmu dalam satu tempat.
+                    {dict.heroDescription || "Tools Downloader & Stream Premium — Nikmati kemudahan download video, audio, dan foto dari berbagai platform favoritmu dalam satu tempat."}
                 </m.p>
 
                 {/* URL Input */}
@@ -73,7 +71,7 @@ function HeroContent() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="mt-4 text-sm font-medium text-muted-foreground"
                     >
-                        Platform terdeteksi:{" "}
+                        {dict.heroDetectedPlatform || "Platform terdeteksi:"}{" "}
                         <Badge variant="outline" className="ml-2 font-bold uppercase">
                             {detectedPlatform}
                         </Badge>
@@ -98,11 +96,11 @@ function HeroContent() {
     );
 }
 
-export default function HeroSection() {
+export default function HeroSection({ dict }: { dict: any }) {
     return (
         <section className="relative px-4 pb-12 pt-16 sm:pt-24">
             <Suspense fallback={<div className="h-96" />}>
-                <HeroContent />
+                <HeroContent dict={dict} />
             </Suspense>
         </section>
     );

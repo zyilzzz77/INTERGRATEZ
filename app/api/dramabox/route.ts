@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 
         // Deduct credit only if it's NOT a background token refresh
         if (!isRefresh) {
-            const canAfford = await deductCredit();
+            const canAfford = await deductCredit("streaming");
             if (!canAfford) {
                 return NextResponse.json({ error: "Kredit tidak mencukupi. Silakan top up." }, { status: 403, headers: CORS });
             }

@@ -15,6 +15,7 @@ model User {
   image         String?
   accountId     String?   @unique
   credits       Int       @default(100)
+  bonusCredits  Int       @default(0)
   creditsExpiry DateTime?
   role          String    @default("free")
   createdAt     DateTime  @default(now())
@@ -68,8 +69,9 @@ model Transaction {
   paymentId String   @unique
   amount    Int
   credits   Int
-  days      Int      @default(14)
-  status    String   @default("pending")
+  bonusCredits Int    @default(0)
+  days      Int       @default(14)
+  status    String    @default("pending")
   payUrl    String?
   qrImage   String?
   createdAt DateTime @default(now())

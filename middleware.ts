@@ -1,8 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { i18n } from "./i18n.config";
+
+function getLocale(request: NextRequest): string {
+    const acceptLanguage = request.headers.get("accept-language");
+    if (!acceptLanguage) return i18n.defaultLocale;
+
+    // Very basic parsing to prefer 'id' if Indonesian, else fallback to 'en'
+    if (acceptLanguage.toLowerCase().includes("id")) {
+        return "id";
+    }
+    return "en";
+}
 
 export function middleware(request: NextRequest) {
-    // Clone the request headers
+    // 1. IP & Fingerprint Logic (from original middleware)
     const requestHeaders = new Headers(request.headers);
 
     // Forward fingerprint from cookie as header for API routes
@@ -41,6 +53,30 @@ export function middleware(request: NextRequest) {
 
     requestHeaders.set("x-real-ip", finalIp);
 
+    // 2. i18n Locale Routing Logic
+    const { pathname } = request.nextUrl;
+
+    // Skip locale routing for API and static files if they accidentally bypass matcher
+    if (pathname.startsWith('/api/') || pathname.startsWith('/_next/') || pathname.includes('.')) {
+        return NextResponse.next({
+            request: {
+                headers: requestHeaders,
+            },
+        });
+    }
+
+    const pathnameHasLocale = i18n.locales.some(
+        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+    );
+
+    if (!pathnameHasLocale) {
+        const locale = getLocale(request);
+        const newUrl = new URL(`/${locale}${pathname === '/' ? '' : pathname}`, request.url);
+        // Preserve search params
+        newUrl.search = request.nextUrl.search;
+        return NextResponse.redirect(newUrl);
+    }
+
     return NextResponse.next({
         request: {
             headers: requestHeaders,
@@ -48,7 +84,7 @@ export function middleware(request: NextRequest) {
     });
 }
 
-// Only run middleware on API routes (where credits are checked)
 export const config = {
-    matcher: "/api/:path*",
+    // Match all page routes and api routes, except internal next stuff
+    matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };

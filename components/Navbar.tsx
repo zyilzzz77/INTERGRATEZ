@@ -9,21 +9,21 @@ import { Home, Search, Moon, Sun } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 
-const links = [
-    {
-        href: "/",
-        label: "Home",
-        icon: <Home className="h-4 w-4 sm:h-5 sm:w-5" />,
-    },
-    {
-        href: "/search",
-        label: "Search",
-        icon: <Search className="h-4 w-4 sm:h-5 sm:w-5" />,
-    },
-];
-
-export default function Navbar() {
+export default function Navbar({ dict, lang }: { dict: any; lang: string }) {
     const pathname = usePathname();
+
+    const links = [
+        {
+            href: "/",
+            label: dict.home || "Home",
+            icon: <Home className="h-4 w-4 sm:h-5 sm:w-5" />,
+        },
+        {
+            href: "/search",
+            label: dict.search || "Search",
+            icon: <Search className="h-4 w-4 sm:h-5 sm:w-5" />,
+        },
+    ];
     const { theme, toggleTheme, mounted } = useTheme();
 
     return (
@@ -36,7 +36,7 @@ export default function Navbar() {
             >
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-1.5 select-none sm:gap-2.5">
+                    <Link href={`/${lang}`} className="flex items-center gap-1.5 select-none sm:gap-2.5">
                         <m.div
                             whileHover={{ rotate: 10, scale: 1.1 }}
                             className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-primary/20 shadow-md sm:h-10 sm:w-10"
@@ -57,10 +57,11 @@ export default function Navbar() {
                     {/* Nav Pills */}
                     <div className="flex items-center gap-0.5 sm:gap-1">
                         {links.map((l) => {
+                            const routePath = l.href === "/" ? `/${lang}` : `/${lang}${l.href}`;
                             const active =
                                 l.href === "/"
-                                    ? pathname === "/"
-                                    : pathname.startsWith(l.href);
+                                    ? pathname === "/" || pathname === `/${lang}`
+                                    : pathname.startsWith(routePath) || pathname.startsWith(l.href);
                             return (
                                 <Button
                                     key={l.href}
@@ -69,7 +70,7 @@ export default function Navbar() {
                                     size="sm"
                                     className={`gap-1 px-2 text-xs font-semibold relative sm:gap-2 sm:px-3 sm:text-sm ${active ? "text-foreground" : "text-muted-foreground"}`}
                                 >
-                                    <Link href={l.href}>
+                                    <Link href={routePath}>
                                         {active && (
                                             <m.div
                                                 layoutId="navbar-indicator"
@@ -109,7 +110,7 @@ export default function Navbar() {
                         </Button>
 
                         {/* User Menu */}
-                        <UserMenu />
+                        <UserMenu dict={dict} lang={lang} />
                     </div>
                 </div>
             </m.nav>

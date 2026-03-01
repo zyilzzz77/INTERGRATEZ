@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendTopupSuccessEmail } from "@/lib/mail";
+import { TOPUP_PACKAGES, VIP_PACKAGES } from "@/lib/credits";
 
 const SAWERIA_CHECK_URL = "https://api.neoxr.eu/api/saweria-check";
 const SAWERIA_USER_ID = process.env.SAWERIA_USER_ID;
@@ -71,6 +72,12 @@ export async function POST(req: NextRequest) {
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + transaction.days);
 
+            // Determine role to set
+            const matchingPkg = [...TOPUP_PACKAGES, ...VIP_PACKAGES].find(
+                p => p.credits === transaction.credits && p.days === transaction.days
+            );
+            const roleToSet = matchingPkg?.role || "premium";
+
             await prisma.$transaction([
                 prisma.transaction.update({
                     where: { paymentId },
@@ -80,8 +87,9 @@ export async function POST(req: NextRequest) {
                     where: { id: session.user.id },
                     data: {
                         credits: { increment: transaction.credits },
+                        bonusCredits: { increment: transaction.bonusCredits },
                         creditsExpiry: expiryDate,
-                        role: "premium",
+                        role: roleToSet,
                     },
                 }),
             ]);

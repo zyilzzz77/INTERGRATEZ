@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { Coins, LogOut, CreditCard, User, ChevronDown, BookOpen } from "lucide-react";
+import { Coins, LogOut, CreditCard, User, ChevronDown, BookOpen, Headphones } from "lucide-react";
 
-export default function UserMenu() {
+export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
     const { data: session, status } = useSession();
     const [open, setOpen] = useState(false);
     const [credits, setCredits] = useState<number | null>(null);
@@ -68,7 +68,7 @@ export default function UserMenu() {
                         <path fill="#fb9005ff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
-                    Login
+                    {dict.login || "Login"}
                 </button>
             </div>
         );
@@ -139,13 +139,13 @@ export default function UserMenu() {
                                     <Coins className="h-4 w-4 text-amber-400" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-neutral-400">Sisa Kredit</p>
+                                    <p className="text-xs text-neutral-400">{dict.creditBalance || "Sisa Kredit"}</p>
                                     <p className="text-lg font-black text-white">{credits ?? "..."}</p>
                                 </div>
                             </div>
                             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${isGuest ? "bg-neutral-700 text-neutral-300" : "bg-emerald-500/10 text-emerald-400"
                                 }`}>
-                                {isGuest ? "Free" : (credits && credits > 100 ? "Premium" : "Free")}
+                                {isGuest ? (dict.free || "Free") : (credits && credits > 100 ? (dict.premium || "Premium") : (dict.free || "Free"))}
                             </span>
                         </div>
                     </div>
@@ -153,35 +153,45 @@ export default function UserMenu() {
                     {/* Actions */}
                     <div className="p-2">
                         <Link
-                            href="/topup"
+                            href={`/${lang}/topup`}
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white transition hover:bg-white/5"
                         >
                             <CreditCard className="h-4 w-4 text-emerald-400" />
-                            Top Up Kredit
+                            {dict.pricing || "Pricing & Packages"}
                         </Link>
                         <Link
-                            href="/docs"
+                            href={`/${lang}/docs`}
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white transition hover:bg-white/5"
                         >
                             <BookOpen className="h-4 w-4 text-purple-400" />
-                            Dokumentasi API
+                            {dict.apiDocs || "API Documentation"}
                         </Link>
                         <Link
-                            href="/profile"
+                            href={`/${lang}/profile`}
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white transition hover:bg-white/5"
                         >
                             <User className="h-4 w-4 text-blue-400" />
-                            Profil Saya
+                            {dict.profile || "My Profile"}
                         </Link>
+                        <a
+                            href="https://wa.me/6289525129168"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setOpen(false)}
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white transition hover:bg-white/5"
+                        >
+                            <Headphones className="h-4 w-4 text-orange-400" />
+                            Customer Services
+                        </a>
                         <button
                             onClick={() => signOut()}
                             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10"
                         >
                             <LogOut className="h-4 w-4" />
-                            Logout
+                            {dict.logout || "Logout"}
                         </button>
                     </div>
                 </div>

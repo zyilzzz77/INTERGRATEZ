@@ -6,14 +6,22 @@ const GUEST_DEFAULT = 100;
 
 // Top-up packages
 export const TOPUP_PACKAGES = [
-    { id: "starter", name: "Starter", price: 5000, credits: 250, days: 30 },
-    { id: "basic", name: "Basic", price: 10000, credits: 750, days: 30 },
-    { id: "pro", name: "Pro", price: 25000, credits: 3500, days: 30 },
-    { id: "premium", name: "Premium", price: 50000, credits: 15000, days: 30 },
+    { id: "starter", name: "Starter", price: 5000, credits: 250, days: 30, role: "premium" },
+    { id: "basic", name: "Basic", price: 10000, credits: 750, days: 30, role: "premium" },
+    { id: "pro", name: "Pro", price: 25000, credits: 3500, days: 30, role: "premium" },
+    { id: "premium", name: "Premium", price: 50000, credits: 15000, days: 30, role: "premium" },
+];
+
+// VIP packages
+export const VIP_PACKAGES = [
+    { id: "vip-1", name: "VIP", price: 15000, credits: 2500, bonus: 0, days: 14, role: "vip" },
+    { id: "vip-2", name: "VIP Pro", price: 35000, credits: 6500, bonus: 9500, days: 30, role: "vip" },
+    { id: "vip-3", name: "VIP Max", price: 50000, credits: 0, bonus: 15000, days: 45, role: "vip-max" },
 ];
 
 export interface CreditInfo {
     credits: number;
+    bonusCredits?: number;
     isGuest: boolean;
     userId?: string;
     creditsExpiry?: Date | null;
@@ -85,7 +93,7 @@ export async function getCreditInfo(): Promise<CreditInfo> {
     if (session?.user?.id) {
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
-            select: { credits: true, creditsExpiry: true, role: true },
+            select: { credits: true, bonusCredits: true, creditsExpiry: true, role: true },
         });
 
         if (user) {
@@ -97,6 +105,7 @@ export async function getCreditInfo(): Promise<CreditInfo> {
                 });
                 return {
                     credits: 100,
+                    bonusCredits: 0,
                     isGuest: false,
                     userId: session.user.id,
                     creditsExpiry: null,
@@ -106,6 +115,7 @@ export async function getCreditInfo(): Promise<CreditInfo> {
 
             return {
                 credits: user.credits,
+                bonusCredits: user.bonusCredits,
                 isGuest: false,
                 userId: session.user.id,
                 creditsExpiry: user.creditsExpiry,
@@ -130,40 +140,89 @@ export async function getCreditInfo(): Promise<CreditInfo> {
 /**
  * Deduct 1 credit from the current user
  * Returns false if no credits remaining
+ * Accepts an action param to allow unlimited streaming/download for VIP roles
  */
-export async function deductCredit(): Promise<boolean> {
+export async function deductCredit(action: string = "download"): Promise<boolean> {
     const session = await auth();
 
     if (session?.user?.id) {
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
-            select: { credits: true, creditsExpiry: true },
+            select: { credits: true, bonusCredits: true, creditsExpiry: true, role: true },
         });
 
-        if (!user || user.credits <= 0) return false;
+        if (!user) return false;
 
-        // Check expiry
-        if (user.creditsExpiry && new Date() > user.creditsExpiry) {
-            await prisma.user.update({
-                where: { id: session.user.id },
-                data: { credits: 100, creditsExpiry: null, role: "free" },
-            });
-            await prisma.user.update({
-                where: { id: session.user.id },
-                data: { credits: { decrement: 1 } },
-            });
+        // Ensure user obj is mutable locally
+        let currentCredits = user.credits;
+        let currentBonus = user.bonusCredits;
+        let currentRole = user.role;
+        let currentExpiry = user.creditsExpiry;
+
+        // Check VIP expiry completely first:
+        if (currentExpiry && new Date() > currentExpiry) {
+            // For those with unlimited/active bonus, when VIP expires, move bonus to credits
+            if (currentBonus > 0) {
+                await prisma.user.update({
+                    where: { id: session.user.id },
+                    data: { credits: currentBonus, bonusCredits: 0, creditsExpiry: null, role: "free" },
+                });
+                currentCredits = currentBonus;
+                currentBonus = 0;
+                currentRole = "free";
+                currentExpiry = null;
+            } else {
+                // If they expire and have no bonus, give them 100 free credits as standard
+                await prisma.user.update({
+                    where: { id: session.user.id },
+                    data: { credits: 100, creditsExpiry: null, role: "free" },
+                });
+                currentCredits = 100;
+                currentRole = "free";
+                currentExpiry = null;
+            }
+        }
+
+        // Check credit depletion and rollover
+        if (currentCredits <= 0 && currentBonus > 0) {
+            // They ran out of normal credits but have bonus!
+            // According to logic, only 50k unlimitid waits for expiry, other bonuses are used immediately when 0
+            if (currentRole !== "vip-max") { // vip-max MUST wait for expiry as per instructions
+                await prisma.user.update({
+                    where: { id: session.user.id },
+                    data: { credits: currentBonus, bonusCredits: 0 },
+                });
+                currentCredits = currentBonus;
+                currentBonus = 0;
+            }
+        }
+
+        // VIP features tracking (Streaming & Downloads) after rollovers applied
+        if (action === "streaming" && (currentRole === "vip" || currentRole === "vip-max")) {
             await prisma.requestLog.create({
-                data: { userId: session.user.id, action: "download" },
+                data: { userId: session.user.id, action: "streaming-vip" },
             }).catch(() => { });
             return true;
         }
 
+        if (currentRole === "vip-max") {
+            await prisma.requestLog.create({
+                data: { userId: session.user.id, action: `vip-max-${action}` },
+            }).catch(() => { });
+            return true;
+        }
+
+        // If they still don't have credits, deny
+        if (currentCredits <= 0) return false;
+
+        // Standard Deduction
         await prisma.user.update({
             where: { id: session.user.id },
             data: { credits: { decrement: 1 } },
         });
+
         await prisma.requestLog.create({
-            data: { userId: session.user.id, action: "download" },
+            data: { userId: session.user.id, action },
         }).catch(() => { });
         return true;
     }

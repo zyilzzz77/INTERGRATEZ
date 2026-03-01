@@ -13,7 +13,15 @@ export async function OPTIONS() {
 
 export async function POST(req: NextRequest) {
     try {
-        const canAfford = await deductCredit();
+        let action = "download";
+        try {
+            const body = await req.json();
+            if (body?.action) action = body.action;
+        } catch (e) {
+            // ignore empty body
+        }
+
+        const canAfford = await deductCredit(action);
         if (!canAfford) {
             return NextResponse.json(
                 { success: false, error: "Kredit tidak mencukupi" },
