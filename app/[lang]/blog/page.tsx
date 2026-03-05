@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { ArrowRight, Calendar, Tag } from "lucide-react";
+import { constructMetadata } from "@/lib/seo";
 
 import { getDictionary } from "@/lib/dictionary";
 
@@ -7,10 +8,12 @@ import { getDictionary } from "@/lib/dictionary";
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
     const { lang } = await params;
     const dict = await getDictionary(lang);
-    return {
+    return constructMetadata({
         title: `${dict.blog.title} ${dict.blog.titleHighlight} - Inversave`,
         description: dict.blog.subtitle,
-    };
+        url: `/${lang}/blog`,
+        locale: lang === 'id' ? 'id_ID' : 'en_US'
+    });
 }
 
 export default async function BlogPage({ params }: { params: Promise<{ lang: string }> }) {
@@ -92,7 +95,7 @@ export default async function BlogPage({ params }: { params: Promise<{ lang: str
                     </div>
 
                     <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-purple-400 transition-colors">
-                        Selamat Datang di Inversave V2.0 Penuh Fitur Baru
+                        Selamat Datang di Inversave V5.5 Penuh Fitur Baru
                     </h2>
 
                     <p className="text-gray-300 leading-relaxed mb-6">

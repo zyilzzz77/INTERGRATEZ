@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Download, Loader2, Sparkles, Wand2 } from "lucide-react";
+import { showToast } from "@/components/Toast";
 
 export default function Teks2AnimatePage() {
     const [prompt, setPrompt] = useState("");
@@ -20,6 +21,7 @@ export default function Teks2AnimatePage() {
         setResultPrompt(null);
 
         try {
+            showToast("Generating gambar anime...", "info");
             const res = await fetch(
                 `/api/tools/teks2animate?q=${encodeURIComponent(prompt.trim())}`
             );
@@ -27,13 +29,16 @@ export default function Teks2AnimatePage() {
 
             if (!data.status) {
                 setError(data.error || "Gagal generate gambar");
+                showToast(data.error || "Gagal generate gambar", "error");
                 return;
             }
 
             setResultUrl(data.url);
             setResultPrompt(data.prompt);
+            showToast("Gambar anime berhasil digenerate", "success");
         } catch {
             setError("Terjadi kesalahan. Coba lagi.");
+            showToast("Terjadi kesalahan sistem", "error");
         } finally {
             setLoading(false);
         }
@@ -46,6 +51,7 @@ export default function Teks2AnimatePage() {
     const handleDownload = async () => {
         if (!resultUrl) return;
         try {
+            showToast("Mengunduh gambar...", "info");
             const res = await fetch(resultUrl);
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
@@ -56,7 +62,9 @@ export default function Teks2AnimatePage() {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            showToast("Gambar berhasil diunduh", "success");
         } catch {
+            showToast("Membuka gambar di tab baru...", "info");
             window.open(resultUrl, "_blank");
         }
     };

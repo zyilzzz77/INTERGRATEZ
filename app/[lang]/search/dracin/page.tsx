@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
+import { showToast } from "@/components/Toast";
 
 /* ─── Types ─────────────────────────────────────────── */
 interface CastMember {
@@ -43,13 +44,19 @@ export default function DracinSearchPage() {
         setExpandedIdx(null);
 
         try {
+            showToast("Mencari drama...", "info");
             const res = await fetch(
                 `/api/search/dracin?q=${encodeURIComponent(query)}`
             );
             const data = await res.json();
-            if (data.items) setResults(data.items);
+            if (data.items) {
+                setResults(data.items);
+                showToast("Pencarian selesai", "success");
+            } else {
+                showToast("Hasil tidak ditemukan", "info");
+            }
         } catch {
-            // silent
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }

@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import { Search, Play } from "lucide-react";
+import { showToast } from "@/components/Toast";
 
 interface DramaBoxItem {
     id: string;
@@ -14,22 +16,9 @@ interface DramaBoxItem {
     introduction?: string;
     tags?: string[];
     playCount?: string;
-    corner?: {
-        cornerType: number;
-        name: string;
-        color: string;
-    };
-    rankVo?: {
-        rankType: number;
-        hotCode: string;
-        recCopy: string;
-        sort: number;
-    };
-    // Legacy fields from search API
-    statistics?: {
-        views: number;
-        chapters: number;
-    };
+    corner?: { cornerType: number; name: string; color: string };
+    rankVo?: { rankType: number; hotCode: string; recCopy: string; sort: number };
+    statistics?: { views: number; chapters: number };
     labels?: string[];
     synopsis?: string;
     protagonist?: string;
@@ -41,130 +30,141 @@ interface DramaBoxResponse {
     data: DramaBoxItem[];
 }
 
+/* ═══════ LOADING STATE ═══════ */
 function LoadingState() {
     return (
         <div className="flex min-h-[40vh] flex-col items-center justify-center">
             <div className="relative mb-8 flex items-center justify-center">
-                <m.div
-                    animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.05, 0.1] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute h-28 w-28 rounded-full bg-white"
-                />
-                <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-xl shadow-white/5 overflow-hidden">
-                    <Image src="/logo-dramabox.png" alt="DramaBox Logo" width={80} height={80} className="h-full w-full object-cover" />
+                <div className="absolute h-28 w-28 rounded-full animate-ping" style={{ background: 'var(--drama-glow-red)', animationDuration: '2s' }} />
+                <div className="relative z-10 h-20 w-20 overflow-hidden rounded-2xl shadow-2xl" style={{ boxShadow: '0 0 40px var(--drama-glow-red)' }}>
+                    <Image src="/logo-dramabox.png" alt="DramaBox" width={80} height={80} className="h-full w-full object-cover" />
                 </div>
             </div>
-            <div className="h-1.5 w-48 overflow-hidden rounded-full bg-neutral-800">
-                <m.div
-                    animate={{ x: ["-100%", "100%"] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    className="h-full w-full rounded-full bg-white"
-                />
+            <div className="h-1 w-48 overflow-hidden rounded-full" style={{ background: 'var(--drama-elevated)' }}>
+                <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-red-500 to-orange-500" style={{ animation: 'shimmer 1.2s ease-in-out infinite' }} />
             </div>
+            <p className="mt-4 text-sm animate-pulse" style={{ color: 'var(--drama-text-muted)' }}>Memuat drama...</p>
         </div>
     );
 }
 
+/* ═══════ DRAMA IMAGE ═══════ */
 function DramaImage({ src, alt, priority }: { src: string; alt: string; priority: boolean }) {
     const [loaded, setLoaded] = useState(false);
     const [error, setError] = useState(false);
     const [retryCount, setRetryCount] = useState(0);
     const [imgSrc, setImgSrc] = useState(src);
-    const MAX_RETRIES = 2;
 
     const handleLoad = useCallback(() => setLoaded(true), []);
     const handleError = useCallback(() => {
-        if (retryCount < MAX_RETRIES) {
-            setTimeout(() => {
-                setRetryCount((c) => c + 1);
-                setImgSrc(`${src}${src.includes("?") ? "&" : "?"}retry=${retryCount + 1}`);
-            }, 2000);
-        } else {
-            setError(true);
-            setLoaded(true);
-        }
+        if (retryCount < 2) {
+            setTimeout(() => { setRetryCount(c => c + 1); setImgSrc(`${src}${src.includes("?") ? "&" : "?"}retry=${retryCount + 1}`); }, 2000);
+        } else { setError(true); setLoaded(true); }
     }, [retryCount, src]);
 
     return (
         <>
             {!loaded && (
-                <div className="absolute inset-0 z-10">
-                    <div className="h-full w-full animate-pulse bg-neutral-700" />
-                    <div
-                        className="absolute inset-0"
-                        style={{
-                            background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)",
-                            animation: "shimmer 1.5s infinite",
-                        }}
-                    />
+                <div className="absolute inset-0 z-10" style={{ background: 'var(--drama-card)' }}>
+                    <div className="h-full w-full animate-pulse" style={{ background: 'var(--drama-elevated)' }} />
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)', animation: 'shimmer 1.5s infinite' }} />
                 </div>
             )}
             {error ? (
-                <div className="flex h-full w-full items-center justify-center bg-neutral-800 text-neutral-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-10 w-10">
-                        <rect x="2" y="2" width="20" height="20" rx="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <path d="m21 15-5-5L5 21" />
-                    </svg>
+                <div className="flex h-full w-full items-center justify-center text-neutral-700" style={{ background: 'var(--drama-card)' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-10 w-10"><rect x="2" y="2" width="20" height="20" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" /></svg>
                 </div>
             ) : (
-                <img
-                    src={imgSrc}
-                    alt={alt}
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                    className={`h-full w-full object-cover transition-all duration-500 group-hover:scale-110 ${loaded ? "opacity-100" : "opacity-0"}`}
-                    loading={priority ? "eager" : "lazy"}
-                    decoding={priority ? "sync" : "async"}
-                    fetchPriority={priority ? "high" : "auto"}
-                    crossOrigin="anonymous"
-                    onLoad={handleLoad}
-                    onError={handleError}
+                <img src={imgSrc} alt={alt}
+                    sizes="(max-width:640px) 50vw,(max-width:768px) 33vw,(max-width:1024px) 25vw,20vw"
+                    className={`h-full w-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110 ${loaded ? "opacity-100" : "opacity-0"}`}
+                    loading={priority ? "eager" : "lazy"} decoding={priority ? "sync" : "async"} fetchPriority={priority ? "high" : "auto"} crossOrigin="anonymous"
+                    onLoad={handleLoad} onError={handleError}
                 />
             )}
         </>
     );
 }
 
-/** Feature navigation buttons */
+/* ═══════ PREMIUM CARD ═══════ */
+function DramaBoxCard({ item, index }: { item: DramaBoxItem; index: number }) {
+    return (
+        <Link href={`/dramabox/detail?id=${item.id}`}
+            className="group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-500 cursor-pointer hover:-translate-y-2"
+            style={{ background: 'var(--drama-card)', border: '1px solid var(--drama-border)' }}>
+
+            <div className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"
+                style={{ boxShadow: '0 0 30px var(--drama-glow-red), 0 0 60px var(--drama-glow-red)' }} />
+
+            <div className="relative aspect-[2/3] w-full overflow-hidden">
+                <DramaImage src={item.cover.trim()} alt={item.title} priority={index < 6} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-500 z-10" />
+
+                {/* Play reveal */}
+                <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-2xl transition-transform duration-300 group-hover:scale-110">
+                        <Play className="h-6 w-6 text-white fill-white ml-0.5" />
+                    </div>
+                </div>
+
+                {/* Corner Badge */}
+                {item.corner && (
+                    <div className="absolute top-2.5 left-2.5 z-20 rounded-lg px-2.5 py-1 text-[10px] font-bold text-white shadow-lg backdrop-blur-sm"
+                        style={{ backgroundColor: item.corner.color || '#F54E96' }}>
+                        {item.corner.name}
+                    </div>
+                )}
+                {!item.corner && item.labels && item.labels[0] && (
+                    <div className="absolute top-2.5 left-2.5 z-20 rounded-lg px-2.5 py-1 text-[10px] font-bold text-white shadow-lg backdrop-blur-sm" style={{ background: 'linear-gradient(135deg, #dc2626, #ea580c)' }}>
+                        {item.labels[0]}
+                    </div>
+                )}
+
+                {/* Rank Badge */}
+                {item.rankVo && (
+                    <div className="absolute top-2.5 right-2.5 z-20 rounded-lg px-2.5 py-1 text-[10px] font-bold text-yellow-400 shadow-lg backdrop-blur-sm" style={{ background: 'rgba(0,0,0,0.6)' }}>
+                        🏆 {item.rankVo.recCopy}
+                    </div>
+                )}
+
+                {/* Stats */}
+                <div className="absolute bottom-0 left-0 right-0 p-3 z-20 flex flex-wrap gap-1.5">
+                    {item.playCount && <span className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md" style={{ background: 'var(--drama-badge-bg)' }}>🔥 {item.playCount}</span>}
+                    {item.chapterCount && item.chapterCount > 0 && <span className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md" style={{ background: 'var(--drama-badge-bg)' }}>📑 {item.chapterCount} Eps</span>}
+                    {!item.playCount && item.statistics && (
+                        <>
+                            <span className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md" style={{ background: 'var(--drama-badge-bg)' }}>👁️ {item.statistics.views.toLocaleString()}</span>
+                            <span className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md" style={{ background: 'var(--drama-badge-bg)' }}>📑 {item.statistics.chapters}</span>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            <div className="flex flex-1 flex-col p-3.5">
+                <h3 className="line-clamp-2 text-[13px] font-bold leading-tight transition-colors duration-300" style={{ color: 'var(--drama-text)' }}>{item.title}</h3>
+                <div className="mt-2 flex flex-wrap gap-1">
+                    {item.tags && item.tags.length > 0 ? (
+                        item.tags.slice(0, 2).map((tag, idx) => (
+                            <span key={idx} className="text-[10px] rounded-full px-2 py-0.5" style={{ background: 'var(--drama-elevated)', color: 'var(--drama-text-muted)', border: '1px solid var(--drama-border)' }}>{tag}</span>
+                        ))
+                    ) : item.protagonist ? (
+                        <span className="text-[10px] line-clamp-1" style={{ color: 'var(--drama-text-muted)' }}>{item.protagonist}</span>
+                    ) : null}
+                </div>
+            </div>
+        </Link>
+    );
+}
+
+/* ═══════ FEATURE BUTTONS ═══════ */
 const featureButtons = [
-    {
-        href: "/dramabox/foryou",
-        icon: "✨",
-        title: "Untukmu",
-        desc: "Pilihan spesial",
-        gradient: "from-purple-600 to-pink-600",
-        ring: "ring-purple-500/30",
-        hoverBorder: "hover:border-purple-500/40",
-    },
-    {
-        href: "/dramabox/trending",
-        icon: "📈",
-        title: "Trending",
-        desc: "Paling populer",
-        gradient: "from-yellow-500 to-orange-600",
-        ring: "ring-yellow-500/30",
-        hoverBorder: "hover:border-yellow-500/40",
-    },
-    {
-        href: "/dramabox/dubbed",
-        icon: "🎙️",
-        title: "Sulih Suara",
-        desc: "Drama dubbing Indo",
-        gradient: "from-indigo-600 to-purple-600",
-        ring: "ring-indigo-500/30",
-        hoverBorder: "hover:border-indigo-500/40",
-    },
-    {
-        href: "/dramabox/vip",
-        icon: "💎",
-        title: "VIP",
-        desc: "Premium dramas",
-        gradient: "from-pink-600 to-purple-600",
-        ring: "ring-pink-500/30",
-        hoverBorder: "hover:border-pink-500/40",
-    }
+    { href: "/dramabox/foryou", icon: "✨", title: "Untukmu", desc: "Pilihan spesial", gradient: "from-purple-600 to-pink-600" },
+    { href: "/dramabox/trending", icon: "📈", title: "Trending", desc: "Paling populer", gradient: "from-yellow-500 to-orange-600" },
+    { href: "/dramabox/dubbed", icon: "🎙️", title: "Sulih Suara", desc: "Drama dubbing Indo", gradient: "from-indigo-600 to-purple-600" },
+    { href: "/dramabox/vip", icon: "💎", title: "VIP", desc: "Premium dramas", gradient: "from-pink-600 to-purple-600" },
 ];
 
+/* ═══════ MAIN PAGE ═══════ */
 export default function DramaBoxPage() {
     const [data, setData] = useState<DramaBoxItem[]>([]);
     const [sectionTitle, setSectionTitle] = useState("Rekomendasi Populer");
@@ -175,18 +175,16 @@ export default function DramaBoxPage() {
     const [isSearching, setIsSearching] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-
     const INITIAL_PAGES = 3;
 
     useEffect(() => {
         async function fetchInitialData() {
+            showToast("Memuat drama...", "info");
             try {
-                // Fetch pages 1-3 in parallel for more homepage content
                 const pagePromises = Array.from({ length: INITIAL_PAGES }, (_, i) =>
                     fetch(`/api/dramabox/home?page=${i + 1}`).then(r => r.json())
                 );
                 const results = await Promise.all(pagePromises);
-
                 let allItems: DramaBoxItem[] = [];
                 for (const json of results) {
                     if (json.status && Array.isArray(json.data)) {
@@ -194,87 +192,61 @@ export default function DramaBoxPage() {
                         if (json.title && !sectionTitle) setSectionTitle(json.title);
                     }
                 }
-
-                // Deduplicate by id
                 const seen = new Set<string>();
-                allItems = allItems.filter(item => {
-                    if (seen.has(item.id)) return false;
-                    seen.add(item.id);
-                    return true;
-                });
-
+                allItems = allItems.filter(item => { if (seen.has(item.id)) return false; seen.add(item.id); return true; });
                 setData(allItems);
                 setCurrentPage(INITIAL_PAGES);
-
-                // If last page returned no/few items, no more pages
                 const lastResult = results[results.length - 1];
-                if (!lastResult?.status || !lastResult?.data?.length || lastResult.data.length < 5) {
-                    setHasMore(false);
-                }
+                if (!lastResult?.status || !lastResult?.data?.length || lastResult.data.length < 5) setHasMore(false);
+                showToast("Drama berhasil dimuat", "success");
             } catch (error) {
-                console.error("Failed to fetch DramaBox data:", error);
-            } finally {
-                setLoading(false);
+                console.error("Failed to fetch DramaBox:", error);
+                showToast("Gagal memuat drama", "error");
             }
+            finally { setLoading(false); }
         }
-
         fetchInitialData();
     }, []);
 
     const loadMore = async () => {
         if (loadingMore || !hasMore) return;
         setLoadingMore(true);
-
+        showToast("Memuat drama lainnya...", "info");
         try {
             const nextPage = currentPage + 1;
             const res = await fetch(`/api/dramabox/home?page=${nextPage}`);
             const json = await res.json();
-
             if (json.status && Array.isArray(json.data) && json.data.length > 0) {
-                const existingIds = new Set(data.map(d => d.id));
-                const newItems = json.data.filter((item: DramaBoxItem) => !existingIds.has(item.id));
-
-                if (newItems.length > 0) {
-                    setData(prev => [...prev, ...newItems]);
-                }
-
+                const ids = new Set(data.map(d => d.id));
+                const newItems = json.data.filter((i: DramaBoxItem) => !ids.has(i.id));
+                if (newItems.length > 0) setData(prev => [...prev, ...newItems]);
                 setCurrentPage(nextPage);
-
-                if (json.data.length < 5) {
-                    setHasMore(false);
-                }
-            } else {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error("Failed to load more:", error);
-        } finally {
-            setLoadingMore(false);
+                if (json.data.length < 5) setHasMore(false);
+                showToast(`Memuat ${newItems.length} drama tambahan`, "success");
+            } else { setHasMore(false); }
+        } catch (err) {
+            console.error("Load more failed:", err);
+            showToast("Gagal memuat drama tambahan", "error");
         }
+        finally { setLoadingMore(false); }
     };
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!searchQuery.trim()) {
-            setSearchResults([]);
-            return;
-        }
-
+        if (!searchQuery.trim()) { setSearchResults([]); return; }
         setIsSearching(true);
+        showToast(`Mencari: ${searchQuery}...`, "info");
         try {
             const res = await fetch(`/api/dramabox/search?query=${encodeURIComponent(searchQuery)}`);
             const json: DramaBoxResponse = await res.json();
-            if (json.status && Array.isArray(json.data)) {
-                setSearchResults(json.data);
-            } else {
-                setSearchResults([]);
-            }
-        } catch (error) {
-            console.error("Search failed:", error);
+            const results = json.status && Array.isArray(json.data) ? json.data : [];
+            setSearchResults(results);
+            showToast(`Ditemukan ${results.length} hasil untuk "${searchQuery}"`, "success");
+        } catch {
             setSearchResults([]);
-        } finally {
-            setIsSearching(false);
+            showToast("Gagal mencari drama", "error");
         }
+        finally { setIsSearching(false); }
     };
 
     const isShowingSearch = searchQuery.trim().length > 0;
@@ -283,220 +255,111 @@ export default function DramaBoxPage() {
 
     return (
         <LazyMotion features={domAnimation}>
-            <style jsx global>{`
-                @keyframes shimmer {
-                    0% { transform: translateX(-100%); }
-                    100% { transform: translateX(100%); }
-                }
-            `}</style>
+            <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
 
-            <div className="mx-auto max-w-6xl px-4 py-10">
-                {/* Header */}
-                <div className="mb-10 text-center">
-                    <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-red-500 to-orange-600 shadow-lg ring-1 ring-white/20 overflow-hidden">
-                        <Image src="/logo-dramabox.png" alt="DramaBox Logo" width={80} height={80} className="h-full w-full object-cover" />
-                    </div>
-                    <h1 className="text-3xl font-black text-white sm:text-4xl">
-                        DramaBox <span className="text-red-500">Streaming</span>
-                    </h1>
-                    <p className="mt-3 text-sm text-neutral-400 sm:text-base">
-                        Temukan drama china populer dan terbaru
-                    </p>
+                {/* ═══════ HERO ═══════ */}
+                <div className="noise-overlay relative mb-16 overflow-hidden rounded-[2rem] px-6 py-14 text-center sm:px-12 sm:py-20" style={{ background: 'var(--drama-card)', border: '1px solid var(--drama-border)' }}>
+                    <div className="pointer-events-none absolute -top-32 left-1/4 h-80 w-80 rounded-full blur-[120px]" style={{ background: 'radial-gradient(circle, rgba(239,68,68,0.3) 0%, transparent 70%)', opacity: 'var(--drama-orb-opacity)' }} />
+                    <div className="pointer-events-none absolute -bottom-32 right-1/4 h-64 w-64 rounded-full blur-[100px]" style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.25) 0%, transparent 70%)', opacity: 'var(--drama-orb-opacity)', animation: 'float 8s ease-in-out infinite' }} />
+                    <div className="pointer-events-none absolute top-20 right-[15%] h-40 w-40 rounded-full blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(220,38,38,0.3) 0%, transparent 70%)', opacity: 'var(--drama-orb-opacity)', animation: 'float 6s ease-in-out infinite reverse' }} />
 
-                    {/* Search Bar */}
-                    <form onSubmit={handleSearch} className="mx-auto mt-8 max-w-xl">
+                    {/* Logo with glow ring */}
+                    <m.div initial={{ opacity: 0, scale: 0.7, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="relative z-10 mb-6 inline-flex">
                         <div className="relative">
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => {
-                                    setSearchQuery(e.target.value);
-                                    if (!e.target.value) setSearchResults([]);
-                                }}
-                                placeholder="Cari drama..."
-                                className="w-full rounded-full border border-white/10 bg-white/5 px-6 py-3 pl-12 text-white placeholder-neutral-500 backdrop-blur-sm transition-all focus:border-red-500/50 focus:bg-white/10 focus:outline-none focus:ring-4 focus:ring-red-500/10"
-                            />
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                                    <circle cx="11" cy="11" r="8" />
-                                    <path d="m21 21-4.3-4.3" />
-                                </svg>
+                            <div className="absolute -inset-2 rounded-3xl opacity-60" style={{ background: 'conic-gradient(from 0deg, #ef4444, #f97316, #dc2626, #ef4444)', animation: 'mesh-rotate 4s linear infinite', filter: 'blur(12px)' }} />
+                            <div className="relative h-20 w-20 overflow-hidden rounded-2xl shadow-2xl ring-2 ring-white/10 sm:h-24 sm:w-24">
+                                <Image src="/logo-dramabox.png" alt="DramaBox" fill priority className="object-cover" />
                             </div>
-                            <button
-                                type="submit"
-                                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white transition-hover hover:bg-red-500"
-                            >
-                                Cari
-                            </button>
                         </div>
-                    </form>
+                    </m.div>
+
+                    <m.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }} className="relative z-10">
+                        <span className="mb-3 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest" style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}>
+                            <span className="h-1.5 w-1.5 rounded-full bg-red-400 animate-pulse" />
+                            Drama Streaming
+                        </span>
+                    </m.div>
+                    <m.h1 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="relative z-10 mt-4 text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl" style={{ color: 'var(--drama-text)' }}>
+                        DramaBox
+                    </m.h1>
+                    <m.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="relative z-10 mx-auto mt-3 max-w-md text-base sm:text-lg" style={{ color: 'var(--drama-text-muted)' }}>
+                        Temukan drama China populer dan terbaru
+                    </m.p>
+
+                    {/* Search */}
+                    <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="relative z-10 mx-auto mt-10 max-w-2xl">
+                        <form onSubmit={handleSearch} className="group relative">
+                            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none"><Search className="h-5 w-5" style={{ color: 'var(--drama-text-muted)' }} /></div>
+                            <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); if (!e.target.value) setSearchResults([]); }}
+                                className="block w-full rounded-2xl py-4.5 pl-13 pr-24 text-[15px] font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500/40"
+                                style={{ background: 'var(--drama-search-bg)', border: '1px solid var(--drama-border)', color: 'var(--drama-text)', backdropFilter: 'blur(20px)' }}
+                                placeholder="Cari drama..."
+                            />
+                            <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl px-6 py-2.5 text-sm font-bold text-white transition-all duration-300 shadow-lg"
+                                style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)', boxShadow: '0 4px 20px rgba(239,68,68,0.3)' }}>Cari</button>
+                        </form>
+                    </m.div>
                 </div>
 
-                {/* Feature Navigation Buttons */}
+                {/* ═══════ FEATURE BUTTONS ═══════ */}
                 {!isShowingSearch && !isLoading && (
-                    <div className="mb-8 grid grid-cols-3 gap-3 sm:gap-4">
+                    <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }} className="mb-12 grid grid-cols-4 gap-2 sm:gap-4">
                         {featureButtons.map((btn) => (
-                            <Link
-                                key={btn.href}
-                                href={btn.href}
-                                className={`group relative flex items-center gap-3 sm:gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${btn.hoverBorder}`}
-                            >
-                                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${btn.gradient} text-2xl shadow-lg ring-1 ${btn.ring}`}>
+                            <Link key={btn.href} href={btn.href}
+                                className="group relative flex flex-col items-center gap-2 rounded-2xl p-3 sm:flex-row sm:items-center sm:gap-3 sm:p-4 transition-all duration-300 hover:-translate-y-1"
+                                style={{ background: 'var(--drama-card)', border: '1px solid var(--drama-border)' }}>
+                                <div className={`flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${btn.gradient} text-lg sm:text-xl shadow-lg`}>
                                     {btn.icon}
                                 </div>
-                                <div className="min-w-0">
-                                    <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-white/90 truncate">{btn.title}</h3>
-                                    <p className="text-[11px] sm:text-xs text-neutral-400 truncate">{btn.desc}</p>
+                                <div className="min-w-0 text-center sm:text-left">
+                                    <h3 className="text-[11px] sm:text-sm font-bold truncate" style={{ color: 'var(--drama-text)' }}>{btn.title}</h3>
+                                    <p className="hidden sm:block text-[11px] truncate" style={{ color: 'var(--drama-text-muted)' }}>{btn.desc}</p>
                                 </div>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-auto h-5 w-5 text-neutral-600 group-hover:text-neutral-400 transition-colors shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="hidden sm:block ml-auto h-4 w-4 shrink-0 transition-colors" style={{ color: 'var(--drama-text-badge)' }}>
                                     <path d="m9 18 6-6-6-6" />
                                 </svg>
                             </Link>
                         ))}
-                    </div>
+                    </m.div>
                 )}
 
-                {/* Content */}
-                {isLoading ? (
-                    <LoadingState />
-                ) : (
-                    <m.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="flex flex-col gap-4"
-                    >
-                        {/* Section Title */}
+                {/* ═══════ CONTENT ═══════ */}
+                {isLoading ? <LoadingState /> : (
+                    <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="flex flex-col gap-16">
                         {displayData.length > 0 && (
-                            <h2 className="text-xl font-bold text-white sm:text-2xl flex items-center gap-2">
-                                {isShowingSearch ? (
-                                    <>🔍 Hasil Pencarian: <span className="text-red-400">"{searchQuery}"</span></>
-                                ) : (
-                                    <>🔥 {sectionTitle}</>
-                                )}
-                            </h2>
+                            <div className="flex items-center gap-3">
+                                <div className="h-8 w-1 rounded-full bg-gradient-to-b from-red-500 to-orange-500" />
+                                <h2 className="text-xl font-bold sm:text-2xl" style={{ color: 'var(--drama-text)' }}>
+                                    {isShowingSearch ? <>Hasil: <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">"{searchQuery}"</span></> : `🔥 ${sectionTitle}`}
+                                </h2>
+                            </div>
                         )}
 
-                        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                            {displayData.map((item, index) => {
-                                const href = `/dramabox/detail?id=${item.id}`;
+                        {displayData.length === 0 && isShowingSearch && (
+                            <div className="rounded-2xl p-16 text-center" style={{ background: 'var(--drama-card)', border: '1px solid var(--drama-border)' }}>
+                                <Search className="mx-auto mb-4 h-12 w-12" style={{ color: 'var(--drama-text-badge)' }} />
+                                <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--drama-text)' }}>Tidak ditemukan</h3>
+                                <p style={{ color: 'var(--drama-text-muted)' }}>Coba kata kunci lain</p>
+                            </div>
+                        )}
 
-                                return (
-                                    <Link
-                                        href={href}
-                                        key={item.id}
-                                        className="group relative flex flex-col overflow-hidden rounded-xl border border-white/5 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-red-500/30 hover:shadow-lg hover:shadow-red-500/10 cursor-pointer"
-                                    >
-                                        {/* Cover Image */}
-                                        <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-800">
-                                            <DramaImage
-                                                src={item.cover.trim()}
-                                                alt={item.title}
-                                                priority={index < 6}
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-80 z-20 pointer-events-none" />
-
-                                            {/* Corner Badge */}
-                                            {item.corner && (
-                                                <div
-                                                    className="absolute top-2 left-2 z-20 rounded-md px-2 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm"
-                                                    style={{ backgroundColor: item.corner.color || "#F54E96" }}
-                                                >
-                                                    {item.corner.name}
-                                                </div>
-                                            )}
-
-                                            {/* Legacy: Top Right Label */}
-                                            {!item.corner && item.labels && item.labels[0] && (
-                                                <div className="absolute top-2 right-2 z-20 rounded-md bg-red-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm">
-                                                    {item.labels[0]}
-                                                </div>
-                                            )}
-
-                                            {/* Stats Overlay */}
-                                            <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
-                                                <div className="flex items-center gap-2 text-[10px] font-medium text-white/90 flex-wrap">
-                                                    {item.playCount && (
-                                                        <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                                                            🔥 {item.playCount}
-                                                        </span>
-                                                    )}
-                                                    {item.chapterCount && item.chapterCount > 0 && (
-                                                        <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                                                            📑 {item.chapterCount} Eps
-                                                        </span>
-                                                    )}
-                                                    {!item.playCount && item.statistics && (
-                                                        <>
-                                                            <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                                                                👁️ {item.statistics.views.toLocaleString()}
-                                                            </span>
-                                                            <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                                                                📑 {item.statistics.chapters}
-                                                            </span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Rank Badge */}
-                                            {item.rankVo && (
-                                                <div className="absolute top-2 right-2 z-20 flex items-center gap-1 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-bold text-yellow-400 shadow-sm backdrop-blur-sm">
-                                                    🏆 {item.rankVo.recCopy}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Info */}
-                                        <div className="flex flex-1 flex-col p-3">
-                                            <h3 className="line-clamp-2 text-sm font-bold text-white group-hover:text-red-400 leading-tight">
-                                                {item.title}
-                                            </h3>
-
-                                            {/* Tags */}
-                                            <div className="mt-2 flex flex-wrap gap-1">
-                                                {item.tags && item.tags.length > 0 ? (
-                                                    item.tags.slice(0, 2).map((tag, idx) => (
-                                                        <span
-                                                            key={idx}
-                                                            className="text-[10px] rounded-full bg-white/5 px-2 py-0.5 text-neutral-400 border border-white/5"
-                                                        >
-                                                            {tag}
-                                                        </span>
-                                                    ))
-                                                ) : item.protagonist ? (
-                                                    <span className="text-[10px] text-neutral-400 line-clamp-1">
-                                                        {item.protagonist}
-                                                    </span>
-                                                ) : null}
-                                            </div>
-                                        </div>
-                                    </Link>
-                                );
-                            })}
+                        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                            {displayData.map((item, i) => <DramaBoxCard key={`${item.id}-${i}`} item={item} index={i} />)}
                         </div>
 
-                        {/* Load More Button */}
                         {!isShowingSearch && hasMore && (
-                            <div className="mt-6 flex justify-center">
-                                <button
-                                    onClick={loadMore}
-                                    disabled={loadingMore}
-                                    className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {loadingMore ? (
-                                        <>
-                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
-                                            Memuat...
-                                        </>
-                                    ) : (
-                                        <>
-                                            Muat Lebih Banyak
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                                                <path d="m6 9 6 6 6-6" />
-                                            </svg>
-                                        </>
-                                    )}
+                            <div className="flex justify-center">
+                                <button onClick={loadMore} disabled={loadingMore}
+                                    className="group relative flex items-center gap-2.5 rounded-2xl px-10 py-4 text-sm font-semibold transition-all duration-300 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                                    style={{ background: 'var(--drama-card)', border: '1px solid var(--drama-border)', color: 'var(--drama-text)' }}>
+                                    <div className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'conic-gradient(from 0deg, var(--drama-glow-red), transparent, var(--drama-glow-red))', filter: 'blur(4px)' }} />
+                                    <span className="relative z-10 flex items-center gap-2.5">
+                                        {loadingMore ? (
+                                            <><div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-red-500" /> Memuat...</>
+                                        ) : (
+                                            <>Muat Lebih Banyak <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 transition-transform group-hover:translate-y-0.5"><path d="m6 9 6 6 6-6" /></svg></>
+                                        )}
+                                    </span>
                                 </button>
                             </div>
                         )}

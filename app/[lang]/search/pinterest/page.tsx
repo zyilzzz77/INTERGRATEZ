@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import { downloadMedia } from "@/lib/downloads";
+import { showToast } from "@/components/Toast";
 
 interface Pinner {
     username: string;
@@ -81,6 +82,7 @@ export default function PinterestSearchPage() {
         setComingSoon(false);
 
         try {
+            showToast("Mencari inspirasi...", "info");
             const res = await fetch(
                 `/api/search/pinterest?q=${encodeURIComponent(query)}&type=${searchType}`
             );
@@ -89,11 +91,15 @@ export default function PinterestSearchPage() {
             if (data.comingSoon) {
                 setComingSoon(true);
                 setComingSoonMsg(data.message || "Coming Soon!");
+                showToast("Fitur ini akan segera hadir!", "info");
             } else if (data.items) {
                 setResults(data.items);
+                showToast("Pencarian selesai", "success");
+            } else {
+                showToast("Hasil tidak ditemukan", "info");
             }
         } catch {
-            // handled silently
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }

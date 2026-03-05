@@ -9,20 +9,20 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
                     {/* Column 1: Brand Info */}
                     <div className="lg:col-span-2 space-y-4">
                         <Link href={`/${lang}`} className="inline-block">
-                            <span className="text-3xl font-black text-white tracking-tighter">{dict.brandColumnBrand || "Inversave"}</span>
+                            <span className="text-3xl font-black text-[#ffffff] tracking-tighter">{dict.brandColumnBrand || "Inversave"}</span>
                         </Link>
                         <p className="text-sm text-gray-400 max-w-xs mt-4 leading-relaxed">
                             {dict.description || "The most complete and fastest downloader..."}
                         </p>
 
                         <div className="space-y-3 mt-6">
-                            <div className="flex items-center gap-3 text-sm hover:text-white transition-colors">
+                            <div className="flex items-center gap-3 text-sm hover:text-[#ffffff] transition-colors">
                                 <Phone className="w-4 h-4 text-emerald-500" />
                                 <a href="https://wa.me/6289525129168" target="_blank" rel="noopener noreferrer">
                                     {dict.brandColumnCallCenter || "Call Center"}: 089525129168
                                 </a>
                             </div>
-                            <div className="flex items-center gap-3 text-sm hover:text-white transition-colors">
+                            <div className="flex items-center gap-3 text-sm hover:text-[#ffffff] transition-colors">
                                 <Mail className="w-4 h-4 text-blue-400" />
                                 <a href="mailto:zyilzyyz@gmail.com">
                                     cs@inversave.space
@@ -35,7 +35,7 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
                                 href="https://instagram.com/zyilzzz"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300"
+                                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-[#ffffff] transition-all duration-300"
                                 aria-label="Instagram"
                             >
                                 <Instagram className="w-5 h-5" />
@@ -44,7 +44,7 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
                                 href="https://wa.me/6289525129168"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300"
+                                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-emerald-500 hover:text-[#ffffff] transition-all duration-300"
                                 aria-label="WhatsApp"
                             >
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -56,40 +56,40 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
 
                     {/* Column 2: Produk */}
                     <div className="space-y-4">
-                        <h3 className="text-white font-bold text-lg tracking-wide mb-6">{dict.products || "Products"}</h3>
+                        <h3 className="text-[#ffffff] font-bold text-lg tracking-wide mb-6">{dict.products || "Products"}</h3>
                         <ul className="space-y-3">
-                            <li><Link href={`/${lang}/search/tiktok`} className="hover:text-white transition-colors">TikTok Downloader</Link></li>
-                            <li><Link href={`/${lang}/search/instagram`} className="hover:text-white transition-colors">IG Downloader</Link></li>
-                            <li><Link href={`/${lang}/search/youtube`} className="hover:text-white transition-colors">YT Downloader</Link></li>
-                            <li><Link href={`/${lang}/dramabox`} className="hover:text-white transition-colors">DramaBox Streaming</Link></li>
-                            <li><Link href={`/${lang}/melolo`} className="hover:text-white transition-colors">Melolo Streaming</Link></li>
-                            <li><Link href={`/${lang}/netshort`} className="hover:text-white transition-colors">Netshort Streaming</Link></li>
+                            <li><Link href={`/${lang}/search/tiktok`} className="hover:text-[#ffffff] transition-colors">TikTok Downloader</Link></li>
+                            <li><Link href={`/${lang}/search/instagram`} className="hover:text-[#ffffff] transition-colors">IG Downloader</Link></li>
+                            <li><Link href={`/${lang}/search/youtube`} className="hover:text-[#ffffff] transition-colors">YT Downloader</Link></li>
+                            <li><Link href={`/${lang}/dramabox`} className="hover:text-[#ffffff] transition-colors">DramaBox Streaming</Link></li>
+                            <li><Link href={`/${lang}/melolo`} className="hover:text-[#ffffff] transition-colors">Melolo Streaming</Link></li>
+                            <li><Link href={`/${lang}/netshort`} className="hover:text-[#ffffff] transition-colors">Netshort Streaming</Link></li>
                         </ul>
                     </div>
 
                     {/* Column 3: Perusahaan */}
                     <div className="space-y-4">
-                        <h3 className="text-white font-bold text-lg tracking-wide mb-6">{dict.company || "Company"}</h3>
+                        <h3 className="text-[#ffffff] font-bold text-lg tracking-wide mb-6">{dict.company || "Company"}</h3>
                         <ul className="space-y-3">
-                            <li><Link href={`/${lang}/about`} className="hover:text-white transition-colors">{dict.aboutUs || "About Us"}</Link></li>
-                            <li><Link href={`/${lang}/blog`} className="hover:text-white transition-colors">{dict.blog || "Blog & Update"}</Link></li>
-                            <li><Link href={`/${lang}/topup`} className="hover:text-white transition-colors">{dict.pricing || "Harga & Paket"}</Link></li>
-                            <li><Link href={`/${lang}/docs`} className="hover:text-white transition-colors">{dict.apiDocs || "API Documentation"}</Link></li>
+                            <li><Link href={`/${lang}/about`} className="hover:text-[#ffffff] transition-colors">{dict.aboutUs || "About Us"}</Link></li>
+                            <li><Link href={`/${lang}/blog`} className="hover:text-[#ffffff] transition-colors">{dict.blog || "Blog & Update"}</Link></li>
+                            <li><Link href={`/${lang}/topup`} className="hover:text-[#ffffff] transition-colors">{dict.pricing || "Harga & Paket"}</Link></li>
+                            <li><Link href={`/${lang}/docs`} className="hover:text-[#ffffff] transition-colors">{dict.apiDocs || "API Documentation"}</Link></li>
                         </ul>
                     </div>
 
                     {/* Column 4: Lainnya & Hubungi Kami */}
                     <div className="space-y-4">
-                        <h3 className="text-white font-bold text-lg tracking-wide mb-6">{dict.others || "Others"}</h3>
+                        <h3 className="text-[#ffffff] font-bold text-lg tracking-wide mb-6">{dict.others || "Others"}</h3>
                         <ul className="space-y-3">
-                            <li><Link href={`/${lang}/bantuan`} className="hover:text-white transition-colors">{dict.faq || "Bantuan FAQ"}</Link></li>
-                            <li><Link href={`/${lang}/privasi`} className="hover:text-white transition-colors">{dict.privacy || "Pemberitahuan Privasi"}</Link></li>
-                            <li><Link href={`/${lang}/syarat`} className="hover:text-white transition-colors">{dict.terms || "Syarat & Ketentuan"}</Link></li>
-                            <li><Link href={`/${lang}/disclaimer`} className="hover:text-white transition-colors">{dict.disclaimer || "Disclaimer DMCA"}</Link></li>
+                            <li><Link href={`/${lang}/bantuan`} className="hover:text-[#ffffff] transition-colors">{dict.faq || "Bantuan FAQ"}</Link></li>
+                            <li><Link href={`/${lang}/privasi`} className="hover:text-[#ffffff] transition-colors">{dict.privacy || "Pemberitahuan Privasi"}</Link></li>
+                            <li><Link href={`/${lang}/syarat`} className="hover:text-[#ffffff] transition-colors">{dict.terms || "Syarat & Ketentuan"}</Link></li>
+                            <li><Link href={`/${lang}/disclaimer`} className="hover:text-[#ffffff] transition-colors">{dict.disclaimer || "Disclaimer DMCA"}</Link></li>
                         </ul>
 
                         <div className="pt-6">
-                            <h3 className="text-white font-bold text-lg tracking-wide mb-4">{dict.contactUs || "Contact Us"}</h3>
+                            <h3 className="text-[#ffffff] font-bold text-lg tracking-wide mb-4">{dict.contactUs || "Contact Us"}</h3>
                             <div className="flex gap-2 text-sm max-w-[200px]">
                                 <MapPin className="w-5 h-5 shrink-0 text-gray-500 mt-1" />
                                 <span className="text-gray-400 leading-snug">

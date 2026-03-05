@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Copy, Check, Loader2, Link2, ExternalLink } from "lucide-react";
+import { showToast } from "@/components/Toast";
 
 export default function ShortenerPage() {
     const [url, setUrl] = useState("");
@@ -24,6 +25,7 @@ export default function ShortenerPage() {
         setCopied(false);
 
         try {
+            showToast("Mempersingkat URL...", "info");
             const res = await fetch(
                 `/api/tools/shortener?url=${encodeURIComponent(url.trim())}`
             );
@@ -31,6 +33,7 @@ export default function ShortenerPage() {
 
             if (!data.status) {
                 setError(data.error || "Gagal mempersingkat URL");
+                showToast(data.error || "Gagal mempersingkat URL", "error");
                 return;
             }
 
@@ -40,8 +43,10 @@ export default function ShortenerPage() {
                 code: data.code,
                 expired_at: data.expired_at,
             });
+            showToast("URL berhasil dipersingkat", "success");
         } catch {
             setError("Terjadi kesalahan. Coba lagi.");
+            showToast("Terjadi kesalahan sistem", "error");
         } finally {
             setLoading(false);
         }
@@ -56,6 +61,7 @@ export default function ShortenerPage() {
         try {
             await navigator.clipboard.writeText(result.url);
             setCopied(true);
+            showToast("URL tersalin ke clipboard", "success");
             setTimeout(() => setCopied(false), 2000);
         } catch {
             // fallback
@@ -66,6 +72,7 @@ export default function ShortenerPage() {
             document.execCommand("copy");
             document.body.removeChild(input);
             setCopied(true);
+            showToast("URL tersalin", "success");
             setTimeout(() => setCopied(false), 2000);
         }
     };
@@ -161,8 +168,8 @@ export default function ShortenerPage() {
                             <button
                                 onClick={handleCopy}
                                 className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-bold transition shrink-0 ${copied
-                                        ? "bg-green-500/20 text-green-400"
-                                        : "bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30"
+                                    ? "bg-green-500/20 text-green-400"
+                                    : "bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30"
                                     }`}
                             >
                                 {copied ? (

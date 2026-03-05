@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
+import { showToast } from "@/components/Toast";
 
 interface GithubProfile {
     username: string;
@@ -43,16 +44,20 @@ export default function GithubSearchPage() {
         setError("");
 
         try {
+            showToast("Mencari profil GitHub...", "info");
             const res = await fetch(`/api/search/github?username=${encodeURIComponent(query)}`);
             const data = await res.json();
 
             if (data.error) {
                 setError(data.error);
+                showToast(data.error, "error");
             } else {
                 setResult(data);
+                showToast("Pencarian selesai", "success");
             }
         } catch {
             setError("Gagal mengambil data GitHub");
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }
@@ -100,7 +105,7 @@ export default function GithubSearchPage() {
                     <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
                         {/* Banner */}
                         <div className="h-32 bg-gradient-to-r from-gray-800 to-gray-900" />
-                        
+
                         <div className="px-6 pb-6">
                             {/* Avatar & Basic Info */}
                             <div className="relative -mt-16 mb-6 flex flex-col items-center sm:flex-row sm:items-end sm:gap-6">

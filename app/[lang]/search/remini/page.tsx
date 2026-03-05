@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Upload, Download, Trash2, Loader2, ArrowRight, Zap } from "lucide-react";
+import { showToast } from "@/components/Toast";
 
 export default function ReminiPage() {
     const [file, setFile] = useState<File | null>(null);
@@ -45,6 +46,7 @@ export default function ReminiPage() {
         setResultSize(null);
 
         try {
+            showToast("Mengunggah dan memproses foto...", "info");
             const formData = new FormData();
             formData.append("image", file);
 
@@ -57,13 +59,16 @@ export default function ReminiPage() {
 
             if (!data.status) {
                 setError(data.error || "Gagal enhance foto");
+                showToast(data.error || "Gagal enhance foto", "error");
                 return;
             }
 
             setResultUrl(data.result);
             setResultSize(data.size || null);
+            showToast("Foto berhasil di-enhance", "success");
         } catch {
             setError("Terjadi kesalahan. Coba lagi.");
+            showToast("Terjadi kesalahan sistem", "error");
         } finally {
             setLoading(false);
         }
@@ -92,6 +97,7 @@ export default function ReminiPage() {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         } catch {
+            showToast("Membuka gambar di tab baru...", "info");
             window.open(resultUrl, "_blank");
         }
     };

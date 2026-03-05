@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import { showToast } from "@/components/Toast";
 
 interface DramaBoxItem {
     id: string;
@@ -106,8 +107,13 @@ export default function DubbedPage() {
     const [hasMore, setHasMore] = useState(true);
 
     const fetchData = async (cls: string, page: number, append = false) => {
-        if (!append) setLoading(true);
-        else setLoadingMore(true);
+        if (!append) {
+            setLoading(true);
+            showToast("Memuat drama...", "info");
+        } else {
+            setLoadingMore(true);
+            showToast("Memuat drama lainnya...", "info");
+        }
 
         try {
             const res = await fetch(`/api/dramabox/dubbed?classify=${encodeURIComponent(cls)}&page=${page}`);
@@ -118,8 +124,10 @@ export default function DubbedPage() {
                     const existingIds = new Set(data.map(d => d.id));
                     const newItems = json.data.filter((item: DramaBoxItem) => !existingIds.has(item.id));
                     setData(prev => [...prev, ...newItems]);
+                    showToast(`Memuat ${newItems.length} drama tambahan`, "success");
                 } else {
                     setData(json.data);
+                    showToast("Drama berhasil dimuat", "success");
                 }
 
                 if (json.data.length < 5) setHasMore(false);
@@ -131,6 +139,7 @@ export default function DubbedPage() {
         } catch (error) {
             console.error("Failed to fetch dubbed data:", error);
             if (!append) setData([]);
+            showToast("Gagal memuat drama", "error");
         } finally {
             setLoading(false);
             setLoadingMore(false);

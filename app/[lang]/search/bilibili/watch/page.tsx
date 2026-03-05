@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { showToast } from "@/components/Toast";
 
 function BilibiliWatchContent() {
     const searchParams = useSearchParams();
@@ -11,7 +12,7 @@ function BilibiliWatchContent() {
     const queryParam = searchParams.get("q");
 
     // Construct full URL if ID is provided, otherwise use url param
-    const url = idParam 
+    const url = idParam
         ? `https://www.bilibili.tv/id/video/${idParam}`
         : urlParam;
 
@@ -35,11 +36,13 @@ function BilibiliWatchContent() {
 
         async function fetchVideo() {
             try {
+                showToast("Memuat video Bilibili...", "info");
                 const res = await fetch(`/api/downloader/bilibili?url=${encodeURIComponent(url!)}`);
                 const data = await res.json();
 
                 if (data.error) {
                     setError(data.error);
+                    showToast(data.error, "error");
                     return;
                 }
 
@@ -57,25 +60,25 @@ function BilibiliWatchContent() {
 
                 // Prioritize finding highest quality (1080p -> 720p)
                 let streamUrl = "";
-                
+
                 if (data.media && data.media.length > 0) {
                     // Try to find 1080p first
-                    const quality1080 = data.media.find((m: any) => 
-                        (m.quality && m.quality.includes("1080")) || 
+                    const quality1080 = data.media.find((m: any) =>
+                        (m.quality && m.quality.includes("1080")) ||
                         (m.url && m.url.includes("1080"))
                     );
 
                     // Then try 720p
-                    const quality720 = data.media.find((m: any) => 
-                        (m.quality && m.quality.includes("720")) || 
+                    const quality720 = data.media.find((m: any) =>
+                        (m.quality && m.quality.includes("720")) ||
                         (m.url && m.url.includes("720"))
                     );
 
                     // Fallback to akamai mirror or first available
-                    const mirror = data.media.find((m: any) => 
+                    const mirror = data.media.find((m: any) =>
                         m.url && m.url.includes("upos-bstar1-mirrorakam.akamaized.net")
                     );
-                    
+
                     if (quality1080) {
                         streamUrl = quality1080.url;
                     } else if (quality720) {
@@ -86,7 +89,7 @@ function BilibiliWatchContent() {
                         streamUrl = data.media[0].url;
                     }
                 }
-                
+
                 if (!streamUrl) {
                     streamUrl = data.directUrl;
                 }
@@ -99,11 +102,14 @@ function BilibiliWatchContent() {
                         const proxyAudio = `/api/proxy-download?url=${encodeURIComponent(fetchedAudioUrl)}&filename=audio.mp3`;
                         setAudioUrl(proxyAudio);
                     }
+                    showToast("Video berhasil dimuat", "success");
                 } else {
                     setError("Tidak dapat menemukan stream video");
+                    showToast("Stream video tidak tersedia", "error");
                 }
             } catch (err) {
                 setError("Terjadi kesalahan saat memuat video");
+                showToast("Gagal memuat video", "error");
             } finally {
                 setLoading(false);
             }
@@ -115,7 +121,7 @@ function BilibiliWatchContent() {
     // Fetch related videos (search results)
     useEffect(() => {
         if (!queryParam) return;
-        
+
         async function fetchRelated() {
             setRelatedLoading(true);
             try {
@@ -123,7 +129,7 @@ function BilibiliWatchContent() {
                 const data = await res.json();
                 if (data.items) {
                     // Filter out current video if possible (by title similarity or ID if available)
-                    const filtered = data.items.filter((item: any) => 
+                    const filtered = data.items.filter((item: any) =>
                         item.videoUrl !== url && (!idParam || !item.videoUrl.includes(idParam))
                     );
                     setRelatedVideos(filtered);
@@ -145,11 +151,11 @@ function BilibiliWatchContent() {
 
         if (!video || !audio) return;
 
-        const onPlay = () => audio.play().catch(() => {});
+        const onPlay = () => audio.play().catch(() => { });
         const onPause = () => audio.pause();
         const onSeek = () => { audio.currentTime = video.currentTime; };
         const onWaiting = () => audio.pause();
-        const onPlaying = () => audio.play().catch(() => {});
+        const onPlaying = () => audio.play().catch(() => { });
         const onVolumeChange = () => { audio.volume = video.volume; audio.muted = video.muted; };
 
         video.addEventListener("play", onPlay);
@@ -187,7 +193,7 @@ function BilibiliWatchContent() {
         <div className="min-h-screen bg-neutral-900 px-4 py-8">
             <div className="mx-auto max-w-[1600px]">
                 {/* Back Button */}
-                <button 
+                <button
                     onClick={() => router.push('/search/bilibili')}
                     className="mb-6 flex items-center gap-2 text-sm font-medium text-neutral-400 transition hover:text-white"
                 >
@@ -234,7 +240,7 @@ function BilibiliWatchContent() {
                                     </video>
                                     {/* Hidden Audio Player */}
                                     {audioUrl && (
-                                        <audio 
+                                        <audio
                                             ref={audioRef}
                                             src={audioUrl}
                                             preload="auto"
@@ -285,14 +291,14 @@ function BilibiliWatchContent() {
                                 ))
                             ) : relatedVideos.length > 0 ? (
                                 relatedVideos.map((item, idx) => (
-                                    <div 
-                                        key={idx} 
+                                    <div
+                                        key={idx}
                                         className="group flex cursor-pointer gap-3 rounded-lg border border-transparent p-2 transition hover:bg-white/5"
                                         onClick={() => handleRelatedWatch(item.videoUrl)}
                                     >
                                         <div className="relative aspect-video w-36 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-800">
-                                            <img 
-                                                src={item.thumbnail} 
+                                            <img
+                                                src={item.thumbnail}
                                                 alt={item.title}
                                                 className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                                                 loading="lazy"
@@ -302,7 +308,7 @@ function BilibiliWatchContent() {
                                             />
                                             {/* Transparent Overlay for protection */}
                                             <div className="absolute inset-0 z-10" onContextMenu={(e) => e.preventDefault()} />
-                                            
+
                                             <span className="absolute bottom-1 right-1 z-20 rounded bg-black/80 px-1 py-0.5 text-[10px] font-bold text-white">
                                                 {item.duration}
                                             </span>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import { downloadMedia } from "@/lib/downloads";
+import { showToast } from "@/components/Toast";
 
 interface BilibiliResult {
     title: string;
@@ -21,7 +22,7 @@ export default function BilibiliSearchPage() {
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const [lastQuery, setLastQuery] = useState("");
-    
+
     // Video player state
     // We moved the player to /search/bilibili/watch so we don't need this state anymore
     // but I'll keep the function signature for handleWatch to redirect instead
@@ -41,13 +42,19 @@ export default function BilibiliSearchPage() {
         setResults([]);
 
         try {
+            showToast("Mencari video...", "info");
             const res = await fetch(
                 `/api/search/bilibili?q=${encodeURIComponent(query)}`
             );
             const data = await res.json();
-            if (data.items) setResults(data.items);
+            if (data.items) {
+                setResults(data.items);
+                showToast("Pencarian selesai", "success");
+            } else {
+                showToast("Hasil tidak ditemukan", "info");
+            }
         } catch {
-            // silent
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }
@@ -126,7 +133,7 @@ export default function BilibiliSearchPage() {
                                     />
                                     {/* Transparent Overlay for protection */}
                                     <div className="absolute inset-0 z-10" onContextMenu={(e) => e.preventDefault()} />
-                                    
+
                                     {r.duration && (
                                         <span className="absolute bottom-2 right-2 z-20 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-bold text-white">
                                             {r.duration}

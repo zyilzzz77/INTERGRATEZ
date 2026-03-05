@@ -48,13 +48,19 @@ export default function YouTubeSearchClient({ dict, lang }: { dict: any; lang: s
         setCurrentQuery(q);
 
         try {
+            showToast("Mencari video...", "info");
             const res = await fetch(
                 `/api/search/youtube?q=${encodeURIComponent(q)}`
             );
             const data = await res.json();
-            if (data.items) setResults(data.items);
+            if (data.items) {
+                setResults(data.items);
+                showToast("Pencarian selesai", "success");
+            } else {
+                showToast("Video tidak ditemukan", "info");
+            }
         } catch {
-            // silent error
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }
@@ -99,23 +105,28 @@ export default function YouTubeSearchClient({ dict, lang }: { dict: any; lang: s
         setPlaylistResults([]);
 
         try {
+            showToast("Mencari playlist...", "info");
             const res = await fetch(
                 `/api/search/youtube-playlist?url=${encodeURIComponent(url)}`
             );
             const data = await res.json();
             if (data.error) {
                 setPlaylistError(data.error);
+                showToast(data.error, "error");
             } else if (data.data && Array.isArray(data.data)) {
                 setPlaylistResults(data.data);
                 setShowPlaylistResults(true);
                 setShowPlaylistModal(false);
                 setHasSearched(false);
                 setResults([]);
+                showToast("Playlist ditemukan", "success");
             } else {
                 setPlaylistError(dict.playlistErrorNoData);
+                showToast(dict.playlistErrorNoData, "error");
             }
         } catch {
             setPlaylistError(dict.playlistErrorFailed);
+            showToast(dict.playlistErrorFailed, "error");
         } finally {
             setPlaylistLoading(false);
         }

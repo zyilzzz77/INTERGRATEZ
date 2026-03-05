@@ -18,6 +18,7 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
         const fetchCredits = async () => {
             try {
                 const res = await fetch("/api/user/credits");
+                if (!res.ok) return;
                 const data = await res.json();
                 setCredits(data.credits);
                 setIsGuest(data.isGuest);

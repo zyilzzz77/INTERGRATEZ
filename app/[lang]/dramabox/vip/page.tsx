@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import { showToast } from "@/components/Toast";
 
 interface VipDramaItem {
     bookId: string;
@@ -97,14 +98,17 @@ export default function DramaBoxVipPage() {
 
     useEffect(() => {
         async function fetchVip() {
+            showToast("Memuat drama VIP...", "info");
             try {
                 const res = await fetch("https://dramabox.dramabos.my.id/api/v1/vip?lang=in");
                 const json: VipResponse = await res.json();
                 // The API returns columnVoList, we take the first column's bookList
                 const items = json.columnVoList?.[0]?.bookList || [];
                 setData(items);
+                showToast("Drama VIP berhasil dimuat", "success");
             } catch (e) {
                 console.error("Failed to fetch VIP data", e);
+                showToast("Gagal memuat drama VIP", "error");
             } finally {
                 setLoading(false);
             }

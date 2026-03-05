@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import { showToast } from "@/components/Toast";
 
 interface MeloloDetail {
     id: string;
@@ -111,14 +112,17 @@ function DetailContent() {
         if (!bookId) return;
 
         async function fetchDetail() {
+            showToast("Memuat detail drama...", "info");
             try {
                 const res = await fetch(`/api/melolo/detail?id=${bookId}`);
                 const json = await res.json();
                 if (json.status && json.data) {
                     setDetail(json.data);
                 }
+                showToast("Detail drama berhasil dimuat", "success");
             } catch (error) {
                 console.error("Failed to fetch detail:", error);
+                showToast("Gagal memuat detail drama", "error");
             } finally {
                 setLoading(false);
             }
@@ -130,15 +134,18 @@ function DetailContent() {
     // Fetch video URL for current episode
     const fetchVideoUrl = async (vid: string) => {
         setLoadingVideo(true);
+        showToast("Memuat video...", "info");
         try {
             const res = await fetch(`/api/melolo/video?vid=${vid}`);
             const json = await res.json();
             if (json.status && json.data?.url) {
                 setVideoUrl(json.data.url);
+                showToast("Video berhasil dimuat", "success");
                 return json.data.url;
             }
         } catch (error) {
             console.error("Failed to fetch video:", error);
+            showToast("Gagal memuat video", "error");
         } finally {
             setLoadingVideo(false);
         }
@@ -190,9 +197,13 @@ function DetailContent() {
         if (!detail || currentEpIndex < 0) return;
 
         setIsRefreshingToken(true);
+        showToast("Memperbarui sesi video...", "info");
         const vid = detail.videos[currentEpIndex]?.vid;
         if (vid) {
             await fetchVideoUrl(vid);
+            showToast("Sesi video diperbarui", "success");
+        } else {
+            showToast("Gagal memuat info video", "error");
         }
         setIsRefreshingToken(false);
     };
@@ -321,7 +332,7 @@ function DetailContent() {
                                     <div className="mt-6 flex justify-center sm:justify-start">
                                         <button
                                             onClick={() => selectEpisode(0)}
-                                            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-rose-500/30 transition-all hover:shadow-xl hover:shadow-rose-500/40 hover:-translate-y-0.5 active:scale-95"
+                                            className="inline-flex items-center gap-2 rounded-full bg-black text-white dark:bg-white dark:text-black px-8 py-3 text-sm font-bold shadow-lg shadow-black/20 dark:shadow-white/20 transition-all hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                                                 <path d="M8 5v14l11-7z" />

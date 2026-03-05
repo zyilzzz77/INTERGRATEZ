@@ -1,14 +1,15 @@
-import { Metadata } from 'next';
+import { constructMetadata } from "@/lib/seo";
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
     const { lang } = await params;
     const { getDictionary } = await import('@/lib/dictionary');
     const dict = await getDictionary(lang);
     const text = dict.searchLayout;
 
-    return {
+    return constructMetadata({
         title: text.title,
         description: text.description,
+        url: `/${lang}/search`,
         keywords: [
             'cari video online gratis',
             'search video downloader semua platform',
@@ -21,12 +22,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
             'situs unduh video terlengkap',
             'video downloader terbaik 2025'
         ],
-        openGraph: {
-            title: text.ogTitle,
-            description: text.ogDescription,
-            url: 'https://inversave.space/search',
-        },
-    };
+        locale: lang === 'id' ? 'id_ID' : 'en_US'
+    });
 }
 
 export default function SearchLayout({

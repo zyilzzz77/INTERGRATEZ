@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import { showToast } from "@/components/Toast";
 
 // Helper to clean URL from backticks and spaces
 const cleanUrl = (url: string) => url ? url.replace(/[`\s]/g, '') : '';
@@ -103,24 +104,29 @@ function WatchContent() {
         }
 
         try {
+            showToast("Memuat streaming drama...", "info");
             const res = await fetch(`/api/dramawave/episode?id=${id}&chapter=${chapterNum}`);
             const json = await res.json();
 
             if (!res.ok || json.error) {
                 if (res.status === 403 || json.error === "Kredit tidak mencukupi") {
+                    showToast("Kredit tidak mencukupi", "error");
                     alert(json.error || "Kredit tidak mencukupi");
                     window.location.href = "/topup";
                 }
                 console.error("API error:", json.error);
+                showToast("Gagal memuat streaming", "error");
                 return;
             }
 
             if (json.status && json.data) {
                 setEpisodeData(json.data);
                 setCurrentChapterNum(chapterNum);
+                showToast("Streaming berhasil dimuat", "success");
             }
         } catch (error) {
             console.error("Failed to fetch episode details:", error);
+            showToast("Terjadi kesalahan sistem", "error");
         } finally {
             setLoading(false);
             setIsFetchingSubsequent(false);

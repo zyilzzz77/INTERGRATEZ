@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
+import { showToast } from "@/components/Toast";
 
 /* ─── Types ─────────────────────────────────────────── */
 interface CastMember {
@@ -53,6 +54,7 @@ function WatchContent() {
             setLoading(true);
             setError(null);
             try {
+                showToast("Memuat detail drama...", "info");
                 const res = await fetch(`/api/search/dracin-get?url=${encodeURIComponent(dramaUrl)}`);
                 const data = await res.json();
                 if (data.status && data.data) {
@@ -62,11 +64,14 @@ function WatchContent() {
                     if (eps && eps.length > 0) {
                         setActiveEp(eps[0]);
                     }
+                    showToast("Drama berhasil dimuat", "success");
                 } else {
                     setError(data.error || "Gagal memuat drama");
+                    showToast(data.error || "Gagal memuat drama", "error");
                 }
             } catch {
                 setError("Terjadi kesalahan. Coba lagi.");
+                showToast("Terjadi kesalahan sistem", "error");
             } finally {
                 setLoading(false);
             }
@@ -296,16 +301,16 @@ function WatchContent() {
                                     key={ep.order}
                                     onClick={() => selectEpisode(ep)}
                                     className={`w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all ${isActive
-                                            ? "border-emerald-400/50 bg-emerald-500/15 shadow-md shadow-emerald-500/10"
-                                            : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10"
+                                        ? "border-emerald-400/50 bg-emerald-500/15 shadow-md shadow-emerald-500/10"
+                                        : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10"
                                         }`}
                                 >
                                     {/* Episode Number */}
                                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-black ${isActive
-                                            ? "bg-emerald-500 text-white"
-                                            : ep.vip
-                                                ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                                : "bg-white/5 text-neutral-400 border border-white/10"
+                                        ? "bg-emerald-500 text-white"
+                                        : ep.vip
+                                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                            : "bg-white/5 text-neutral-400 border border-white/10"
                                         }`}>
                                         {isActive ? (
                                             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
@@ -352,8 +357,8 @@ function WatchContent() {
                                     key={i}
                                     onClick={() => selectEpisode(ep)}
                                     className={`w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all ${isActive
-                                            ? "border-emerald-400/50 bg-emerald-500/15"
-                                            : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10"
+                                        ? "border-emerald-400/50 bg-emerald-500/15"
+                                        : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10"
                                         }`}
                                 >
                                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isActive ? "bg-emerald-500 text-white" : "bg-white/5 text-neutral-500 border border-white/10"

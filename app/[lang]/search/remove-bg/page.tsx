@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Upload, Download, Trash2, ImageIcon, Loader2, ArrowRight } from "lucide-react";
+import { showToast } from "@/components/Toast";
 
 export default function RemoveBgPage() {
     const [file, setFile] = useState<File | null>(null);
@@ -42,6 +43,7 @@ export default function RemoveBgPage() {
         setResultUrl(null);
 
         try {
+            showToast("Menghapus background...", "info");
             const formData = new FormData();
             formData.append("image", file);
 
@@ -54,12 +56,15 @@ export default function RemoveBgPage() {
 
             if (!data.status) {
                 setError(data.error || "Gagal menghapus background");
+                showToast(data.error || "Gagal menghapus background", "error");
                 return;
             }
 
             setResultUrl(data.result);
+            showToast("Background berhasil dihapus", "success");
         } catch {
             setError("Terjadi kesalahan. Coba lagi.");
+            showToast("Terjadi kesalahan sistem", "error");
         } finally {
             setLoading(false);
         }
@@ -87,6 +92,7 @@ export default function RemoveBgPage() {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         } catch {
+            showToast("Membuka gambar di tab baru...", "info");
             window.open(resultUrl, "_blank");
         }
     };
@@ -117,8 +123,8 @@ export default function RemoveBgPage() {
                     onDrop={handleDrop}
                     onClick={() => inputRef.current?.click()}
                     className={`mx-auto max-w-lg cursor-pointer rounded-3xl border-2 border-dashed p-12 text-center transition-all ${dragActive
-                            ? "border-purple-500/50 bg-purple-500/5"
-                            : "border-neutral-800 hover:border-neutral-700 hover:bg-neutral-900/50"
+                        ? "border-purple-500/50 bg-purple-500/5"
+                        : "border-neutral-800 hover:border-neutral-700 hover:bg-neutral-900/50"
                         }`}
                 >
                     <input

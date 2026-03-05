@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import { showToast } from "@/components/Toast";
 
 interface Episode {
     chapterId: string;
@@ -79,7 +80,12 @@ function WatchContent() {
     useEffect(() => {
         if (!bookId) return;
         setLoading(true);
-        fetchEpisodes().finally(() => setLoading(false));
+        showToast("Memuat episode...", "info");
+        fetchEpisodes().then(() => {
+            showToast("Episode berhasil dimuat", "success");
+        }).catch(() => {
+            showToast("Gagal memuat episode", "error");
+        }).finally(() => setLoading(false));
 
         // Refresh episodes every 15 min to keep video tokens fresh
         const interval = setInterval(fetchEpisodes, 15 * 60 * 1000);
@@ -129,11 +135,13 @@ function WatchContent() {
         if (tokenRetry >= 2 || isFetchingRef.current) return;
         isFetchingRef.current = true;
         setIsRefreshingToken(true);
+        showToast("Memperbarui sesi video...", "info");
         console.warn(`Token expired, refreshing... (${tokenRetry + 1}/2)`);
         await fetchEpisodes();
         setTokenRetry(prev => prev + 1);
         setIsRefreshingToken(false);
         isFetchingRef.current = false;
+        showToast("Sesi video diperbarui", "success");
     };
 
     // Auto-play next episode

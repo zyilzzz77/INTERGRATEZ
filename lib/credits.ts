@@ -88,7 +88,14 @@ async function getOrCreateGuestCredit(ip: string, fingerprint: string) {
  * Get credit info for the current user (authenticated or guest)
  */
 export async function getCreditInfo(): Promise<CreditInfo> {
-    const session = await auth();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let session: any = null;
+    try {
+        session = await auth();
+    } catch {
+        // auth() can fail with JSON parse errors if session cookie is malformed
+        // Treat as guest in this case
+    }
 
     if (session?.user?.id) {
         const user = await prisma.user.findUnique({
@@ -143,7 +150,13 @@ export async function getCreditInfo(): Promise<CreditInfo> {
  * Accepts an action param to allow unlimited streaming/download for VIP roles
  */
 export async function deductCredit(action: string = "download"): Promise<boolean> {
-    const session = await auth();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let session: any = null;
+    try {
+        session = await auth();
+    } catch {
+        // Treat as guest if auth fails
+    }
 
     if (session?.user?.id) {
         const user = await prisma.user.findUnique({

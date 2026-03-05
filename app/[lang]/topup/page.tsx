@@ -116,6 +116,7 @@ export default function TopUpPage() {
         const fetchCredits = async () => {
             try {
                 const res = await fetch("/api/user/credits");
+                if (!res.ok) return;
                 const data = await res.json();
                 if (data.credits !== undefined) {
                     setCreditInfo({ credits: data.credits, role: data.role || "free", bonusCredits: data.bonusCredits || 0 });

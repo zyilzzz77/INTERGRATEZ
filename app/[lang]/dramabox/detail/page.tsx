@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import { showToast } from "@/components/Toast";
 
 interface DramaDetail {
     id: string;
@@ -130,6 +131,7 @@ function DetailContent() {
         if (!bookId) return;
 
         async function fetchAll() {
+            showToast("Memuat detail drama...", "info");
             try {
                 const [detailRes, episodesRes] = await Promise.all([
                     fetch(`/api/dramabox/detail?bookId=${bookId}`),
@@ -141,8 +143,10 @@ function DetailContent() {
                 ]);
                 if (detailJson.status && detailJson.data) setDetail(detailJson.data);
                 if (episodesJson.status && Array.isArray(episodesJson.data)) setEpisodes(episodesJson.data);
+                showToast("Detail drama berhasil dimuat", "success");
             } catch (error) {
                 console.error("Failed to fetch detail:", error);
+                showToast("Gagal memuat detail drama", "error");
             } finally {
                 setLoading(false);
             }
@@ -348,7 +352,7 @@ function DetailContent() {
                                     <div className="mt-6 flex justify-center sm:justify-start">
                                         <button
                                             onClick={() => selectEpisode(0)}
-                                            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-red-600 to-red-500 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/30 transition-all hover:shadow-xl hover:shadow-red-500/40 hover:-translate-y-0.5 active:scale-95"
+                                            className="inline-flex items-center gap-2 rounded-full bg-black text-white dark:bg-white dark:text-black px-8 py-3 text-sm font-bold shadow-lg shadow-black/20 dark:shadow-white/20 transition-all hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                                                 <path d="M8 5v14l11-7z" />

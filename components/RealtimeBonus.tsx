@@ -13,6 +13,7 @@ export default function RealtimeBonus({ initialBonus }: { initialBonus: number }
             if (!session?.user) return; // Only users have bonus credits
             try {
                 const res = await fetch("/api/user/credits");
+                if (!res.ok) return;
                 const data = await res.json();
                 if (data.bonusCredits !== undefined && data.bonusCredits !== null) {
                     setBonus(data.bonusCredits);

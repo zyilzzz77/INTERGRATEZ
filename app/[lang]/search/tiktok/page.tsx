@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import SearchBar from "@/components/SearchBar";
 import Image from "next/image";
 import { downloadMedia } from "@/lib/downloads";
+import { showToast } from "@/components/Toast";
 
 /* ─── Types ─── */
 interface TikTokVideoResult {
@@ -89,31 +90,47 @@ export default function TikTokSearchPage() {
         if (mode === "video") {
             setVideoResults([]);
             try {
+                showToast("Mencari video...", "info");
                 const res = await fetch(`/api/search/tiktok?q=${encodeURIComponent(query)}`);
                 const data = await res.json();
-                if (data.items) setVideoResults(data.items);
-            } catch { /* silent */ }
+                if (data.items) {
+                    setVideoResults(data.items);
+                    showToast("Pencarian selesai", "success");
+                } else {
+                    showToast("Video tidak ditemukan", "info");
+                }
+            } catch { showToast("Gagal mencari video", "error"); }
         } else if (mode === "photo") {
             setPhotoResults([]);
             try {
+                showToast("Mencari foto...", "info");
                 const res = await fetch(`/api/search/tiktokphoto?q=${encodeURIComponent(query)}`);
                 const data = await res.json();
-                if (data.items) setPhotoResults(data.items);
-            } catch { /* silent */ }
+                if (data.items) {
+                    setPhotoResults(data.items);
+                    showToast("Pencarian selesai", "success");
+                } else {
+                    showToast("Foto tidak ditemukan", "info");
+                }
+            } catch { showToast("Gagal mencari foto", "error"); }
         } else {
             // stalk mode
             setStalkResult(null);
             setStalkError("");
             try {
+                showToast("Mencari profil...", "info");
                 const res = await fetch(`/api/stalker/tiktok?username=${encodeURIComponent(query)}`);
                 const data = await res.json();
                 if (data.error) {
                     setStalkError(data.error);
+                    showToast(data.error, "error");
                 } else {
                     setStalkResult(data);
+                    showToast("Profil ditemukan", "success");
                 }
             } catch {
                 setStalkError("Gagal mengambil data profil");
+                showToast("Gagal mengambil data profil", "error");
             }
         }
 
@@ -133,12 +150,14 @@ export default function TikTokSearchPage() {
 
     function handleDownload(videoUrl: string, id: string) {
         if (!videoUrl) return;
+        showToast("Mulai mengunduh video...", "info");
         const url = `/api/proxy-download?url=${encodeURIComponent(videoUrl)}&filename=tiktok-${id}.mp4&download=true`;
         downloadMedia(null, url, `tiktok-${id}.mp4`);
     }
 
     function handleImageDownload(imageUrl: string, id: string, index: number) {
         if (!imageUrl) return;
+        showToast(`Mulai mengunduh foto ${index + 1}...`, "info");
         const url = `/api/proxy-download?url=${encodeURIComponent(imageUrl)}&filename=tiktok-photo-${id}-${index + 1}.webp&download=true`;
         downloadMedia(null, url, `tiktok-photo-${id}-${index + 1}.webp`);
     }
@@ -302,7 +321,7 @@ export default function TikTokSearchPage() {
                                     />
                                     {/* Transparent Overlay for protection */}
                                     <div className="absolute inset-0 z-10" onContextMenu={(e) => e.preventDefault()} />
-                                    
+
                                     {r.duration && (
                                         <span className="absolute bottom-2 right-2 z-20 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-bold text-white">
                                             {r.duration}
@@ -344,6 +363,7 @@ export default function TikTokSearchPage() {
                                     {r.music.url && (
                                         <button
                                             onClick={() => {
+                                                showToast("Mulai mengunduh audio...", "info");
                                                 const url = `/api/proxy-download?url=${encodeURIComponent(r.music.url)}&filename=tiktok-audio-${r.id}.mp3&download=true`;
                                                 downloadMedia(null, url, `tiktok-audio-${r.id}.mp3`);
                                             }}
@@ -502,6 +522,7 @@ export default function TikTokSearchPage() {
                                         {r.music.url && r.music.url !== "" && (
                                             <button
                                                 onClick={() => {
+                                                    showToast("Mulai mengunduh audio...", "info");
                                                     const url = `/api/proxy-download?url=${encodeURIComponent(r.music.url)}&filename=tiktok-audio-${r.id}.mp3&download=true`;
                                                     downloadMedia(null, url, `tiktok-audio-${r.id}.mp3`);
                                                 }}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
+import { showToast } from "@/components/Toast";
 
 interface IGProfile {
     id: string;
@@ -44,17 +45,21 @@ export default function InstagramSearchPage() {
         setError("");
 
         try {
+            showToast("Mencari profil Instagram...", "info");
             const res = await fetch(
                 `/api/stalker/instagram?username=${encodeURIComponent(query)}`
             );
             const data = await res.json();
             if (data.error) {
                 setError(data.error);
+                showToast(data.error, "error");
             } else {
                 setResult(data);
+                showToast("Pencarian selesai", "success");
             }
         } catch {
             setError("Gagal mengambil data profil");
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }

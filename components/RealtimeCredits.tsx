@@ -13,7 +13,7 @@ export default function RealtimeCredits({ initialCredits }: { initialCredits: nu
         if (session?.user && !hasSynced.current) {
             hasSynced.current = true;
             fetch("/api/user/sync-credits", { method: "POST" })
-                .then((res) => res.json())
+                .then((res) => { if (!res.ok) throw new Error(); return res.json(); })
                 .then((data) => {
                     if (data.synced && data.credits !== undefined) {
                         setCredits(data.credits);
@@ -27,6 +27,7 @@ export default function RealtimeCredits({ initialCredits }: { initialCredits: nu
         const fetchCredits = async () => {
             try {
                 const res = await fetch("/api/user/credits");
+                if (!res.ok) return;
                 const data = await res.json();
                 if (data.credits !== undefined && data.credits !== null) {
                     setCredits(data.credits);

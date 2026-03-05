@@ -2,6 +2,18 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { constructMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+    const { lang } = await params;
+    return constructMetadata({
+        title: 'Profil Pengguna - Inversave',
+        description: 'Kelola profil, limit kredit, dan status penggunaan Anda di Inversave.',
+        url: `/${lang}/profile`,
+        locale: lang === 'id' ? 'id_ID' : 'en_US',
+        noIndex: true // Profile shouldn't be indexed
+    });
+}
 import {
     Activity,
     LogOut,
@@ -19,7 +31,9 @@ import {
     Users,
     Gem,
     Calendar,
-    Cpu
+    Cpu,
+    Pencil,
+    BadgeCheck
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import WeeklyChart from "@/components/WeeklyChart";
@@ -72,7 +86,7 @@ export default async function ProfilePage() {
                                 </div>
                             </div>
                             <div className="absolute bottom-0 right-0 h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-neutral-800 dark:bg-neutral-700 border-2 border-white dark:border-neutral-900 flex items-center justify-center text-white cursor-pointer hover:bg-neutral-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 Z" /></svg>
+                                <Pencil className="w-2.5 h-2.5" />
                             </div>
                         </div>
 
@@ -82,9 +96,7 @@ export default async function ProfilePage() {
                             </p>
                             <h1 className="text-base sm:text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-1.5 truncate">
                                 <span className="truncate">{dbUser.name || "User Name"}</span>
-                                <svg className="text-blue-500 h-4 w-4 sm:h-5 sm:w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path fillRule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
-                                </svg>
+                                <BadgeCheck className="text-blue-500 h-4 w-4 sm:h-5 sm:w-5 shrink-0 fill-blue-500 stroke-white" />
                             </h1>
                         </div>
                     </div>

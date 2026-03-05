@@ -35,21 +35,9 @@ export default function Navbar({ dict, lang }: { dict: any; lang: string }) {
                 className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
             >
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16">
-                    {/* Logo */}
-                    <Link href={`/${lang}`} className="flex items-center gap-1.5 select-none sm:gap-2.5">
-                        <m.div
-                            whileHover={{ rotate: 10, scale: 1.1 }}
-                            className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-primary/20 shadow-md sm:h-10 sm:w-10"
-                        >
-                            <Image
-                                src="/snoopy-logo.webp"
-                                alt="Logo"
-                                fill
-                                priority
-                                className="object-cover"
-                            />
-                        </m.div>
-                        <span className="hidden sm:inline text-lg font-extrabold tracking-tight text-foreground sm:text-xl">
+                    {/* Logo Text */}
+                    <Link href={`/${lang}`} className="flex items-center select-none">
+                        <span className="text-lg font-extrabold tracking-tight text-foreground sm:text-xl">
                             Inver<span className="text-muted-foreground">save</span>
                         </span>
                     </Link>

@@ -1,74 +1,67 @@
 import { MetadataRoute } from "next";
+import { getAllPlatforms } from "@/lib/platformDetector";
+import { i18n } from "../i18n.config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://inversave.space";
+    const platforms = getAllPlatforms();
 
-    return [
-        {
-            url: `${baseUrl}`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 1.0,
-        },
-        {
-            url: `${baseUrl}/dramabox`,
-            lastModified: new Date(),
-            changeFrequency: "daily",
-            priority: 1.0,
-        },
-        {
-            url: `${baseUrl}/search`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/search/youtube`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/search/tiktok`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/search/instagram`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/search/spotify`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/search/pinterest`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/search/bilibili`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/topup`,
-            lastModified: new Date(),
-            changeFrequency: "monthly",
-            priority: 0.7,
-        },
-        {
-            url: `${baseUrl}/profile`,
-            lastModified: new Date(),
-            changeFrequency: "weekly",
-            priority: 0.5,
-        },
+    // Core routes for each language
+    const coreRoutes = [
+        "", // home
+        "/dramabox",
+        "/dramabox/foryou",
+        "/dramabox/trending",
+        "/dramabox/dubbed",
+        "/dramabox/vip",
+        "/dramawave",
+        "/netshort",
+        "/melolo",
+        "/stardusttv",
+        "/search",
+        "/about",
+        "/bantuan",
+        "/blog",
+        "/disclaimer",
+        "/docs",
+        "/privasi",
+        "/syarat",
+        "/topup",
     ];
+
+    const sitemapEntries: MetadataRoute.Sitemap = [];
+
+    // Add core routes
+    coreRoutes.forEach((route) => {
+        i18n.locales.forEach((locale: string) => {
+            sitemapEntries.push({
+                url: `${baseUrl}/${locale}${route}`,
+                lastModified: new Date(),
+                changeFrequency: route === "" ? "daily" : "weekly",
+                priority: route === "" ? 1.0 : (route.includes("dramabox") ? 0.9 : 0.8),
+            });
+        });
+    });
+
+    // Add search platform routes (e.g. /search/youtube)
+    platforms.forEach((platform) => {
+        i18n.locales.forEach((locale: string) => {
+            sitemapEntries.push({
+                url: `${baseUrl}/${locale}/search/${platform.name}`,
+                lastModified: new Date(),
+                changeFrequency: "weekly",
+                priority: 0.8,
+            });
+        });
+    });
+
+    // Add root URL (fallback)
+    sitemapEntries.push({
+        url: `${baseUrl}`,
+        lastModified: new Date(),
+        changeFrequency: "daily",
+        priority: 1.0,
+    });
+
+    return sitemapEntries;
 }

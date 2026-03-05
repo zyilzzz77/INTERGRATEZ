@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const APP_NAME = process.env.APP_NAME || "Inversave";
-const LOGO_URL = process.env.APP_LOGO_URL || "https://inversave.space/snoopy-logo.webp";
+const LOGO_URL = process.env.APP_LOGO_URL || "https://inversave.space/logo-inversave.webp";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://inversave.space";
 const PRIMARY_COLOR = "#000000";
 

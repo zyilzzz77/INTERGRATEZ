@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
+import { showToast } from "@/components/Toast";
 
 interface SoundCloudResult {
     id: number;
@@ -36,13 +37,19 @@ export default function SoundCloudPage() {
         setResults([]);
 
         try {
+            showToast("Mencari lagu...", "info");
             const res = await fetch(
                 `/api/search/soundcloud?q=${encodeURIComponent(query)}`
             );
             const data = await res.json();
-            if (data.items) setResults(data.items);
+            if (data.items) {
+                setResults(data.items);
+                showToast("Pencarian selesai", "success");
+            } else {
+                showToast("Hasil tidak ditemukan", "info");
+            }
         } catch {
-            // handled silently
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }

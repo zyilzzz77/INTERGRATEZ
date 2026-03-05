@@ -4,6 +4,7 @@ import { useState } from "react";
 import SearchBar from "@/components/SearchBar";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { showToast } from "@/components/Toast";
 
 interface TokopediaResult {
     id: number;
@@ -32,13 +33,18 @@ export default function TokopediaSearchPage() {
         setSortOrder(null); // Reset sort on new search
 
         try {
+            showToast("Mencari produk...", "info");
             const res = await fetch(`/api/search/tokopedia?q=${encodeURIComponent(query)}`);
             const data = await res.json();
             if (data.items) {
                 setResults(data.items);
+                showToast("Pencarian selesai", "success");
+            } else {
+                showToast("Produk tidak ditemukan", "info");
             }
         } catch (e) {
             console.error("Search failed:", e);
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }

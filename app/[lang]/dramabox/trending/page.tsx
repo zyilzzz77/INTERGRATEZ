@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import { showToast } from "@/components/Toast";
 
 interface DramaBoxItem {
     id: string;
@@ -103,14 +104,17 @@ export default function TrendingPage() {
 
     useEffect(() => {
         async function fetchData() {
+            showToast("Memuat drama...", "info");
             try {
                 const res = await fetch("/api/dramabox/trending");
                 const json = await res.json();
                 if (json.status && Array.isArray(json.data)) {
                     setData(json.data);
                 }
+                showToast("Drama berhasil dimuat", "success");
             } catch (error) {
                 console.error("Failed to fetch Trending data:", error);
+                showToast("Gagal memuat drama", "error");
             } finally {
                 setLoading(false);
             }

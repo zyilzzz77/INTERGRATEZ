@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Search, ClipboardList, Clipboard, Disc3 } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
+import { showToast } from "@/components/Toast";
 
 /* ─── Types ─────────────────────────────────────────── */
 interface SpotifyResult {
@@ -72,13 +73,19 @@ export default function SpotifySearchPage() {
         setResults([]);
 
         try {
+            showToast("Mencari lagu...", "info");
             const res = await fetch(
                 `/api/search/spotify?q=${encodeURIComponent(query)}`
             );
             const data = await res.json();
-            if (data.items) setResults(data.items);
+            if (data.items) {
+                setResults(data.items);
+                showToast("Pencarian selesai", "success");
+            } else {
+                showToast("Hasil tidak ditemukan", "info");
+            }
         } catch {
-            // handled silently
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }
@@ -103,6 +110,7 @@ export default function SpotifySearchPage() {
         setPlaylistTracks([]);
 
         try {
+            showToast("Memuat playlist...", "info");
             const res = await fetch(
                 `/api/spotify/playlist?url=${encodeURIComponent(playlistUrl)}`
             );
@@ -110,13 +118,16 @@ export default function SpotifySearchPage() {
 
             if (!data.status) {
                 setPlaylistError(data.error || "Gagal memuat playlist");
+                showToast(data.error || "Gagal memuat playlist", "error");
                 return;
             }
 
             setPlaylistData(data.data);
             setPlaylistTracks(data.tracks || []);
+            showToast("Playlist berhasil dimuat", "success");
         } catch {
             setPlaylistError("Terjadi kesalahan. Coba lagi.");
+            showToast("Terjadi kesalahan sistem", "error");
         } finally {
             setPlaylistLoading(false);
         }
@@ -132,12 +143,16 @@ export default function SpotifySearchPage() {
         if (newFetched) return;
         setNewLoading(true);
         try {
+            showToast("Memuat lagu terbaru...", "info");
             const res = await fetch("/api/search/spotify-new?limit=50");
             const data = await res.json();
-            if (data.items) setNewReleases(data.items);
+            if (data.items) {
+                setNewReleases(data.items);
+                showToast("Lagu terbaru dimuat", "success");
+            }
             setNewFetched(true);
         } catch {
-            // silent
+            showToast("Gagal memuat lagu terbaru", "error");
         } finally {
             setNewLoading(false);
         }

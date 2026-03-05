@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import SearchBar from "@/components/SearchBar";
+import { showToast } from "@/components/Toast";
 
 interface FFGuild {
     name: string;
@@ -66,17 +67,21 @@ export default function FreeFireSearchPage() {
         setError("");
 
         try {
+            showToast("Mencari player...", "info");
             const res = await fetch(
                 `/api/stalker/freefire?uid=${encodeURIComponent(query.trim())}`
             );
             const data = await res.json();
             if (data.error) {
                 setError(data.error);
+                showToast(data.error, "error");
             } else {
                 setResult(data);
+                showToast("Pencarian selesai", "success");
             }
         } catch {
             setError("Gagal mengambil data player");
+            showToast("Gagal melakukan pencarian", "error");
         } finally {
             setLoading(false);
         }

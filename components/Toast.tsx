@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion";
 import { CheckCircle2, Info, AlertTriangle } from "lucide-react";
 
@@ -19,6 +19,7 @@ export function showToast(message: string, type: ToastItem["type"] = "info") {
 
 export default function ToastContainer() {
     const [toasts, setToasts] = useState<ToastItem[]>([]);
+    const activeMessages = useRef<Set<string>>(new Set());
     const typeConfig = {
         success: {
             icon: CheckCircle2,
@@ -50,9 +51,16 @@ export default function ToastContainer() {
     };
 
     const add = useCallback((message: string, type: ToastItem["type"] = "info") => {
+        if (activeMessages.current.has(message)) return;
+        activeMessages.current.add(message);
+
         const id = Date.now() + Math.random();
         setToasts((prev) => [...prev, { id, message, type }]);
-        setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3100);
+
+        setTimeout(() => {
+            activeMessages.current.delete(message);
+            setToasts((prev) => prev.filter((t) => t.id !== id));
+        }, 3100);
     }, []);
 
     useEffect(() => {
@@ -88,8 +96,11 @@ export default function ToastContainer() {
                                             <div className="text-[11px] font-semibold uppercase tracking-wider text-white/60">
                                                 {cfg.label}
                                             </div>
-                                            <button 
-                                                onClick={() => setToasts(prev => prev.filter(item => item.id !== t.id))}
+                                            <button
+                                                onClick={() => {
+                                                    activeMessages.current.delete(t.message);
+                                                    setToasts(prev => prev.filter(item => item.id !== t.id));
+                                                }}
                                                 className="text-white/40 hover:text-white transition-colors"
                                             >
                                                 ✕

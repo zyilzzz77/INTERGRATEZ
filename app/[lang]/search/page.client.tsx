@@ -68,19 +68,25 @@ export default function SearchPageClient({ dict, lang }: { dict: any; lang: stri
             href: `/${lang}/dramawave`,
             label: "DramaWave",
             description: text.drmWvDesc,
-            icon: <div className="flex items-center justify-center p-2 rounded-xl bg-purple-600/20 w-10 h-10 sm:w-12 sm:h-12"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-500 w-full h-full"><polygon points="5 3 19 12 5 21 5 3" /></svg></div>,
+            icon: <Image src="/logo-dramawave.png" alt="DramaWave" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         },
         {
             href: `/${lang}/melolo`,
             label: "Melolo Drama",
             description: text.mllDesc,
-            icon: <div className="flex items-center justify-center p-2 rounded-xl bg-rose-600/20 w-10 h-10 sm:w-12 sm:h-12"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500 w-full h-full"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" /><line x1="7" y1="2" x2="7" y2="22" /><line x1="17" y1="2" x2="17" y2="22" /><line x1="2" y1="12" x2="22" y2="12" /><line x1="2" y1="7" x2="7" y2="7" /><line x1="2" y1="17" x2="7" y2="17" /><line x1="17" y1="17" x2="22" y2="17" /><line x1="17" y1="7" x2="22" y2="7" /></svg></div>,
+            icon: <Image src="/logo-melolo.webp" alt="Melolo" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         },
         {
             href: `/${lang}/netshort`,
             label: "Netshort",
             description: text.nsDesc,
-            icon: <div className="flex items-center justify-center p-2 rounded-xl bg-cyan-600/20 w-10 h-10 sm:w-12 sm:h-12"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-500 w-full h-full"><polygon points="5 3 19 12 5 21 5 3" /></svg></div>,
+            icon: <Image src="/logo-netshort.png" alt="Netshort" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
+        },
+        {
+            href: `/${lang}/stardusttv`,
+            label: "StardustTV",
+            description: text.sttvDesc,
+            icon: <Image src="/logo-stardusttv.png" alt="StardustTV" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         },
         {
             href: `/${lang}/search/dracin`,

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { showToast } from "@/components/Toast";
 
 interface YTResult {
     id: string;
@@ -40,6 +41,7 @@ function YouTubeWatchContent({ dict, lang }: { dict: any; lang: string }) {
 
         async function fetchVideo() {
             try {
+                showToast(dict.watchLoading || "Memuat video YouTube...", "info");
                 // Fetch directly from NexRay API as requested (No v1, 1440p)
                 const apiUrl = `https://api.nexray.web.id/downloader/ytmp4?url=${encodeURIComponent(urlParam!)}&resolusi=1440`;
                 const res = await fetch(apiUrl);
@@ -47,6 +49,7 @@ function YouTubeWatchContent({ dict, lang }: { dict: any; lang: string }) {
 
                 if (!data.status || !data.result) {
                     setError(dict.watchFetchError);
+                    showToast(dict.watchFetchError || "Gagal memuat video", "error");
                     return;
                 }
 
@@ -62,12 +65,15 @@ function YouTubeWatchContent({ dict, lang }: { dict: any; lang: string }) {
                     // Use proxy to avoid CORS issues and ensure playback
                     const proxyVideo = `/api/proxy-download?url=${encodeURIComponent(result.url)}&filename=video.mp4`;
                     setVideoUrl(proxyVideo);
+                    showToast(dict.watchSuccess || "Video berhasil dimuat", "success");
                 } else {
                     setError(dict.watchNoStream);
+                    showToast(dict.watchNoStream || "Stream video tidak tersedia", "error");
                 }
             } catch (err) {
                 console.error(err);
                 setError(dict.watchPlayError);
+                showToast(dict.watchPlayError || "Gagal memuat video", "error");
             } finally {
                 setLoading(false);
             }

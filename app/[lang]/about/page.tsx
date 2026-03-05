@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { Coffee, Shield, Zap, Heart } from "lucide-react";
+import { constructMetadata } from "@/lib/seo";
 
 import { getDictionary } from "@/lib/dictionary";
 
@@ -7,10 +8,12 @@ import { getDictionary } from "@/lib/dictionary";
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
     const { lang } = await params;
     const dict = await getDictionary(lang);
-    return {
+    return constructMetadata({
         title: `${dict.about.title} - ${dict.about.brand}`,
         description: dict.about.subtitle,
-    };
+        url: `/${lang}/about`,
+        locale: lang === 'id' ? 'id_ID' : 'en_US'
+    });
 }
 
 export default async function AboutPage({ params }: { params: Promise<{ lang: string }> }) {
