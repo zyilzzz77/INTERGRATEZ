@@ -259,7 +259,7 @@ export default function MeloloPage() {
                             <div className="flex items-center gap-3 mb--10">
                                 <div className="h-8 w-1 rounded-full bg-gradient-to-b from-rose-500 to-pink-500" />
                                 <h2 className="text-xl font-bold sm:text-2xl" style={{ color: 'var(--drama-text)' }}>
-                                    {isShowingSearch ? <>Hasil: <span className="bg-gradient-to-r from-rose-400 to-pink-400 bg-clip-text text-transparent">"{searchQuery}"</span></> : '🔥 Trending Drama'}
+                                    {isShowingSearch ? <>Hasil: <span className="bg-gradient-to-r from-rose-400 to-pink-400 bg-clip-text text-transparent">&quot;{searchQuery}&quot;</span></> : '🔥 Trending Drama'}
                                 </h2>
                             </div>
                         )}

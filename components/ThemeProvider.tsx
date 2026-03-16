@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useLayoutEffect } from "react";
 
 type Theme = "dark" | "light";
 
@@ -16,7 +16,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const [theme, setTheme] = useState<Theme>("dark");
     const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setMounted(true);
         const savedTheme = localStorage.getItem("theme") as Theme;
         if (savedTheme) {

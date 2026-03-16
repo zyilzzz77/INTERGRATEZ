@@ -73,7 +73,7 @@ function DramaImage({ src, alt, priority }: { src: string; alt: string; priority
                     <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)', animation: 'shimmer 1.5s infinite' }} />
                 </div>
             )}
-            {error ? (
+            {error || !imgSrc ? (
                 <div className="flex h-full w-full items-center justify-center text-neutral-700" style={{ background: 'var(--drama-card)' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-10 w-10">
                         <rect x="2" y="2" width="20" height="20" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" />
@@ -276,7 +276,7 @@ export default function DramaWavePage() {
                             <div>
                                 <div className="mb-8 flex items-center justify-between">
                                     <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: 'var(--drama-text)' }}>
-                                        Hasil: <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">"{searchQuery}"</span>
+                                        Hasil: <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">&quot;{searchQuery}&quot;</span>
                                     </h2>
                                     <span className="text-sm font-medium rounded-full px-4 py-1.5" style={{ background: 'var(--drama-elevated)', color: 'var(--drama-text-muted)' }}>
                                         {searchResults.length} ditemukan

@@ -25,7 +25,7 @@ function isDouyinCdn(u: string) {
 /** Build headers for upstream fetch — special-cases Bilibili CDN */
 function buildHeaders(url: string, range?: string, ifRange?: string): Record<string, string> {
     const headers: Record<string, string> = {};
-    
+
     if (range) {
         headers["Range"] = range;
     }
@@ -60,7 +60,7 @@ function buildHeaders(url: string, range?: string, ifRange?: string): Record<str
             Referer: new URL(url).origin,
         });
     }
-    
+
     return headers;
 }
 
@@ -114,13 +114,10 @@ async function handleRequest(req: NextRequest) {
 
         let contentType = res.headers.get("content-type") || "application/octet-stream";
         if (url.includes(".m4s")) {
-             contentType = "video/mp4";
+            contentType = "video/mp4";
         }
 
         const isDownload = req.nextUrl.searchParams.get("download") === "true";
-        if (isDownload) {
-            contentType = "application/octet-stream";
-        }
 
         const headers: Record<string, string> = {
             "Content-Type": contentType,
@@ -132,7 +129,7 @@ async function handleRequest(req: NextRequest) {
             const encodedFilename = encodeURIComponent(safeFilename);
             // Ensure filename="" is ASCII-safe to prevent server errors
             const asciiFilename = safeFilename.replace(/[^\x20-\x7E]/g, "_");
-            
+
             headers["Content-Disposition"] = `attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodedFilename}`;
             headers["X-Content-Type-Options"] = "nosniff";
             headers["Cache-Control"] = "no-store";
@@ -140,7 +137,7 @@ async function handleRequest(req: NextRequest) {
         } else {
             headers["Content-Disposition"] = `inline`;
         }
-        
+
         const contentLength = res.headers.get("content-length");
         if (contentLength) {
             headers["Content-Length"] = contentLength;
@@ -150,16 +147,16 @@ async function handleRequest(req: NextRequest) {
         if (contentRange) {
             headers["Content-Range"] = contentRange;
         }
-        
+
         const acceptRanges = res.headers.get("accept-ranges");
         if (acceptRanges) {
             headers["Accept-Ranges"] = acceptRanges;
         }
 
-        return new NextResponse(res.body, { 
-            status: res.status, 
+        return new NextResponse(res.body, {
+            status: res.status,
             statusText: res.statusText,
-            headers 
+            headers
         });
     } catch (e: any) {
         if (e.name === 'AbortError') {

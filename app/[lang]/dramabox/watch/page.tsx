@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, Suspense, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense, useRef, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import { showToast } from "@/components/Toast";
+import { loadHistory, saveHistory } from "@/lib/watchHistory";
 
 interface Episode {
     chapterId: string;
@@ -40,6 +41,7 @@ function LoadingState() {
 
 function WatchContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const bookId = searchParams.get("id");
     const epParam = searchParams.get("ep"); // episode index (0-based)
 
@@ -48,6 +50,7 @@ function WatchContent() {
     const [loading, setLoading] = useState(true);
     const [isRefreshingToken, setIsRefreshingToken] = useState(false);
     const [tokenRetry, setTokenRetry] = useState(0);
+    const [historyLoaded, setHistoryLoaded] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const playerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -64,7 +67,7 @@ function WatchContent() {
     }, []);
 
     // Fetch episodes
-    const fetchEpisodes = async () => {
+    const fetchEpisodes = useCallback(async () => {
         if (!bookId) return;
         try {
             const res = await fetch(`/api/dramabox/episodes?bookId=${bookId}`);
@@ -75,7 +78,7 @@ function WatchContent() {
         } catch (error) {
             console.error("Failed to fetch episodes:", error);
         }
-    };
+    }, [bookId]);
 
     useEffect(() => {
         if (!bookId) return;
@@ -90,7 +93,21 @@ function WatchContent() {
         // Refresh episodes every 15 min to keep video tokens fresh
         const interval = setInterval(fetchEpisodes, 15 * 60 * 1000);
         return () => clearInterval(interval);
-    }, [bookId]);
+    }, [bookId, fetchEpisodes]);
+
+    // Load watch history on mount (only if no explicit ep param)
+    useEffect(() => {
+        if (epParam || !bookId) { setHistoryLoaded(true); return; }
+        loadHistory("dramabox", bookId).then((saved) => {
+            if (saved !== null) setCurrentEpIndex(saved);
+        }).finally(() => setHistoryLoaded(true));
+    }, [bookId, epParam]);
+
+    // Save watch history when episode changes
+    useEffect(() => {
+        if (!historyLoaded || !bookId) return;
+        saveHistory("dramabox", bookId, currentEpIndex);
+    }, [currentEpIndex, bookId, historyLoaded]);
 
     // Play video when episode changes
     const currentEp = episodes[currentEpIndex];
@@ -171,7 +188,7 @@ function WatchContent() {
             const resData = await res.json();
             if (!resData.success) {
                 alert(resData.error || "Kredit tidak mencukupi untuk memutar episode ini.");
-                window.location.href = '/topup';
+                router.push('/topup');
                 return;
             }
             setCurrentEpIndex(index);

@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ToastContainer from "@/components/Toast";
+import DownloadManager from "@/components/DownloadManager";
 import AuthProvider from "@/components/AuthProvider";
 import SmoothScroll from "@/components/SmoothScroll";
 import { FingerprintProvider } from "@/components/FingerprintProvider";
@@ -13,6 +14,8 @@ import BackgroundAnimation from "@/components/BackgroundAnimation";
 import Footer from "@/components/Footer";
 import { getDictionary } from "@/lib/dictionary";
 import { constructMetadata } from "@/lib/seo";
+
+import JsonLd from "@/components/JsonLd";
 
 const fontSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -38,6 +41,17 @@ export default async function RootLayout({
 
   return (
     <html lang={lang} className="dark">
+      <head>
+        {/* Viewport with safe area support for Capacitor/mobile */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        {/* Preconnect to frequently used external domains for faster LCP */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://api.neoxr.eu" />
+        <link rel="dns-prefetch" href="https://api.nexray.web.id" />
+        <link rel="dns-prefetch" href="https://tikwm.com" />
+        <JsonLd />
+      </head>
       <body
         className={`${fontSans.variable} antialiased`}
       >
@@ -54,6 +68,7 @@ export default async function RootLayout({
                   <Footer dict={dict.footer} lang={lang} />
 
                   <ToastContainer />
+                  <DownloadManager />
                 </FingerprintProvider>
               </AuthProvider>
             </ThemeProvider>

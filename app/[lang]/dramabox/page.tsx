@@ -330,7 +330,7 @@ export default function DramaBoxPage() {
                             <div className="flex items-center gap-3">
                                 <div className="h-8 w-1 rounded-full bg-gradient-to-b from-red-500 to-orange-500" />
                                 <h2 className="text-xl font-bold sm:text-2xl" style={{ color: 'var(--drama-text)' }}>
-                                    {isShowingSearch ? <>Hasil: <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">"{searchQuery}"</span></> : `🔥 ${sectionTitle}`}
+                                    {isShowingSearch ? <>Hasil: <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">&quot;{searchQuery}&quot;</span></> : `🔥 ${sectionTitle}`}
                                 </h2>
                             </div>
                         )}

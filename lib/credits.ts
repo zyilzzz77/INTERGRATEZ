@@ -77,6 +77,22 @@ async function getOrCreateGuestCredit(ip: string, fingerprint: string) {
         }
     }
 
+    // Check if there's a record with the same fingerprint (different network/IP)
+    // This handles users who changed WiFi / mobile data
+    if (fingerprint !== "unknown") {
+        const existingByFp = await prisma.guestCredit.findFirst({
+            where: { fingerprint },
+            orderBy: { createdAt: "asc" },
+        });
+
+        if (existingByFp) {
+            record = await prisma.guestCredit.create({
+                data: { ip, fingerprint, credits: existingByFp.credits },
+            });
+            return record;
+        }
+    }
+
     // Brand new device — give default credits
     record = await prisma.guestCredit.create({
         data: { ip, fingerprint, credits: GUEST_DEFAULT },
@@ -249,9 +265,14 @@ export async function deductCredit(action: string = "download"): Promise<boolean
 
     if (guestRecord.credits <= 0) return false;
 
-    // Deduct from all records with the same IP (keep them in sync)
+    // Deduct from all records with the same IP OR fingerprint (keep them in sync)
     await prisma.guestCredit.updateMany({
-        where: { ip },
+        where: {
+            OR: [
+                { ip },
+                ...(fingerprint !== "unknown" ? [{ fingerprint }] : []),
+            ],
+        },
         data: { credits: { decrement: 1 } },
     });
 

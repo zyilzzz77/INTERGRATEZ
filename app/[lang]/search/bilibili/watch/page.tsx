@@ -273,7 +273,7 @@ function BilibiliWatchContent() {
                             <h3 className="text-lg font-bold text-white">Video Terkait</h3>
                             {queryParam && (
                                 <span className="rounded bg-sky-500/10 px-2 py-0.5 text-xs text-sky-400">
-                                    "{queryParam}"
+                                    &quot;{queryParam}&quot;
                                 </span>
                             )}
                         </div>

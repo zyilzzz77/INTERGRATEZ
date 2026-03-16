@@ -14,18 +14,24 @@ export interface SEOProps {
 }
 
 export const defaultSEO = {
-    title: 'Inversave — Situs Download Video Semua Sosmed & Streaming Gratis',
-    description: 'Download video dan audio dari YouTube, TikTok, Instagram, Bilibili, Spotify terlengkap secara gratis tanpa aplikasi. Platform multi downloader terbaik 2025.',
+    title: 'Inversave — Download Video Sosmed & Streaming Gratis',
+    description: 'Download video gratis dari YouTube, TikTok, Instagram, Bilibili, Spotify, dan SoundCloud tanpa aplikasi. Nonton streaming drama online gratis di DramaBox, Melolo, NetShort. Multi downloader terbaik Indonesia 2025.',
     image: '/logo-inversave.webp',
     keywords: [
-        'situs download video gratis',
-        'download video sosmed gratis',
-        'multi downloader online gratis',
-        'video downloader indonesia terbaik',
-        'unduh video online tanpa registrasi',
-        'download video gratis tanpa aplikasi 2025',
-        'website streaming dan download drama',
-        'Dramabox', 'Netshort', 'Melolo', 'StardustTV'
+        'download video gratis',
+        'download video sosmed',
+        'multi downloader online',
+        'video downloader indonesia',
+        'unduh video tanpa registrasi',
+        'download video tanpa aplikasi 2025',
+        'streaming drama gratis',
+        'nonton drama online gratis',
+        'download youtube mp4',
+        'download tiktok tanpa watermark',
+        'download instagram reels',
+        'download spotify mp3',
+        'DramaBox', 'NetShort', 'Melolo', 'StardustTV', 'DramaWave',
+        'inversave', 'inversave.space'
     ]
 };
 

@@ -40,7 +40,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
 
     // Safety check for formats array
     const formats = Array.isArray(data.formats) ? data.formats : [];
-    
+
     const videoFormats = formats.filter((f) => f.type !== "mp3");
     const audioFormats = formats.filter((f) => f.type === "mp3");
     const isYouTube = data.platform === "youtube";
@@ -70,7 +70,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                             </div>
                         )}
                         {data.duration && data.duration !== "-" && (
-                            <m.span 
+                            <m.span
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.3 }}
@@ -91,7 +91,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                                 <PlatformDetector platform={data.platform} />
                             </div>
                             {(data.artist || data.album || data.release_date) && (
-                                <m.div 
+                                <m.div
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2 }}
@@ -182,7 +182,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                                                             const fnParam = urlObj.searchParams.get("filename");
                                                             if (fnParam) filename = fnParam;
                                                         } catch { /* ignore */ }
-                                                        
+
                                                         downloadMedia(e, f.url, filename);
                                                     }}
                                                     disabled={!f.url}
@@ -195,7 +195,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                                             </m.div>
                                         ))
                                     ) : (
-                                        <m.div 
+                                        <m.div
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             className="col-span-full py-2 text-center text-sm text-neutral-500"

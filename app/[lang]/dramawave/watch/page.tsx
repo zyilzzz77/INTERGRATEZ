@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import { showToast } from "@/components/Toast";
+import { loadHistory, saveHistory } from "@/lib/watchHistory";
 
 // Helper to clean URL from backticks and spaces
 const cleanUrl = (url: string) => url ? url.replace(/[`\s]/g, '') : '';
@@ -75,6 +76,7 @@ function WatchContent() {
     const [episodeData, setEpisodeData] = useState<EpisodeData | null>(null);
     const [loading, setLoading] = useState(true);
     const [isFetchingSubsequent, setIsFetchingSubsequent] = useState(false);
+    const [historyLoaded, setHistoryLoaded] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const playerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -133,13 +135,23 @@ function WatchContent() {
         }
     };
 
-    // Load initial chapter
+    // Load history + initial chapter
     useEffect(() => {
-        if (id) {
-            fetchChapter(1, true);
-        }
+        if (!id) return;
+        loadHistory("dramawave", id).then((saved) => {
+            const startChapter = saved !== null ? saved : 1;
+            fetchChapter(startChapter, true);
+            setHistoryLoaded(true);
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
+
+    // Save watch history when chapter changes
+    useEffect(() => {
+        if (!historyLoaded || !id) return;
+        saveHistory("dramawave", id, currentChapterNum);
+    }, [currentChapterNum, id, historyLoaded]);
+
 
     // Handle video seamless transition
     useEffect(() => {

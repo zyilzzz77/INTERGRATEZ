@@ -19,37 +19,33 @@ function HeroContent({ dict }: { dict: any }) {
     return (
         <LazyMotion features={domAnimation}>
             <div className="relative mx-auto max-w-3xl text-center">
-                <m.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="mb-6 flex justify-center"
+                {/* Badge — CSS animation instead of framer-motion for instant LCP */}
+                <div
+                    className="mb-6 flex justify-center animate-fadeInUp"
                 >
                     <Badge variant="secondary" className="px-4 py-1.5 text-sm gap-2">
                         <span className="inline-block h-2 w-2 rounded-full bg-green-400 animate-pulse" />
                         {dict.heroBadge || "8+ Platform Didukung"}
                     </Badge>
-                </m.div>
+                </div>
 
-                <m.h1
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl text-foreground"
+                {/* Title — rendered immediately, CSS animation for visual effect */}
+                <h1
+                    className="text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl text-foreground animate-fadeInUp"
+                    style={{ animationDelay: '0.05s' }}
                 >
                     <span className="text-foreground">Inver</span><span className="text-muted-foreground">save</span>
-                </m.h1>
+                </h1>
 
-                <m.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="mx-auto mt-4 max-w-xl text-base text-muted-foreground sm:text-lg"
+                {/* Subtitle — THIS IS THE LCP ELEMENT, must render instantly */}
+                <p
+                    className="mx-auto mt-4 max-w-xl text-base text-muted-foreground sm:text-lg animate-fadeInUp"
+                    style={{ animationDelay: '0.1s' }}
                 >
                     {dict.heroDescription || "Tools Downloader & Stream Premium — Nikmati kemudahan download video, audio, dan foto dari berbagai platform favoritmu dalam satu tempat."}
-                </m.p>
+                </p>
 
-                {/* URL Input */}
+                {/* URL Input — keep framer-motion here, not LCP critical */}
                 <m.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -66,7 +62,7 @@ function HeroContent({ dict }: { dict: any }) {
 
                 {/* Detected platform badge */}
                 {detectedPlatform && !loading && !result && (
-                    <m.p
+                    <m.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className="mt-4 text-sm font-medium text-muted-foreground"
@@ -75,7 +71,7 @@ function HeroContent({ dict }: { dict: any }) {
                         <Badge variant="outline" className="ml-2 font-bold uppercase">
                             {detectedPlatform}
                         </Badge>
-                    </m.p>
+                    </m.div>
                 )}
 
                 {/* Result Section */}

@@ -41,7 +41,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
             return;
         }
 
-        console.log("[UrlInput] Starting download for:", inputUrl, "Platform:", platform.name);
+
 
         onPlatform(platform.name);
         setLoading(true);
@@ -52,7 +52,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
             const res = await fetch(endpoint);
             const data = await res.json();
 
-            console.log("[UrlInput] API Response:", data);
+
 
             if (data.error) {
                 showToast(data.detail || data.error, "error");
@@ -73,7 +73,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        console.log("[UrlInput] Form submitted");
+
         handleDownload();
     };
 

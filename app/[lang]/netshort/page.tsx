@@ -254,7 +254,7 @@ export default function NetshortPage() {
                             <div className="flex items-center gap-3 mb--10">
                                 <div className="h-8 w-1 rounded-full bg-gradient-to-b from-cyan-500 to-teal-500" />
                                 <h2 className="text-xl font-bold sm:text-2xl" style={{ color: 'var(--drama-text)' }}>
-                                    {isShowingSearch ? <>Hasil: <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">"{searchQuery}"</span></> : '🔥 Semua Serial'}
+                                    {isShowingSearch ? <>Hasil: <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">&quot;{searchQuery}&quot;</span></> : '🔥 Semua Serial'}
                                 </h2>
                             </div>
                         )}

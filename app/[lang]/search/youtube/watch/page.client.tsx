@@ -186,7 +186,7 @@ function YouTubeWatchContent({ dict, lang }: { dict: any; lang: string }) {
                             <h3 className="text-lg font-bold text-white">{dict.watchRelated}</h3>
                             {queryParam && (
                                 <span className="rounded bg-red-500/10 px-2 py-0.5 text-xs text-red-400">
-                                    "{queryParam}"
+                                    &quot;{queryParam}&quot;
                                 </span>
                             )}
                         </div>

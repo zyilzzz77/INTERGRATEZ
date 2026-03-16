@@ -150,14 +150,12 @@ export default function TikTokSearchPage() {
 
     function handleDownload(videoUrl: string, id: string) {
         if (!videoUrl) return;
-        showToast("Mulai mengunduh video...", "info");
         const url = `/api/proxy-download?url=${encodeURIComponent(videoUrl)}&filename=tiktok-${id}.mp4&download=true`;
         downloadMedia(null, url, `tiktok-${id}.mp4`);
     }
 
     function handleImageDownload(imageUrl: string, id: string, index: number) {
         if (!imageUrl) return;
-        showToast(`Mulai mengunduh foto ${index + 1}...`, "info");
         const url = `/api/proxy-download?url=${encodeURIComponent(imageUrl)}&filename=tiktok-photo-${id}-${index + 1}.webp&download=true`;
         downloadMedia(null, url, `tiktok-photo-${id}-${index + 1}.webp`);
     }
@@ -363,7 +361,6 @@ export default function TikTokSearchPage() {
                                     {r.music.url && (
                                         <button
                                             onClick={() => {
-                                                showToast("Mulai mengunduh audio...", "info");
                                                 const url = `/api/proxy-download?url=${encodeURIComponent(r.music.url)}&filename=tiktok-audio-${r.id}.mp3&download=true`;
                                                 downloadMedia(null, url, `tiktok-audio-${r.id}.mp3`);
                                             }}
@@ -522,7 +519,6 @@ export default function TikTokSearchPage() {
                                         {r.music.url && r.music.url !== "" && (
                                             <button
                                                 onClick={() => {
-                                                    showToast("Mulai mengunduh audio...", "info");
                                                     const url = `/api/proxy-download?url=${encodeURIComponent(r.music.url)}&filename=tiktok-audio-${r.id}.mp3&download=true`;
                                                     downloadMedia(null, url, `tiktok-audio-${r.id}.mp3`);
                                                 }}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import { showToast } from "@/components/Toast";
+import { loadHistory, saveHistory } from "@/lib/watchHistory";
 
 interface NetshortDetail {
     id: string;
@@ -98,6 +99,7 @@ function DetailContent() {
     const [loadingVideo, setLoadingVideo] = useState(false);
     const [isRefreshingToken, setIsRefreshingToken] = useState(false);
     const [totalEpisodes, setTotalEpisodes] = useState(0);
+    const [historyLoaded, setHistoryLoaded] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const playerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -125,6 +127,24 @@ function DetailContent() {
                 if (json.status && json.data) {
                     setDetail(json.data);
                     setTotalEpisodes(json.data.totalEpisode);
+                    // Try to restore last-watched episode
+                    const savedEp = await loadHistory("netshort", dramaId!);
+                    if (savedEp !== null && savedEp >= 1 && savedEp <= json.data.totalEpisode) {
+                        setCurrentEp(savedEp);
+                        // Fetch video for saved episode
+                        const videoRes = await fetch(`/api/netshort/watch?id=${dramaId}&ep=${savedEp}`);
+                        const videoJson = await videoRes.json();
+                        if (videoJson.status && videoJson.data?.videoUrl) {
+                            setVideoUrl(videoJson.data.videoUrl);
+                            if (videoJson.data.subtitles?.length > 0) {
+                                setSubtitleUrl(videoJson.data.subtitles[0].url);
+                            }
+                            if (videoJson.data.maxEps) {
+                                setTotalEpisodes(videoJson.data.maxEps);
+                            }
+                        }
+                    }
+                    setHistoryLoaded(true);
                 }
                 showToast("Detail drama berhasil dimuat", "success");
             } catch (error) {
@@ -137,6 +157,12 @@ function DetailContent() {
 
         fetchDetail();
     }, [dramaId]);
+
+    // Save watch history when episode changes
+    useEffect(() => {
+        if (!historyLoaded || !dramaId || currentEp < 1) return;
+        saveHistory("netshort", dramaId, currentEp);
+    }, [currentEp, dramaId, historyLoaded]);
 
     // Fetch video URL for episode
     const fetchVideoUrl = async (epNumber: number) => {

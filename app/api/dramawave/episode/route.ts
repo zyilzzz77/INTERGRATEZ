@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         });
 
         // Map the subtitle list to convert SRT URLs to our VTT proxy
-        let data = res.data;
+        const data = res.data;
         if (data && Array.isArray(data.subtitle_list)) {
             data.subtitle_list = data.subtitle_list.map((sub: any) => ({
                 ...sub,

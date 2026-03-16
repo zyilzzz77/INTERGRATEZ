@@ -135,7 +135,7 @@ export default function GithubSearchPage() {
                             {/* Bio */}
                             {result.bio && result.bio !== "-" && (
                                 <div className="mb-6 rounded-xl bg-white/5 p-4">
-                                    <p className="text-sm text-neutral-300 italic">"{result.bio}"</p>
+                                    <p className="text-sm text-neutral-300 italic">&quot;{result.bio}&quot;</p>
                                 </div>
                             )}
 

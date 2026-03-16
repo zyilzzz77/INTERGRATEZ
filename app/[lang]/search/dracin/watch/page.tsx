@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { showToast } from "@/components/Toast";
+import { loadHistory, saveHistory } from "@/lib/watchHistory";
 
 /* ─── Types ─────────────────────────────────────────── */
 interface CastMember {
@@ -42,6 +43,7 @@ function WatchContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [activeEp, setActiveEp] = useState<Episode | null>(null);
+    const [historyLoaded, setHistoryLoaded] = useState(false);
 
     useEffect(() => {
         if (!dramaUrl) {
@@ -59,11 +61,16 @@ function WatchContent() {
                 const data = await res.json();
                 if (data.status && data.data) {
                     setDrama(data.data);
-                    // Auto-set first episode as active
                     const eps = data.data.episodes;
                     if (eps && eps.length > 0) {
-                        setActiveEp(eps[0]);
+                        // Try to restore last-watched episode
+                        const savedOrder = await loadHistory("dracin", dramaUrl);
+                        const savedEp = savedOrder !== null
+                            ? eps.find((e: Episode) => e.order === savedOrder)
+                            : null;
+                        setActiveEp(savedEp || eps[0]);
                     }
+                    setHistoryLoaded(true);
                     showToast("Drama berhasil dimuat", "success");
                 } else {
                     setError(data.error || "Gagal memuat drama");
@@ -79,6 +86,12 @@ function WatchContent() {
 
         fetchDrama();
     }, [dramaUrl]);
+
+    // Save watch history when active episode changes
+    useEffect(() => {
+        if (!historyLoaded || !dramaUrl || !activeEp) return;
+        saveHistory("dracin", dramaUrl, activeEp.order);
+    }, [activeEp, dramaUrl, historyLoaded]);
 
     function selectEpisode(ep: Episode) {
         setActiveEp(ep);

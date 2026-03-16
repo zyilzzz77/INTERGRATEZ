@@ -1,0 +1,188 @@
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramabox\page.tsx:333 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramabox\page.tsx:333 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramabox\vip\page.tsx:25 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramabox\vip\page.tsx:26 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramabox\watch\page.tsx:190 Error: This value cannot be modified
+
+Modifying a variable defined outside a component or hook is not allowed. Consider using an effect.
+
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramabox\watch\page.tsx:190:17
+  188 |             if (!resData.success) {
+  189 |                 alert(resData.error || "Kredit tidak mencukupi untuk memutar episode ini.");
+> 190 |                 window.location.href = '/topup';
+      |                 ^^^^^^^^^^^^^^^ value cannot be modified
+  191 |                 return;
+  192 |             }
+  193 |             setCurrentEpIndex(index);
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramawave\page.tsx:166 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramawave\page.tsx:169 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramawave\page.tsx:279 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\dramawave\page.tsx:279 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\melolo\page.tsx:262 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\melolo\page.tsx:262 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\netshort\page.tsx:257 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\netshort\page.tsx:257 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\netshort\page.tsx:271 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\netshort\page.tsx:271 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\bilibili\watch\page.tsx:24 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\bilibili\watch\page.tsx:66 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\bilibili\watch\page.tsx:72 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\bilibili\watch\page.tsx:78 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\bilibili\watch\page.tsx:132 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\bilibili\watch\page.tsx:276 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\bilibili\watch\page.tsx:276 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\github\page.tsx:138 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\github\page.tsx:138 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\page.client.tsx:9 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\youtube\page.client.tsx:25 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\youtube\watch\page.client.tsx:19 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\youtube\watch\page.client.tsx:189 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\youtube\watch\page.client.tsx:189 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\search\youtube\watch\page.client.tsx:259 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\stardusttv\page.tsx:256 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\[lang]\stardusttv\page.tsx:256 `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.
+C:\Users\USER\Documents\app-downloader next\app\api\download\route.ts:55 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\download\route.ts:55 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\detail\route.ts:27 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\detail\route.ts:58 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\detail\route.ts:76 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\dubbed\route.ts:22 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\dubbed\route.ts:34 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\dubbed\route.ts:52 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\dubbed\route.ts:70 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\episodes\route.ts:27 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\episodes\route.ts:39 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\episodes\route.ts:50 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\episodes\route.ts:68 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\foryou\route.ts:20 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\foryou\route.ts:34 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\foryou\route.ts:52 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\foryou\route.ts:70 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\home\route.ts:21 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\home\route.ts:36 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\home\route.ts:55 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\home\route.ts:73 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\list\route.ts:30 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\list\route.ts:43 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\list\route.ts:52 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\list\route.ts:70 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\route.ts:38 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\route.ts:47 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\route.ts:65 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\search\route.ts:25 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\search\route.ts:37 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\search\route.ts:53 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\search\route.ts:71 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\trending\route.ts:20 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\trending\route.ts:34 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\trending\route.ts:53 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramabox\trending\route.ts:71 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\episode\route.ts:38 'data' is never reassigned. Use 'const' instead.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\episode\route.ts:40 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\episode\route.ts:47 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\home\route.ts:20 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\home\route.ts:33 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\home\route.ts:35 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\home\route.ts:45 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\home\route.ts:63 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\recommend\route.ts:29 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\recommend\route.ts:36 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\search\route.ts:37 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\search\route.ts:48 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\dramawave\subtitle\route.ts:47 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\detail\route.ts:24 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\detail\route.ts:50 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\detail\route.ts:57 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\detail\route.ts:75 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\home\route.ts:20 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\home\route.ts:44 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\home\route.ts:45 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\home\route.ts:51 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\home\route.ts:83 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\home\route.ts:101 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\search\route.ts:24 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\search\route.ts:43 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\search\route.ts:61 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\search\route.ts:79 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\video\route.ts:26 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\video\route.ts:44 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\video\route.ts:59 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\melolo\video\route.ts:77 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\detail\route.ts:32 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\detail\route.ts:67 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\detail\route.ts:82 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\home\route.ts:34 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\home\route.ts:58 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\home\route.ts:78 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\home\route.ts:96 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\search\route.ts:34 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\search\route.ts:55 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\search\route.ts:65 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\search\route.ts:76 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\search\route.ts:91 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\watch\route.ts:26 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\watch\route.ts:55 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\netshort\watch\route.ts:70 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\proxy-download\route.ts:161 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\search\pinterest\route.ts:71 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\search\pinterest\route.ts:101 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\detail\route.ts:26 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\detail\route.ts:48 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\detail\route.ts:66 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\episode\route.ts:34 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\episode\route.ts:44 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\episode\route.ts:62 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\home\route.ts:19 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\home\route.ts:32 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\home\route.ts:41 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\home\route.ts:59 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\search\route.ts:33 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\stardusttv\search\route.ts:42 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\app\api\test-email\route.ts:21 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\DocsContent.tsx:36 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\DocsContent.tsx:405 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\DocsContent.tsx:483 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\DownloadManager.tsx:112 Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\USER\Documents\app-downloader next\components\DownloadManager.tsx:112:9
+  110 |     useEffect(() => {
+  111 |         if (!isActive) return;
+> 112 |         setElapsed(0);
+      |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  113 |         const t = setInterval(() => setElapsed((s) => s + 1), 1000);
+  114 |         return () => clearInterval(t);
+  115 |     }, [isActive]);
+C:\Users\USER\Documents\app-downloader next\components\FingerprintProvider.tsx:20 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\Footer.tsx:4 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\HeroSection.tsx:14 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\HeroSection.tsx:15 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\HeroSection.tsx:99 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\Navbar.tsx:12 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\ThemeProvider.tsx:20 Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\USER\Documents\app-downloader next\components\ThemeProvider.tsx:20:9
+  18 |
+  19 |     useEffect(() => {
+> 20 |         setMounted(true);
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  21 |         const savedTheme = localStorage.getItem("theme") as Theme;
+  22 |         if (savedTheme) {
+  23 |             setTheme(savedTheme);
+C:\Users\USER\Documents\app-downloader next\components\UserMenu.tsx:9 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\components\ui\input.tsx:5 An interface declaring no members is equivalent to its supertype.
+C:\Users\USER\Documents\app-downloader next\lib\auth.ts:59 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\lib\auth.ts:60 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\lib\auth.ts:61 Unexpected any. Specify a different type.
+C:\Users\USER\Documents\app-downloader next\lib\dictionary.ts:2 Unexpected any. Specify a different type.

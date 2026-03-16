@@ -7,6 +7,7 @@ import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import Hls from "hls.js";
 import { showToast } from "@/components/Toast";
+import { loadHistory, saveHistory } from "@/lib/watchHistory";
 
 // Convert a raw stream URL to go through /api/hls-proxy
 const hlsProxyUrl = (url: string) => {
@@ -63,6 +64,7 @@ function WatchContent() {
     const [loading, setLoading] = useState(true);
     const [isFetchingSubsequent, setIsFetchingSubsequent] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [historyLoaded, setHistoryLoaded] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const playerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -150,13 +152,23 @@ function WatchContent() {
         }
     };
 
-    // Load first episode once detail is loaded
+    // Load history + first episode once detail is loaded
     useEffect(() => {
-        if (detailData && slug && id) {
-            fetchEpisode(1, true);
-        }
+        if (!detailData || !slug || !id) return;
+        loadHistory("stardusttv", id).then((saved) => {
+            const startEp = saved !== null ? saved : 1;
+            fetchEpisode(startEp, true);
+            setHistoryLoaded(true);
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [detailData]);
+
+    // Save watch history when episode changes
+    useEffect(() => {
+        if (!historyLoaded || !id) return;
+        saveHistory("stardusttv", id, currentEpisode);
+    }, [currentEpisode, id, historyLoaded]);
+
 
     // Handle video source change with HLS.js
     useEffect(() => {

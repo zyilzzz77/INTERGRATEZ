@@ -854,55 +854,48 @@ export async function GET(req: NextRequest) {
                 break;
             }
             case "terabox": {
+                const NEOXR_KEY = process.env.NEOXR_API_KEY;
                 const tbRes = await fetch(
-                    "https://api.nexray.web.id/downloader/terabox?url=" +
-                    encodeURIComponent(url),
-                    { headers: { "User-Agent": "Mozilla/5.0" } }
+                    `https://api.neoxr.eu/api/terabox?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
+                    { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
                 );
                 if (!tbRes.ok) throw new Error("Terabox API " + tbRes.status);
                 const tbData = await tbRes.json();
-                if (!tbData.status || !tbData.result)
+                if (!tbData.status || !Array.isArray(tbData.data) || tbData.data.length === 0)
                     throw new Error("Gagal mengambil data Terabox");
 
-                const tb = tbData.result;
                 const tbFormats: Format[] = [];
                 let tbThumb = "";
 
-                // Add each file as a format entry
-                if (tb.files && Array.isArray(tb.files)) {
-                    for (const file of tb.files) {
-                        if (!file.download_url && !file.fast_download_url) continue;
+                for (const file of tbData.data) {
+                    const downloadUrl = file.dlink || "";
+                    if (!downloadUrl) continue;
 
-                        // Use first file's thumbnail as main thumbnail
-                        if (!tbThumb && file.thumbnail) tbThumb = file.thumbnail;
-
-                        const label = file.name || "File";
-                        const quality = file.quality || "";
-                        const size = file.size || "";
-                        const info = [quality, size].filter(Boolean).join(" · ");
-
-                        tbFormats.push({
-                            quality: info ? `${label} (${info})` : label,
-                            url: file.fast_download_url || file.download_url,
-                            type: "mp4",
-                        });
+                    // Use first file's thumbnail
+                    if (!tbThumb && file.thumbs) {
+                        tbThumb = file.thumbs.url3 || file.thumbs.url2 || file.thumbs.url1 || "";
                     }
-                }
 
-                // Add zip download if available and multiple files
-                if (tb.zip_download_url && tb.total_files > 1) {
+                    const filename = file.server_filename || "File";
+                    const size = file.size || "";
+
+                    // Detect extension from filename
+                    const extMatch = filename.match(/\.([a-zA-Z0-9]+)$/);
+                    const ext = extMatch ? extMatch[1].toLowerCase() : "mp4";
+
                     tbFormats.push({
-                        quality: `📦 Download All (${tb.total_files} files) ZIP`,
-                        url: tb.zip_download_url,
-                        type: "zip",
+                        quality: size ? `${filename} (${size})` : filename,
+                        url: downloadUrl,
+                        type: ext,
                     });
                 }
 
                 if (tbFormats.length === 0)
                     throw new Error("Tidak ada file tersedia");
 
+                const totalFiles = tbData.data.length;
                 result = {
-                    title: `Terabox — ${tb.total_files || 1} file${(tb.total_files || 1) > 1 ? "s" : ""}`,
+                    title: `Terabox — ${totalFiles} file${totalFiles > 1 ? "s" : ""}`,
                     thumbnail: tbThumb,
                     duration: "-",
                     platform: "terabox",
@@ -1175,7 +1168,6 @@ export async function GET(req: NextRequest) {
         });
 
         // Log for debugging (visible in terminal)
-        console.log(`[download] ${platform} → ${result.formats.length} formats, thumb=${!!result.thumbnail}`);
 
         return NextResponse.json(result, { headers: CORS });
     } catch (err: unknown) {

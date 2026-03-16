@@ -253,7 +253,7 @@ export default function StardustTVPage() {
                             <div>
                                 <div className="mb-8 flex items-center justify-between">
                                     <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: 'var(--drama-text)' }}>
-                                        Hasil: <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">"{searchQuery}"</span>
+                                        Hasil: <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">&quot;{searchQuery}&quot;</span>
                                     </h2>
                                     <span className="text-sm font-medium rounded-full px-4 py-1.5" style={{ background: 'var(--drama-elevated)', color: 'var(--drama-text-muted)' }}>
                                         {searchResults.length} ditemukan

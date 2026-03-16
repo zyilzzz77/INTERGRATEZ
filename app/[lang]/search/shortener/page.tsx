@@ -36,7 +36,7 @@ export default function ShortenerPage() {
                 showToast(data.error || "Gagal mempersingkat URL", "error");
                 return;
             }
-
+ 
             setResult({
                 origin: data.origin,
                 url: data.url,

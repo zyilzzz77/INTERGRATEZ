@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import { showToast } from "@/components/Toast";
+import { loadHistory, saveHistory } from "@/lib/watchHistory";
 
 interface MeloloDetail {
     id: string;
@@ -92,6 +93,7 @@ function DetailContent() {
     const [videoUrl, setVideoUrl] = useState<string>("");
     const [loadingVideo, setLoadingVideo] = useState(false);
     const [isRefreshingToken, setIsRefreshingToken] = useState(false);
+    const [historyLoaded, setHistoryLoaded] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const playerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -118,6 +120,20 @@ function DetailContent() {
                 const json = await res.json();
                 if (json.status && json.data) {
                     setDetail(json.data);
+                    // Try to restore last-watched episode
+                    const savedEp = await loadHistory("melolo", bookId!);
+                    if (savedEp !== null && savedEp >= 0 && json.data.videos && savedEp < json.data.videos.length) {
+                        setCurrentEpIndex(savedEp);
+                        const vid = json.data.videos[savedEp]?.vid;
+                        if (vid) {
+                            const videoRes = await fetch(`/api/melolo/video?vid=${vid}`);
+                            const videoJson = await videoRes.json();
+                            if (videoJson.status && videoJson.data?.url) {
+                                setVideoUrl(videoJson.data.url);
+                            }
+                        }
+                    }
+                    setHistoryLoaded(true);
                 }
                 showToast("Detail drama berhasil dimuat", "success");
             } catch (error) {
@@ -130,6 +146,12 @@ function DetailContent() {
 
         fetchDetail();
     }, [bookId]);
+
+    // Save watch history when episode changes
+    useEffect(() => {
+        if (!historyLoaded || !bookId || currentEpIndex < 0) return;
+        saveHistory("melolo", bookId, currentEpIndex);
+    }, [currentEpIndex, bookId, historyLoaded]);
 
     // Fetch video URL for current episode
     const fetchVideoUrl = async (vid: string) => {

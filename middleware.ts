@@ -53,16 +53,24 @@ export function middleware(request: NextRequest) {
 
     requestHeaders.set("x-real-ip", finalIp);
 
+    // Security headers applied to all responses
+    const securityHeaders: Record<string, string> = {
+        'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+        'X-Content-Type-Options': 'nosniff',
+    };
+
     // 2. i18n Locale Routing Logic
     const { pathname } = request.nextUrl;
 
     // Skip locale routing for API and static files if they accidentally bypass matcher
     if (pathname.startsWith('/api/') || pathname.startsWith('/_next/') || pathname.includes('.')) {
-        return NextResponse.next({
+        const response = NextResponse.next({
             request: {
                 headers: requestHeaders,
             },
         });
+        Object.entries(securityHeaders).forEach(([k, v]) => response.headers.set(k, v));
+        return response;
     }
 
     const pathnameHasLocale = i18n.locales.some(
@@ -74,14 +82,18 @@ export function middleware(request: NextRequest) {
         const newUrl = new URL(`/${locale}${pathname === '/' ? '' : pathname}`, request.url);
         // Preserve search params
         newUrl.search = request.nextUrl.search;
-        return NextResponse.redirect(newUrl);
+        const response = NextResponse.redirect(newUrl);
+        Object.entries(securityHeaders).forEach(([k, v]) => response.headers.set(k, v));
+        return response;
     }
 
-    return NextResponse.next({
+    const response = NextResponse.next({
         request: {
             headers: requestHeaders,
         },
     });
+    Object.entries(securityHeaders).forEach(([k, v]) => response.headers.set(k, v));
+    return response;
 }
 
 export const config = {

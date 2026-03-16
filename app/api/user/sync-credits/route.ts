@@ -36,6 +36,14 @@ export async function POST(req: NextRequest) {
             });
         }
 
+        // Also check by fingerprint only (user may have changed network)
+        if (!guestRecord && fingerprint !== "unknown") {
+            guestRecord = await prisma.guestCredit.findFirst({
+                where: { fingerprint },
+                orderBy: { createdAt: "asc" },
+            });
+        }
+
         if (!guestRecord) {
             return NextResponse.json({ synced: false, reason: "no_guest_record" });
         }
