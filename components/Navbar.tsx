@@ -33,6 +33,7 @@ export default function Navbar({ dict, lang }: { dict: any; lang: string }) {
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
                 className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+                style={{ paddingTop: "env(safe-area-inset-top)" }}
             >
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16">
                     {/* Logo Text */}
