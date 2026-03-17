@@ -5,6 +5,8 @@ import {
     addDownload, updateDownload, finishDownload, errorDownload,
 } from "@/lib/downloadStore";
 
+import { isAndroid } from "@/lib/capacitor";
+
 let dlCounter = 0;
 
 export async function downloadMedia(e: React.MouseEvent | null, url: string, filename: string) {
@@ -12,6 +14,26 @@ export async function downloadMedia(e: React.MouseEvent | null, url: string, fil
 
     const dlId = `dl-${Date.now()}-${++dlCounter}`;
     addDownload(dlId, filename);
+
+    if (isAndroid()) {
+        try {
+            const isAlreadyProxy = url.includes("/api/proxy-download") || url.includes("/api/convert-m3u8");
+            let finalUrl = url;
+            if (!isAlreadyProxy) {
+                finalUrl = window.location.origin + `/api/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}&download=true`;
+            } else if (!url.startsWith('http')) {
+                finalUrl = window.location.origin + url;
+            }
+            
+            triggerAnchorDownload(finalUrl, filename);
+            finishDownload(dlId);
+            return;
+        } catch (error) {
+            errorDownload(dlId);
+            showToast("Gagal memulai unduhan", "error");
+            return;
+        }
+    }
 
     try {
         const isAlreadyProxy = url.includes("/api/proxy-download") || url.includes("/api/convert-m3u8");
