@@ -24,7 +24,7 @@ const config: CapacitorConfig = {
       iconColor: "#f59e0b",
     },
     CapacitorHttp: {
-      enabled: true, // bypass CORS via native HTTP
+      enabled: false, // Disabling because it breaks Next.js App Router RSC payload streaming (fetch)
     },
     StatusBar: {
       style: "DARK",
