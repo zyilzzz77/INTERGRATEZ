@@ -9,6 +9,7 @@ const config: CapacitorConfig = {
     url: "https://inversave.space",
     cleartext: false,
     androidScheme: "https",
+    allowNavigation: ["*"],
   },
   android: {
     allowMixedContent: true,
