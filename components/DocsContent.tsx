@@ -59,12 +59,9 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
 
     return (
         <LazyMotion features={domAnimation}>
-            <div className="min-h-screen bg-neutral-950 text-neutral-200">
+            <div className="min-h-screen bg-white text-black">
                 {/* Hero Header */}
-                <div className="relative overflow-hidden border-b border-white/5">
-                    {/* Gradient Orbs */}
-                    <div className="pointer-events-none absolute -top-40 left-1/4 h-80 w-80 rounded-full bg-blue-500/10 blur-[120px]" />
-                    <div className="pointer-events-none absolute -top-20 right-1/4 h-60 w-60 rounded-full bg-purple-500/10 blur-[100px]" />
+                <div className="relative overflow-hidden border-b-[3px] border-black bg-[#c4b5fd]">
 
                     <m.div
                         className="relative mx-auto max-w-5xl px-4 pb-16 pt-20 text-center md:pt-28"
@@ -72,28 +69,28 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
                         initial="hidden"
                         animate="show"
                     >
-                        <m.div variants={item} className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-neutral-300 backdrop-blur-sm">
-                            <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                        <m.div variants={item} className="mb-6 inline-flex items-center gap-2 rounded-xl border-[3px] border-black bg-white px-4 py-1.5 text-xs font-black text-black shadow-neo-sm uppercase tracking-widest">
+                            <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse border border-black" />
                             v5.5 — Updated 2025
                         </m.div>
 
-                        <m.h1 variants={item} className="text-4xl font-black tracking-tight text-white sm:text-5xl md:text-6xl">
+                        <m.h1 variants={item} className="text-4xl font-black tracking-tight text-black sm:text-5xl md:text-6xl uppercase">
                             {text.title}
                         </m.h1>
 
-                        <m.p variants={item} className="mx-auto mt-5 max-w-2xl text-base text-neutral-400 sm:text-lg">
+                        <m.p variants={item} className="mx-auto mt-5 max-w-2xl text-base font-bold text-black/80 sm:text-lg">
                             {text.subtitle}
                         </m.p>
 
                         {/* Quick Nav Pills */}
-                        <m.div variants={item} className="mt-10 flex flex-wrap justify-center gap-2 sm:gap-3">
+                        <m.div variants={item} className="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4">
                             {sections.map((section) => (
                                 <a
                                     key={section.id}
                                     href={`#${section.id}`}
-                                    className={`group relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${activeSection === section.id
-                                        ? "bg-white text-black shadow-lg shadow-white/10"
-                                        : "bg-white/5 text-neutral-300 hover:bg-white/10 hover:text-white"
+                                    className={`group relative flex items-center gap-2 rounded-xl border-[3px] border-black px-5 py-3 text-sm font-black uppercase transition-all duration-300 shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${activeSection === section.id
+                                        ? "bg-black text-white"
+                                        : "bg-white text-black hover:bg-[#ffeb3b]"
                                         }`}
                                 >
                                     <span className="text-base">{section.icon}</span>
@@ -108,30 +105,29 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
                 {/* Main Content */}
                 <div className="mx-auto max-w-5xl px-4 py-16">
                     <m.div
-                        className="space-y-20"
+                        className="space-y-24"
                         variants={container}
                         initial="hidden"
                         whileInView="show"
                         viewport={{ once: true, margin: "-100px" }}
                     >
                         {/* ═══════ SECTION: DOWNLOADER ═══════ */}
-                        <m.section variants={item} id="downloader">
+                        <m.section variants={item} id="downloader" className="scroll-mt-32">
                             <SectionHeader
-                                icon={<Download className="w-6 h-6 text-white" />}
+                                icon={<Download className="w-8 h-8 text-black" strokeWidth={3} />}
                                 title={text.hDownloader}
-                                gradient="from-blue-500 to-cyan-400"
+                                bg="#a0d1d6"
                                 badge={`5 ${lang === "id" ? "Platform" : "Platforms"}`}
                             />
-                            <div className="mt-8 space-y-4">
+                            <div className="mt-10 space-y-5">
                                 <DocCard
                                     text={text}
                                     title={text.d1Title}
                                     desc={text.d1Desc}
                                     steps={[text.d1Step1, text.d1Step2, text.d1Step3, text.d1Step4]}
                                     example="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                                    icon={<Play className="w-5 h-5 text-red-400" />}
-                                    accent="border-red-500/20 hover:border-red-500/40"
-                                    accentDot="bg-red-500"
+                                    icon={<Play className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#ffb3c6"
                                 />
                                 <DocCard
                                     text={text}
@@ -139,9 +135,8 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
                                     desc={text.d2Desc}
                                     steps={[text.d2Step1, text.d2Step2, text.d2Step3, text.d2Step4]}
                                     example="https://www.tiktok.com/@tiktok/video/7296366226223336710"
-                                    icon={<Music className="w-5 h-5 text-pink-400" />}
-                                    accent="border-pink-500/20 hover:border-pink-500/40"
-                                    accentDot="bg-pink-500"
+                                    icon={<Music className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#ffeb3b"
                                 />
                                 <DocCard
                                     text={text}
@@ -149,9 +144,8 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
                                     desc={text.d3Desc}
                                     steps={[text.d3Step1, text.d3Step2, text.d3Step3, text.d3Step4]}
                                     example="https://www.instagram.com/p/Cynj2rOy_z_/"
-                                    icon={<Camera className="w-5 h-5 text-purple-400" />}
-                                    accent="border-purple-500/20 hover:border-purple-500/40"
-                                    accentDot="bg-purple-500"
+                                    icon={<Camera className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#c4b5fd"
                                 />
                                 <DocCard
                                     text={text}
@@ -159,132 +153,121 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
                                     desc={text.d4Desc}
                                     steps={[text.d4Step1, text.d4Step2, text.d4Step3]}
                                     example="https://www.facebook.com/watch/?v=123456789"
-                                    icon={<Globe className="w-5 h-5 text-blue-400" />}
-                                    accent="border-blue-500/20 hover:border-blue-500/40"
-                                    accentDot="bg-blue-500"
+                                    icon={<Globe className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#a0d1d6"
                                 />
                                 <DocCard
                                     text={text}
                                     title={text.d5Title}
                                     desc={text.d5Desc}
                                     steps={[text.d5Step1, text.d5Step2, text.d5Step3]}
-                                    icon={<Globe className="w-5 h-5 text-emerald-400" />}
-                                    accent="border-emerald-500/20 hover:border-emerald-500/40"
-                                    accentDot="bg-emerald-500"
+                                    icon={<Globe className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#ecfeff"
                                 />
                             </div>
                         </m.section>
 
                         {/* ═══════ SECTION: SEARCH ENGINE ═══════ */}
-                        <m.section variants={item} id="search">
+                        <m.section variants={item} id="search" className="scroll-mt-32">
                             <SectionHeader
-                                icon={<Search className="w-6 h-6 text-white" />}
+                                icon={<Search className="w-8 h-8 text-black" strokeWidth={3} />}
                                 title={text.hSearch}
-                                gradient="from-purple-500 to-pink-400"
+                                bg="#c4b5fd"
                                 badge={`8 ${lang === "id" ? "Platform" : "Platforms"}`}
                             />
-                            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                            <div className="mt-10 grid gap-5 sm:grid-cols-2">
                                 <SearchCard
                                     text={text}
-                                    icon={<Play className="w-5 h-5 text-red-400" />}
+                                    icon={<Play className="w-8 h-8 text-black" strokeWidth={2.5} />}
                                     title={text.s1Title}
                                     url={`/${lang}/search/youtube`}
                                     desc={text.s1Desc}
                                     query={text.s1Query}
-                                    gradient="from-red-500/10 to-red-600/5"
-                                    borderColor="hover:border-red-500/30"
+                                    bg="#ffb3c6"
                                 />
                                 <SearchCard
                                     text={text}
-                                    icon={<Music className="w-5 h-5 text-green-400" />}
+                                    icon={<Music className="w-8 h-8 text-black" strokeWidth={2.5} />}
                                     title={text.s2Title}
                                     url={`/${lang}/search/spotify`}
                                     desc={text.s2Desc}
                                     query={text.s2Query}
-                                    gradient="from-green-500/10 to-green-600/5"
-                                    borderColor="hover:border-green-500/30"
+                                    bg="#a0d1d6"
                                 />
                                 <SearchCard
                                     text={text}
-                                    icon={<Camera className="w-5 h-5 text-purple-400" />}
+                                    icon={<Camera className="w-8 h-8 text-black" strokeWidth={2.5} />}
                                     title={text.s3Title}
                                     url={`/${lang}/search/instagram`}
                                     desc={text.s3Desc}
                                     query={text.s3Query}
-                                    gradient="from-purple-500/10 to-pink-500/5"
-                                    borderColor="hover:border-purple-500/30"
+                                    bg="#c4b5fd"
                                 />
                                 <SearchCard
                                     text={text}
-                                    icon={<Clapperboard className="w-5 h-5 text-pink-400" />}
+                                    icon={<Clapperboard className="w-8 h-8 text-black" strokeWidth={2.5} />}
                                     title={text.s4Title}
                                     url={`/${lang}/search/tiktok`}
                                     desc={text.s4Desc}
                                     query={text.s4Query}
-                                    gradient="from-pink-500/10 to-rose-500/5"
-                                    borderColor="hover:border-pink-500/30"
+                                    bg="#ffeb3b"
                                 />
                                 <SearchCard
                                     text={text}
-                                    icon={<Pin className="w-5 h-5 text-red-400" />}
+                                    icon={<Pin className="w-8 h-8 text-black" strokeWidth={2.5} />}
                                     title={text.s5Title}
                                     url={`/${lang}/search/pinterest`}
                                     desc={text.s5Desc}
                                     query={text.s5Query}
-                                    gradient="from-red-500/10 to-orange-500/5"
-                                    borderColor="hover:border-red-400/30"
+                                    bg="#ffb3c6"
                                 />
                                 <SearchCard
                                     text={text}
-                                    icon={<Cloud className="w-5 h-5 text-orange-400" />}
+                                    icon={<Cloud className="w-8 h-8 text-black" strokeWidth={2.5} />}
                                     title={text.s6Title}
                                     url={`/${lang}/search/soundcloud`}
                                     desc={text.s6Desc}
                                     query={text.s6Query}
-                                    gradient="from-orange-500/10 to-orange-600/5"
-                                    borderColor="hover:border-orange-500/30"
+                                    bg="#ffeb3b"
                                 />
                                 <SearchCard
                                     text={text}
-                                    icon={<Monitor className="w-5 h-5 text-cyan-400" />}
+                                    icon={<Monitor className="w-8 h-8 text-black" strokeWidth={2.5} />}
                                     title={text.s7Title}
                                     url={`/${lang}/search/bilibili`}
                                     desc={text.s7Desc}
                                     query={text.s7Query}
-                                    gradient="from-cyan-500/10 to-blue-500/5"
-                                    borderColor="hover:border-cyan-500/30"
+                                    bg="#a0d1d6"
                                 />
                                 <SearchCard
                                     text={text}
-                                    icon={<Music2 className="w-5 h-5 text-pink-400" />}
+                                    icon={<Music2 className="w-8 h-8 text-black" strokeWidth={2.5} />}
                                     title={text.s8Title}
                                     url={`/${lang}/search/applemusic`}
                                     desc={text.s8Desc}
                                     query={text.s8Query}
-                                    gradient="from-pink-500/10 to-red-500/5"
-                                    borderColor="hover:border-pink-400/30"
+                                    bg="#c4b5fd"
                                 />
                             </div>
                         </m.section>
 
                         {/* ═══════ SECTION: TOOLS ═══════ */}
-                        <m.section variants={item} id="tools">
+                        <m.section variants={item} id="tools" className="scroll-mt-32">
                             <SectionHeader
-                                icon={<Wrench className="w-6 h-6 text-white" />}
+                                icon={<Wrench className="w-8 h-8 text-black" strokeWidth={3} />}
                                 title={text.hTools}
-                                gradient="from-emerald-500 to-teal-400"
+                                bg="#a0d1d6"
                                 badge={`3 ${lang === "id" ? "Fitur" : "Features"}`}
                             />
-                            <div className="mt-8 space-y-4">
+                            <div className="mt-10 space-y-5">
                                 <DocCard
                                     text={text}
                                     title={text.t1Title}
                                     desc={text.t1Desc}
                                     steps={[text.t1Step1, text.t1Step2, text.t1Step3]}
                                     example="123456789"
-                                    icon={<Gamepad2 className="w-5 h-5 text-yellow-400" />}
-                                    accent="border-yellow-500/20 hover:border-yellow-500/40"
-                                    accentDot="bg-yellow-500"
+                                    icon={<Gamepad2 className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#ffeb3b"
                                 />
                                 <DocCard
                                     text={text}
@@ -292,9 +275,8 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
                                     desc={text.t2Desc}
                                     steps={[text.t2Step1, text.t2Step2, text.t2Step3]}
                                     example="iPhone 15"
-                                    icon={<ShoppingCart className="w-5 h-5 text-green-400" />}
-                                    accent="border-green-500/20 hover:border-green-500/40"
-                                    accentDot="bg-green-500"
+                                    icon={<ShoppingCart className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#a0d1d6"
                                 />
                                 <DocCard
                                     text={text}
@@ -302,31 +284,29 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
                                     desc={text.t3Desc}
                                     steps={[text.t3Step1, text.t3Step2, text.t3Step3]}
                                     example="vercel"
-                                    icon={<Github className="w-5 h-5 text-neutral-300" />}
-                                    accent="border-neutral-400/20 hover:border-neutral-400/40"
-                                    accentDot="bg-neutral-400"
+                                    icon={<Github className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#c4b5fd"
                                 />
                             </div>
                         </m.section>
 
                         {/* ═══════ SECTION: STALKER ═══════ */}
-                        <m.section variants={item} id="stalker">
+                        <m.section variants={item} id="stalker" className="scroll-mt-32">
                             <SectionHeader
-                                icon={<User className="w-6 h-6 text-white" />}
+                                icon={<User className="w-8 h-8 text-black" strokeWidth={3} />}
                                 title={text.hStalker}
-                                gradient="from-pink-500 to-rose-400"
+                                bg="#ffb3c6"
                                 badge={`2 ${lang === "id" ? "Platform" : "Platforms"}`}
                             />
-                            <div className="mt-8 space-y-4">
+                            <div className="mt-10 space-y-5">
                                 <DocCard
                                     text={text}
                                     title={text.st1Title}
                                     desc={text.st1Desc}
                                     steps={[text.st1Step1, text.st1Step2, text.st1Step3]}
                                     example="jokowi"
-                                    icon={<Camera className="w-5 h-5 text-purple-400" />}
-                                    accent="border-purple-500/20 hover:border-purple-500/40"
-                                    accentDot="bg-purple-500"
+                                    icon={<Camera className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#c4b5fd"
                                 />
                                 <DocCard
                                     text={text}
@@ -334,9 +314,8 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
                                     desc={text.st2Desc}
                                     steps={[text.st2Step1, text.st2Step2, text.st2Step3, text.st2Step4]}
                                     example="sandys.ss"
-                                    icon={<Music className="w-5 h-5 text-pink-400" />}
-                                    accent="border-pink-500/20 hover:border-pink-500/40"
-                                    accentDot="bg-pink-500"
+                                    icon={<Music className="w-6 h-6 text-black" strokeWidth={2.5} />}
+                                    bg="#ffb3c6"
                                 />
                             </div>
                         </m.section>
@@ -349,16 +328,17 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                        <div className="inline-flex flex-col items-center gap-4 rounded-2xl border border-white/5 bg-white/[0.02] px-12 py-8 backdrop-blur-sm">
-                            <p className="text-sm text-neutral-500">
+                        <div className="inline-flex flex-col items-center gap-4 rounded-2xl border-[3px] border-black bg-white shadow-neo p-10 relative overflow-hidden">
+                            <div className="absolute -top-4 -right-4 w-12 h-12 bg-[#ffeb3b] border-[3px] border-black rounded-full"></div>
+                            <p className="font-black text-black uppercase tracking-wide">
                                 {lang === "id" ? "Sudah siap menggunakan Inversave?" : "Ready to use Inversave?"}
                             </p>
                             <Link
                                 href={`/${lang}/`}
-                                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-black shadow-lg shadow-white/5 transition-all duration-300 hover:shadow-white/10 hover:scale-[1.02]"
+                                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-primary border-[3px] border-black px-8 py-3.5 text-sm font-black text-black shadow-neo-sm transition-all duration-300 hover:shadow-neo hover:-translate-x-1 hover:-translate-y-1 uppercase tracking-wider"
                             >
                                 <span className="relative z-10">{text.backHome}</span>
-                                <ArrowRight className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                                <ArrowRight className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={3} />
                             </Link>
                         </div>
                     </m.div>
@@ -371,27 +351,26 @@ export default function DocsContent({ dict, lang }: { dict: any, lang: string })
 /* ═══════════════════════════════════════
    SECTION HEADER COMPONENT
    ═══════════════════════════════════════ */
-function SectionHeader({ icon, title, gradient, badge }: {
+function SectionHeader({ icon, title, bg, badge }: {
     icon: ReactNode;
     title: string;
-    gradient: string;
+    bg: string;
     badge: string;
 }) {
     return (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-2">
             <div className="flex items-center gap-4">
-                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} shadow-lg`}>
+                <div className={`flex h-16 w-16 items-center justify-center rounded-2xl border-[3px] border-black shadow-neo-sm -rotate-2`} style={{ backgroundColor: bg }}>
                     {icon}
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                    <h2 className="text-3xl font-black tracking-tight text-black sm:text-4xl uppercase">
                         {title}
                     </h2>
-                    <div className={`mt-1 h-1 w-12 rounded-full bg-gradient-to-r ${gradient} opacity-60`} />
                 </div>
             </div>
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-neutral-400">
-                <span className={`h-1.5 w-1.5 rounded-full bg-gradient-to-r ${gradient}`} />
+            <span className="inline-flex w-fit items-center gap-2 rounded-xl border-[3px] border-black bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-black shadow-neo-sm">
+                <span className={`h-3 w-3 rounded-md border-2 border-black`} style={{ backgroundColor: bg }} />
                 {badge}
             </span>
         </div>
@@ -401,59 +380,57 @@ function SectionHeader({ icon, title, gradient, badge }: {
 /* ═══════════════════════════════════════
    DOC CARD COMPONENT (Accordion Style)
    ═══════════════════════════════════════ */
-function DocCard({ text, title, desc, steps, example, icon, accent, accentDot }: {
+function DocCard({ text, title, desc, steps, example, icon, bg }: {
     text: any;
     title: string;
     desc: string;
     steps: string[];
     example?: string;
     icon: ReactNode;
-    accent: string;
-    accentDot: string;
+    bg: string;
 }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
         <div
-            className={`group rounded-2xl border border-white/[0.06] bg-white/[0.02] transition-all duration-300 ${accent} ${isOpen ? "bg-white/[0.04]" : ""}`}
+            className={`group rounded-2xl border-[3px] border-black bg-white transition-all duration-300 shadow-neo-sm ${isOpen ? "shadow-neo translate-x-[-2px] translate-y-[-2px]" : ""}`}
         >
             {/* Header — clickable */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex w-full items-center gap-4 p-5 text-left sm:p-6"
             >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 transition-colors group-hover:bg-white/10">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-[3px] border-black transition-transform group-hover:scale-110 shadow-neo-sm" style={{ backgroundColor: bg }}>
                     {icon}
                 </span>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                        <span className={`h-2 w-2 rounded-full ${accentDot}`} />
-                        <h3 className="truncate text-base font-bold text-white sm:text-lg">{title}</h3>
+                        <h3 className="truncate text-lg font-black text-black uppercase tracking-wide">{title}</h3>
                     </div>
-                    <p className="mt-0.5 text-sm text-neutral-500 line-clamp-1">{desc}</p>
+                    <p className="mt-1 text-sm font-bold text-black/70 line-clamp-1">{desc}</p>
                 </div>
-                <ChevronDown
-                    className={`h-5 w-5 shrink-0 text-neutral-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-                />
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl border-2 border-black bg-white shadow-neo-sm transition-transform duration-300 ${isOpen ? "rotate-180 bg-black text-white" : "text-black"}`}>
+                    <ChevronDown className="h-6 w-6" strokeWidth={3} />
+                </div>
             </button>
 
             {/* Expanded content */}
-            <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}>
-                <div className="border-t border-white/5 px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
-                    <p className="mb-4 text-sm leading-relaxed text-neutral-400">{desc}</p>
+            <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}>
+                <div className="border-t-[3px] border-black px-5 pb-5 pt-4 sm:px-6 sm:pb-6 bg-gray-50 rounded-b-xl">
+                    <p className="mb-6 text-sm font-bold leading-relaxed text-black/80">{desc}</p>
 
                     {/* Steps */}
-                    <div className="mb-4">
-                        <p className="mb-2.5 text-[11px] font-bold uppercase tracking-widest text-neutral-500">
+                    <div className="mb-6">
+                        <p className="mb-3 inline-block bg-black text-white px-3 py-1 rounded-lg border-2 border-black text-xs font-black uppercase tracking-widest shadow-neo-sm rotate-1">
                             {text.howToUse}
                         </p>
-                        <div className="space-y-2">
+                        <div className="space-y-4 mt-2">
                             {steps.map((step, i) => (
-                                <div key={i} className="flex items-start gap-3">
-                                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/5 text-[11px] font-bold text-neutral-400">
+                                <div key={i} className="flex items-start gap-4">
+                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border-2 border-black text-sm font-black text-black shadow-neo-sm" style={{ backgroundColor: bg }}>
                                         {i + 1}
                                     </span>
-                                    <span className="text-sm leading-relaxed text-neutral-300">{step}</span>
+                                    <span className="text-sm font-bold leading-relaxed text-black pt-1">{step}</span>
                                 </div>
                             ))}
                         </div>
@@ -461,11 +438,12 @@ function DocCard({ text, title, desc, steps, example, icon, accent, accentDot }:
 
                     {/* Example */}
                     {example && (
-                        <div className="rounded-xl border border-white/5 bg-black/30 p-3.5">
-                            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-neutral-600">
+                        <div className="rounded-xl border-[3px] border-black bg-white p-4 shadow-neo-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-2 h-full border-l-[3px] border-black" style={{ backgroundColor: bg }}></div>
+                            <p className="mb-2 text-xs font-black uppercase tracking-widest text-black/60">
                                 {text.egLink}
                             </p>
-                            <code className="block break-all font-mono text-xs leading-relaxed text-emerald-400">
+                            <code className="block break-all font-mono text-sm font-bold leading-relaxed text-black">
                                 {example}
                             </code>
                         </div>
@@ -479,45 +457,44 @@ function DocCard({ text, title, desc, steps, example, icon, accent, accentDot }:
 /* ═══════════════════════════════════════
    SEARCH CARD COMPONENT
    ═══════════════════════════════════════ */
-function SearchCard({ text, icon, title, url, desc, query, gradient, borderColor }: {
+function SearchCard({ text, icon, title, url, desc, query, bg }: {
     text: any;
     icon: ReactNode;
     title: string;
     url: string;
     desc: string;
     query: string;
-    gradient: string;
-    borderColor: string;
+    bg: string;
 }) {
     return (
-        <div className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-br ${gradient} transition-all duration-300 ${borderColor}`}>
-            <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <div className={`group relative flex flex-col overflow-hidden rounded-2xl border-[3px] border-black bg-white transition-all duration-300 shadow-neo-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-neo`}>
+            <div className="flex flex-1 flex-col p-5 sm:p-6" style={{ backgroundColor: bg }}>
                 {/* Header */}
-                <div className="mb-3 flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
+                <div className="mb-4 flex items-center gap-4">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl border-[3px] border-black bg-white shadow-neo-sm transition-transform duration-300 group-hover:scale-110 -rotate-2">
                         {icon}
                     </span>
-                    <h3 className="text-base font-bold text-white">{title}</h3>
+                    <h3 className="text-xl font-black text-black uppercase tracking-wide bg-white px-3 py-1 border-2 border-black rounded-lg shadow-neo-sm rotate-1">{title}</h3>
                 </div>
 
                 {/* Description */}
-                <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-400">{desc}</p>
+                <p className="mb-5 flex-1 text-sm font-bold leading-relaxed text-black bg-white/60 p-3 rounded-xl border-2 border-black">{desc}</p>
 
                 {/* Example Query */}
-                <div className="mb-4 rounded-xl border border-white/5 bg-black/20 p-3">
-                    <p className="mb-1 text-[10px] font-medium uppercase tracking-widest text-neutral-600">
+                <div className="mb-5 rounded-xl border-[3px] border-black bg-white p-4 shadow-neo-sm">
+                    <p className="mb-1 text-xs font-black uppercase tracking-widest text-black/60">
                         {text.egQuery}
                     </p>
-                    <p className="font-mono text-xs text-sky-400">&quot;{query}&quot;</p>
+                    <p className="font-mono text-sm font-black text-black py-1 px-2 bg-gray-100 rounded border-2 border-black inline-block">&quot;{query}&quot;</p>
                 </div>
 
                 {/* CTA Button */}
                 <Link
                     href={url}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-white/[0.08] py-2.5 text-xs font-bold text-white transition-all duration-300 hover:bg-white/[0.15] active:scale-[0.98]"
+                    className="flex items-center justify-center gap-2 rounded-xl border-[3px] border-black bg-black py-3 text-sm font-black text-white transition-all duration-300 hover:bg-white hover:text-black uppercase tracking-widest shadow-neo-sm"
                 >
                     {text.tryBtn}
-                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowUpRight className="h-5 w-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" strokeWidth={3} />
                 </Link>
             </div>
         </div>

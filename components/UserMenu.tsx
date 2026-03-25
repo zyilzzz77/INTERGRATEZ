@@ -46,7 +46,7 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
 
     if (status === "loading") {
         return (
-            <div className="h-9 w-9 animate-pulse rounded-full bg-white/10 sm:h-10 sm:w-10" />
+            <div className="h-9 w-9 animate-pulse rounded-xl bg-gray-200 border-[3px] border-black sm:h-10 sm:w-10" />
         );
     }
 
@@ -55,13 +55,13 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
         return (
             <div className="flex items-center gap-2">
                 {/* Guest credits badge */}
-                <div className="flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1 text-xs text-neutral-400 ring-1 ring-white/10">
-                    <Coins className="h-3.5 w-3.5 text-amber-400" />
-                    <span className="font-semibold text-white">{credits ?? 100}</span>
+                <div className="flex items-center gap-1 rounded-xl bg-white border-[3px] border-black px-2.5 py-1 text-xs font-bold text-black shadow-neo-sm">
+                    <Coins className="h-3.5 w-3.5 text-orange-500" />
+                    <span>{credits ?? 100}</span>
                 </div>
                 <button
                     onClick={() => signIn("google")}
-                    className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-black transition hover:bg-white/90 sm:px-4 sm:py-2 sm:text-sm"
+                    className="flex items-center gap-1.5 rounded-xl bg-white border-[3px] border-black px-3 py-1.5 text-xs font-black text-black shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-all sm:px-4 sm:py-2 sm:text-sm"
                 >
                     <svg className="h-4 w-4" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" />
@@ -80,12 +80,12 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
         <div className="relative" ref={ref}>
             <button
                 onClick={() => setOpen(!open)}
-                className="flex items-center gap-2 rounded-full bg-white/5 px-1.5 py-1 ring-1 ring-white/10 transition hover:bg-white/10 max-w-[200px]"
+                className="flex items-center gap-2 rounded-xl bg-white border-[3px] border-black px-1.5 py-1 shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-all max-w-[200px]"
             >
                 {/* Credits badge */}
-                <div className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs shrink-0">
-                    <Coins className="h-3 w-3 text-amber-400" />
-                    <span className="font-bold text-amber-300">{credits ?? "..."}</span>
+                <div className="flex items-center gap-1 rounded-lg bg-[#fff6e8] px-2 py-0.5 text-xs shrink-0 border-2 border-black">
+                    <Coins className="h-3 w-3 text-orange-500" />
+                    <span className="font-bold text-black">{credits ?? "..."}</span>
                 </div>
                 {/* Avatar */}
                 {session.user.image ? (
@@ -94,22 +94,22 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                         alt={session.user.name || "User"}
                         width={32}
                         height={32}
-                        className="h-7 w-7 rounded-full object-cover sm:h-8 sm:w-8 shrink-0"
+                        className="h-7 w-7 rounded-lg object-cover sm:h-8 sm:w-8 shrink-0 border-2 border-black"
                         unoptimized
                     />
                 ) : (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-xs font-bold text-white sm:h-8 sm:w-8 shrink-0">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#a0d1d6] border-2 border-black text-xs font-bold text-black sm:h-8 sm:w-8 shrink-0">
                         {session.user.name?.charAt(0) || "U"}
                     </div>
                 )}
-                <ChevronDown className={`h-3.5 w-3.5 text-neutral-400 transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
+                <ChevronDown className={`h-4 w-4 text-black font-black transition-transform shrink-0 ${open ? "rotate-180" : ""}`} strokeWidth={3} />
             </button>
 
             {/* Dropdown */}
             {open && (
-                <div className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-2xl bg-neutral-900 shadow-2xl ring-1 ring-white/10 z-50">
+                <div className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-xl bg-white shadow-neo border-[3px] border-black z-50">
                     {/* User info */}
-                    <div className="border-b border-white/10 p-4">
+                    <div className="border-b-[3px] border-black bg-[#ffeb3b] p-4">
                         <div className="flex items-center gap-3">
                             {session.user.image ? (
                                 <Image
@@ -117,34 +117,34 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                                     alt={session.user.name || "User"}
                                     width={40}
                                     height={40}
-                                    className="h-10 w-10 rounded-full object-cover"
+                                    className="h-10 w-10 rounded-xl object-cover border-2 border-black bg-white"
                                     unoptimized
                                 />
                             ) : (
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-sm font-bold text-white">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-black bg-white text-sm font-bold text-black shadow-neo-sm">
                                     {session.user.name?.charAt(0) || "U"}
                                 </div>
                             )}
                             <div className="flex-1 min-w-0">
-                                <p className="truncate text-sm font-bold text-white">{session.user.name}</p>
-                                <p className="truncate text-xs text-neutral-400">{session.user.email}</p>
+                                <p className="truncate text-sm font-black text-black">{session.user.name}</p>
+                                <p className="truncate text-xs font-bold text-black/70">{session.user.email}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Credits */}
-                    <div className="border-b border-white/10 p-4">
+                    <div className="border-b-[3px] border-black p-4 bg-white">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/10">
-                                    <Coins className="h-4 w-4 text-amber-400" />
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff6e8] border-2 border-black">
+                                    <Coins className="h-4 w-4 text-orange-500" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-neutral-400">{dict.creditBalance || "Sisa Kredit"}</p>
-                                    <p className="text-lg font-black text-white">{credits ?? "..."}</p>
+                                    <p className="text-xs font-bold text-gray-500">{dict.creditBalance || "Sisa Kredit"}</p>
+                                    <p className="text-lg font-black text-black">{credits ?? "..."}</p>
                                 </div>
                             </div>
-                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${isGuest ? "bg-neutral-700 text-neutral-300" : "bg-emerald-500/10 text-emerald-400"
+                            <span className={`rounded-lg px-2 py-0.5 text-[10px] font-black uppercase border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] ${isGuest ? "bg-gray-200 text-gray-700" : "bg-[#a0d1d6] text-black"
                                 }`}>
                                 {isGuest ? (dict.free || "Free") : (credits && credits > 100 ? (dict.premium || "Premium") : (dict.free || "Free"))}
                             </span>
@@ -152,29 +152,29 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                     </div>
 
                     {/* Actions */}
-                    <div className="p-2">
+                    <div className="p-2 border-t-[3px] border-black bg-white">
                         <Link
                             href={`/${lang}/topup`}
                             onClick={() => setOpen(false)}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white transition hover:bg-white/5"
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-black border-2 border-transparent hover:border-black hover:bg-[#a0d1d6] hover:shadow-neo-sm transition-all"
                         >
-                            <CreditCard className="h-4 w-4 text-emerald-400" />
+                            <CreditCard className="h-4 w-4 text-emerald-600" strokeWidth={3} />
                             {dict.pricing || "Pricing & Packages"}
                         </Link>
                         <Link
                             href={`/${lang}/docs`}
                             onClick={() => setOpen(false)}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white transition hover:bg-white/5"
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-black border-2 border-transparent hover:border-black hover:bg-[#ffb3c6] hover:shadow-neo-sm transition-all"
                         >
-                            <BookOpen className="h-4 w-4 text-purple-400" />
+                            <BookOpen className="h-4 w-4 text-purple-600" strokeWidth={3} />
                             {dict.apiDocs || "API Documentation"}
                         </Link>
                         <Link
                             href={`/${lang}/profile`}
                             onClick={() => setOpen(false)}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white transition hover:bg-white/5"
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-black border-2 border-transparent hover:border-black hover:bg-[#ffeb3b] hover:shadow-neo-sm transition-all"
                         >
-                            <User className="h-4 w-4 text-blue-400" />
+                            <User className="h-4 w-4 text-blue-600" strokeWidth={3} />
                             {dict.profile || "My Profile"}
                         </Link>
                         <a
@@ -182,16 +182,16 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={() => setOpen(false)}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white transition hover:bg-white/5"
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-black border-2 border-transparent hover:border-black hover:bg-orange-200 hover:shadow-neo-sm transition-all"
                         >
-                            <Headphones className="h-4 w-4 text-orange-400" />
+                            <Headphones className="h-4 w-4 text-orange-600" strokeWidth={3} />
                             Customer Services
                         </a>
                         <button
                             onClick={() => signOut()}
-                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10"
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-red-600 border-2 border-transparent hover:border-red-600 hover:bg-red-50 hover:shadow-neo-sm transition-all mt-1"
                         >
-                            <LogOut className="h-4 w-4" />
+                            <LogOut className="h-4 w-4" strokeWidth={3} />
                             {dict.logout || "Logout"}
                         </button>
                     </div>

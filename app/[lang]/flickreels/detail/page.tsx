@@ -1,30 +1,28 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import Hls from "hls.js";
 import { showToast } from "@/components/Toast";
+import { loadHistory, saveHistory } from "@/lib/watchHistory";
 
-interface DramaDetail {
-    id: string;
-    title: string;
-    cover: string;
-    coverOriginal: string;
-    chapterCount: number;
-    introduction: string;
-    tags: string[];
-    playCount: string;
-    corner: { cornerType: number; name: string; color: string } | null;
-    shelfTime: string;
+const hlsProxyUrl = (url: string) => url ? `/api/hls-proxy?url=${encodeURIComponent(url)}` : "";
+
+interface FlickReelsEpisode {
+    chapter_id: string;
+    chapter_num: number;
+    chapter_title: string;
+    play_url: string;
+    duration: number;
 }
 
-interface Episode {
-    chapterId: string;
-    chapterIndex: number;
-    chapterName: string;
-    videoUrl: string;
+interface FlickReelsDetail {
+    playlet_id: string;
+    playlet_title: string;
+    cover: string;
+    list: FlickReelsEpisode[];
 }
 
 function LoadingState() {
@@ -34,17 +32,17 @@ function LoadingState() {
                 <m.div
                     animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.05, 0.1] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute h-28 w-28 rounded-full bg-white"
+                    className="absolute h-28 w-28 rounded-full bg-yellow-500/20"
                 />
-                <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-xl shadow-white/5 overflow-hidden">
-                    <Image src="/logo-dramabox.png" alt="DramaBox Logo" width={80} height={80} className="h-full w-full object-cover" />
+                <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 shadow-xl shadow-yellow-500/20 text-4xl">
+                    🎬
                 </div>
             </div>
             <div className="h-1.5 w-48 overflow-hidden rounded-full bg-neutral-800">
                 <m.div
                     animate={{ x: ["-100%", "100%"] }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    className="h-full w-full rounded-full bg-white"
+                    className="h-full w-full rounded-full bg-gradient-to-r from-yellow-400 to-amber-500"
                 />
             </div>
         </div>
@@ -84,24 +82,34 @@ function DramaImage({ src, alt }: { src: string; alt: string }) {
     );
 }
 
+function formatDuration(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 function DetailContent() {
     const searchParams = useSearchParams();
     const bookId = searchParams.get("id");
 
-    const [detail, setDetail] = useState<DramaDetail | null>(null);
-    const [episodes, setEpisodes] = useState<Episode[]>([]);
+    const [detail, setDetail] = useState<FlickReelsDetail | null>(null);
     const [loading, setLoading] = useState(true);
-    const [showFullSynopsis, setShowFullSynopsis] = useState(false);
 
     // Player state
-    const [currentEpIndex, setCurrentEpIndex] = useState<number>(-1); // -1 = not playing
-    const [isRefreshingToken, setIsRefreshingToken] = useState(false);
-    const [tokenRetry, setTokenRetry] = useState(0);
+    const [currentEpIndex, setCurrentEpIndex] = useState<number>(-1);
+    const [videoUrl, setVideoUrl] = useState<string>("");
+    const [loadingVideo, setLoadingVideo] = useState(false);
+    const [historyLoaded, setHistoryLoaded] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
-    const playerContainerRef = useRef<HTMLDivElement | null>(null);
+    const hlsRef = useRef<Hls | null>(null);
     const playerSectionRef = useRef<HTMLDivElement | null>(null);
-    const isFetchingRef = useRef<boolean>(false);
+    const playerContainerRef = useRef<HTMLDivElement | null>(null);
+    const lastFetchedBookId = useRef<string | null>(null);
+
+    // We do not fetch individual video URLs for FlickReels, the play_url is already in the list
+    // so we don't need a token retry logic, but we still handle playback errors defensively
+    const [tokenRetry, setTokenRetry] = useState(0);
 
     // Suppress unhandled media errors
     useEffect(() => {
@@ -113,37 +121,35 @@ function DetailContent() {
         return () => window.removeEventListener('unhandledrejection', handler);
     }, []);
 
-    // Fetch detail + episodes
-    const fetchEpisodes = async () => {
-        if (!bookId) return;
-        try {
-            const res = await fetch(`/api/dramabox/episodes?bookId=${bookId}`);
-            const json = await res.json();
-            if (json.status && Array.isArray(json.data)) {
-                setEpisodes(json.data);
-            }
-        } catch (error) {
-            console.error("Failed to fetch episodes:", error);
-        }
-    };
-
+    // Fetch detail
     useEffect(() => {
         if (!bookId) return;
+        if (lastFetchedBookId.current === bookId) return;
+        lastFetchedBookId.current = bookId;
 
-        async function fetchAll() {
+        async function fetchDetail() {
             showToast("Memuat detail drama...", "info");
             try {
-                const [detailRes, episodesRes] = await Promise.all([
-                    fetch(`/api/dramabox/detail?bookId=${bookId}`),
-                    fetch(`/api/dramabox/episodes?bookId=${bookId}`),
-                ]);
-                const [detailJson, episodesJson] = await Promise.all([
-                    detailRes.json(),
-                    episodesRes.json(),
-                ]);
-                if (detailJson.status && detailJson.data) setDetail(detailJson.data);
-                if (episodesJson.status && Array.isArray(episodesJson.data)) setEpisodes(episodesJson.data);
-                showToast("Detail drama berhasil dimuat", "success");
+                const res = await fetch(`/api/flickreels/detail?id=${bookId}`);
+                const json = await res.json();
+                
+                if (json.list) {
+                    setDetail(json);
+                    
+                    // Try to restore last-watched episode
+                    const savedEp = await loadHistory("flickreels", bookId!);
+                    if (savedEp !== null && savedEp >= 0 && savedEp < json.list.length) {
+                        setCurrentEpIndex(savedEp);
+                        const url = json.list[savedEp]?.play_url;
+                        if (url) {
+                            setVideoUrl(`${url}#${Date.now()}`); // Force refresh just in case
+                        }
+                    }
+                    setHistoryLoaded(true);
+                    showToast("Detail drama berhasil dimuat", "success");
+                } else {
+                    showToast("Gagal memuat detail drama", "error");
+                }
             } catch (error) {
                 console.error("Failed to fetch detail:", error);
                 showToast("Gagal memuat detail drama", "error");
@@ -152,30 +158,43 @@ function DetailContent() {
             }
         }
 
-        fetchAll();
-
-        // Refresh episodes every 15 min to keep video tokens fresh
-        const interval = setInterval(fetchEpisodes, 15 * 60 * 1000);
-        return () => clearInterval(interval);
+        fetchDetail();
     }, [bookId]);
 
-    // Play video when episode changes
-    const currentEp = currentEpIndex >= 0 ? episodes[currentEpIndex] : null;
+    // Save watch history when episode changes
+    useEffect(() => {
+        if (!historyLoaded || !bookId || currentEpIndex < 0) return;
+        saveHistory("flickreels", bookId, currentEpIndex);
+    }, [currentEpIndex, bookId, historyLoaded]);
 
+    const playVideoFromUrl = (url: string) => {
+        setLoadingVideo(true);
+        setVideoUrl(`${url}#${Date.now()}`);
+        setLoadingVideo(false);
+    };
+
+    // Play video when URL changes with HLS support
     useEffect(() => {
         const video = videoRef.current;
-        if (!video || !currentEp) return;
+        if (!video || !videoUrl) return;
+
+        const rawUrl = videoUrl.replace(/#\d+$/, "");
+        const isHls = rawUrl.includes("m3u8");
+        const proxiedUrl = isHls ? hlsProxyUrl(rawUrl) : rawUrl;
 
         const isFullscreen = !!document.fullscreenElement;
         const fsElement = document.fullscreenElement;
+
+        if (hlsRef.current) {
+            hlsRef.current.destroy();
+            hlsRef.current = null;
+        }
 
         video.pause();
         video.removeAttribute('src');
         video.load();
 
-        setTimeout(() => {
-            video.src = currentEp.videoUrl;
-            video.load();
+        const startPlayback = () => {
             const playPromise = video.play();
             if (playPromise) playPromise.catch(() => { });
 
@@ -194,48 +213,80 @@ function DetailContent() {
                     }
                 }, 100);
             }
-        }, 50);
-    }, [currentEp, tokenRetry]);
+        };
 
-    // Auto-refresh on video error (skip AbortError which fires when switching episodes)
+        if (isHls && Hls.isSupported()) {
+            const hls = new Hls({ xhrSetup: (xhr) => { xhr.withCredentials = false; } });
+            hlsRef.current = hls;
+            hls.loadSource(proxiedUrl);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => startPlayback());
+            hls.on(Hls.Events.ERROR, (_event, data) => {
+                if (data.fatal) {
+                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                        hls.startLoad();
+                    } else {
+                        hls.destroy();
+                    }
+                }
+            });
+        } else {
+            video.src = proxiedUrl;
+            video.addEventListener('loadedmetadata', startPlayback, { once: true });
+        }
+
+        return () => {
+            if (hlsRef.current) {
+                hlsRef.current.destroy();
+                hlsRef.current = null;
+            }
+        };
+    }, [videoUrl]);
+
+    // Handle video error
     const handleVideoError = async () => {
         const video = videoRef.current;
         const err = video?.error;
-        // AbortError (code 20 / MEDIA_ERR_ABORTED) is harmless — happens when switching src
         if (err?.code === MediaError.MEDIA_ERR_ABORTED) return;
-        if (tokenRetry >= 2 || isFetchingRef.current) return;
-        isFetchingRef.current = true;
-        setIsRefreshingToken(true);
-        await fetchEpisodes();
-        setTokenRetry(prev => prev + 1);
-        setIsRefreshingToken(false);
-        isFetchingRef.current = false;
+        if (!detail || currentEpIndex < 0) return;
+        
+        if (tokenRetry >= 1) return; // Prevent loop
+
+        showToast("Terjadi kesalahan, mencoba ulang...", "info");
+        const url = detail.list[currentEpIndex]?.play_url;
+        if (url) {
+            setTokenRetry(prev => prev + 1);
+            playVideoFromUrl(url);
+        }
     };
 
     // Auto-play next episode
     const handleEnded = async () => {
-        if (currentEpIndex < episodes.length - 1) {
-            try {
-                const res = await fetch('/api/user/deduct-action', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'streaming' }) });
-                const resData = await res.json();
-                if (!resData.success) {
-                    alert(resData.error || "Kredit tidak mencukupi untuk episode selanjutnya.");
-                    window.location.href = '/topup';
-                    return;
-                }
-                setCurrentEpIndex(prev => prev + 1);
-                setTokenRetry(0);
-            } catch (e) {
-                console.error("Failed auto play deduct", e);
+        if (!detail || currentEpIndex >= detail.list.length - 1) return;
+
+        try {
+            const res = await fetch('/api/user/deduct-action', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'streaming' }) });
+            const resData = await res.json();
+            if (!resData.success) {
+                alert(resData.error || "Kredit tidak mencukupi untuk episode selanjutnya.");
+                window.location.href = '/topup';
+                return;
             }
+
+            const nextIndex = currentEpIndex + 1;
+            setCurrentEpIndex(nextIndex);
+            setTokenRetry(0);
+            const url = detail.list[nextIndex]?.play_url;
+            if (url) playVideoFromUrl(url);
+        } catch (e) {
+            console.error("Failed auto play deduct", e);
         }
     };
 
-    // Select episode (with credit deduction)
+    // Select episode
     const selectEpisode = async (index: number) => {
-        if (index === currentEpIndex) return;
+        if (!detail || index === currentEpIndex) return;
 
-        // First episode is free, subsequent ones deduct credit
         if (currentEpIndex >= 0) {
             try {
                 const res = await fetch('/api/user/deduct-action', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'streaming' }) });
@@ -253,18 +304,21 @@ function DetailContent() {
 
         setCurrentEpIndex(index);
         setTokenRetry(0);
+        const url = detail.list[index]?.play_url;
+        if (url) playVideoFromUrl(url);
 
-        // Scroll to player
         setTimeout(() => {
             playerSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     };
 
+    const currentVideo = detail && currentEpIndex >= 0 ? detail.list[currentEpIndex] : null;
+
     if (!bookId) {
         return (
             <div className="flex min-h-[50vh] flex-col items-center justify-center text-center">
                 <h2 className="text-2xl font-bold text-white">ID Drama tidak ditemukan</h2>
-                <Link href="/dramabox" className="mt-4 rounded-lg bg-red-600 px-6 py-2 text-white hover:bg-red-500">Kembali</Link>
+                <Link href="/flickreels" className="mt-4 rounded-lg bg-yellow-500 px-6 py-2 text-black font-semibold hover:bg-yellow-400">Kembali</Link>
             </div>
         );
     }
@@ -277,7 +331,7 @@ function DetailContent() {
                 <div className="flex min-h-[50vh] flex-col items-center justify-center text-center">
                     <h2 className="text-2xl font-bold text-white">Gagal memuat data</h2>
                     <p className="text-neutral-400">Silakan coba lagi nanti</p>
-                    <Link href="/dramabox" className="mt-4 rounded-lg bg-red-600 px-6 py-2 text-white hover:bg-red-500">Kembali</Link>
+                    <Link href="/flickreels" className="mt-4 rounded-lg bg-yellow-500 px-6 py-2 text-black font-semibold hover:bg-yellow-400">Kembali</Link>
                 </div>
             ) : (
                 <m.div
@@ -288,71 +342,41 @@ function DetailContent() {
                 >
                     {/* Breadcrumb */}
                     <div className="mb-6 flex items-center gap-2 text-sm text-neutral-400">
-                        <Link href="/dramabox" className="hover:text-red-400 transition-colors">DramaBox</Link>
+                        <Link href="/flickreels" className="hover:text-yellow-400 transition-colors">FlickReels Top</Link>
                         <span>/</span>
-                        <span className="truncate text-white">{detail.title}</span>
+                        <span className="truncate text-white">{detail.playlet_title}</span>
                     </div>
 
-                    {/* ===== HERO SECTION: Drama Detail ===== */}
+                    {/* ===== HERO SECTION ===== */}
                     <div className="relative overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10">
-                        {/* Background Blur */}
                         <div className="absolute inset-0 z-0">
                             <img src={detail.cover} alt="" className="h-full w-full object-cover blur-3xl opacity-20 scale-110" crossOrigin="anonymous" />
                             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
                         </div>
 
                         <div className="relative z-10 flex flex-col gap-6 p-6 sm:flex-row sm:gap-8 sm:p-8">
-                            {/* Cover */}
-                            <div className="relative mx-auto w-44 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:mx-0 sm:w-52">
+                            <div className="relative mx-auto w-44 flex-shrink-0 overflow-hidden rounded-xl shadow-xl ring-1 ring-white/10 sm:mx-0 sm:w-52">
                                 <div className="aspect-[2/3]">
-                                    <DramaImage src={detail.cover} alt={detail.title} />
+                                    <DramaImage src={detail.cover} alt={detail.playlet_title} />
                                 </div>
-                                {detail.corner && (
-                                    <div className="absolute top-3 left-3 z-20 rounded-md px-2.5 py-1 text-[11px] font-bold text-white shadow-lg backdrop-blur-sm"
-                                        style={{ backgroundColor: detail.corner.color || "#F54E96" }}>
-                                        {detail.corner.name}
-                                    </div>
-                                )}
                             </div>
 
-                            {/* Info */}
                             <div className="flex flex-1 flex-col justify-center text-center sm:text-left">
                                 <h1 className="text-2xl font-black text-white sm:text-3xl lg:text-4xl leading-tight">
-                                    {detail.title}
+                                    {detail.playlet_title}
                                 </h1>
 
-                                {/* Stats */}
                                 <div className="mt-4 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
-                                    {detail.playCount && (
-                                        <span className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-sm">
-                                            🔥 {detail.playCount} Ditonton
-                                        </span>
-                                    )}
                                     <span className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-sm">
-                                        📑 {detail.chapterCount} Episode
+                                        📑 {detail.list.length} Episode
                                     </span>
-                                    {detail.shelfTime && (
-                                        <span className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-sm">
-                                            📅 {detail.shelfTime.split(" ")[0]}
-                                        </span>
-                                    )}
                                 </div>
 
-                                {/* Tags */}
-                                <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                                    {detail.tags.map((tag, idx) => (
-                                        <span key={idx} className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-300 border border-red-500/20">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                {/* Play Button */}
-                                {episodes.length > 0 && currentEpIndex < 0 && (
+                                {detail.list.length > 0 && currentEpIndex < 0 && (
                                     <div className="mt-6 flex justify-center sm:justify-start">
                                         <button
                                             onClick={() => selectEpisode(0)}
-                                            className="inline-flex items-center gap-2 rounded-full bg-black text-white dark:bg-white dark:text-black px-8 py-3 text-sm font-bold shadow-lg shadow-black/20 dark:shadow-white/20 transition-all hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
+                                            className="inline-flex items-center gap-2 rounded-full border-[3px] border-black bg-yellow-500 text-black px-8 py-3 text-sm font-black uppercase tracking-wider shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-y-0 active:shadow-[0_0_0_0_rgba(0,0,0,1)] transition-all"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                                                 <path d="M8 5v14l11-7z" />
@@ -365,53 +389,38 @@ function DetailContent() {
                         </div>
                     </div>
 
-                    {/* Synopsis */}
-                    <div className="mt-6 rounded-2xl bg-white/5 p-6 ring-1 ring-white/10">
-                        <h2 className="mb-3 text-lg font-bold text-white">Sinopsis</h2>
-                        <p className={`text-sm leading-relaxed text-neutral-300 ${!showFullSynopsis ? "line-clamp-3" : ""}`}>
-                            {detail.introduction}
-                        </p>
-                        {detail.introduction.length > 150 && (
-                            <button onClick={() => setShowFullSynopsis(!showFullSynopsis)}
-                                className="mt-2 text-xs font-medium text-red-400 hover:text-red-300 transition-colors">
-                                {showFullSynopsis ? "Tampilkan lebih sedikit" : "Baca selengkapnya"}
-                            </button>
-                        )}
-                    </div>
-
-                    {/* ===== VIDEO PLAYER + EPISODE LIST (Side by Side) ===== */}
+                    {/* ===== VIDEO PLAYER + EPISODE LIST ===== */}
                     <div ref={playerSectionRef} className="mt-6">
                         <div className="flex flex-col gap-4 lg:flex-row">
                             {/* Left: Video Player */}
                             <div className="w-full lg:w-[65%]">
-                                {currentEpIndex >= 0 && currentEp ? (
+                                {currentEpIndex >= 0 && currentVideo ? (
                                     <m.div
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.4 }}
                                     >
-                                        <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
-                                            {/* Player Header */}
-                                            <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5 bg-neutral-900/50">
+                                        <div className="rounded-2xl border-2 border-white/10 bg-neutral-900 overflow-hidden shadow-2xl">
+                                            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-black">
                                                 <div className="min-w-0">
                                                     <h2 className="text-sm font-bold text-white truncate">
-                                                        {currentEp.chapterName}
+                                                        Episode {currentVideo.chapter_num}
                                                     </h2>
-                                                    <p className="text-[11px] text-neutral-400 truncate">{detail.title}</p>
+                                                    <p className="text-[11px] text-neutral-400 truncate">{detail.playlet_title}</p>
                                                 </div>
                                                 <div className="flex items-center gap-1.5 text-xs text-neutral-400 shrink-0 ml-3">
                                                     {currentEpIndex > 0 && (
                                                         <button
                                                             onClick={() => selectEpisode(currentEpIndex - 1)}
-                                                            className="rounded-lg bg-white/5 px-2.5 py-1 font-medium hover:bg-white/10 transition-colors"
+                                                            className="rounded bg-white/10 px-3 py-1.5 font-medium text-white hover:bg-white/20 transition-colors"
                                                         >
                                                             ← Prev
                                                         </button>
                                                     )}
-                                                    {currentEpIndex < episodes.length - 1 && (
+                                                    {currentEpIndex < detail.list.length - 1 && (
                                                         <button
                                                             onClick={() => selectEpisode(currentEpIndex + 1)}
-                                                            className="rounded-lg bg-white/5 px-2.5 py-1 font-medium hover:bg-white/10 transition-colors"
+                                                            className="rounded bg-yellow-500 px-3 py-1.5 font-bold text-black hover:bg-yellow-400 transition-colors"
                                                         >
                                                             Next →
                                                         </button>
@@ -419,7 +428,6 @@ function DetailContent() {
                                                 </div>
                                             </div>
 
-                                            {/* Video */}
                                             <div
                                                 ref={playerContainerRef}
                                                 className="relative aspect-video w-full bg-black"
@@ -436,58 +444,50 @@ function DetailContent() {
                                                     Browser Anda tidak mendukung tag video.
                                                 </video>
 
-                                                {isRefreshingToken && (
+                                                {loadingVideo && (
                                                     <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm text-white">
-                                                        <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-red-500" />
-                                                        <p className="text-sm font-medium animate-pulse">Memperbarui sesi video...</p>
+                                                        <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-yellow-500" />
+                                                        <p className="text-sm font-bold tracking-wide animate-pulse text-yellow-500">Memuat video...</p>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
                                     </m.div>
                                 ) : (
-                                    /* Placeholder when no episode selected */
-                                    <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10">
-                                        <div className="text-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mx-auto h-12 w-12 text-neutral-600 mb-3">
-                                                <path d="M8 5v14l11-7z" />
-                                            </svg>
-                                            <p className="text-sm text-neutral-500">Pilih episode untuk mulai menonton</p>
-                                        </div>
+                                    <div className="flex aspect-video w-full items-center justify-center rounded-2xl border-2 border-white/5 bg-white/5 p-8 text-center text-neutral-400">
+                                        Pilih episode di samping untuk mulai menonton
                                     </div>
                                 )}
                             </div>
 
                             {/* Right: Episode List */}
                             <div className="w-full lg:w-[35%]">
-                                <div className="lg:sticky lg:top-24 flex flex-col rounded-2xl border-[3px] border-black bg-[#a0d1d6] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden" style={{ maxHeight: 'calc(56.25vw * 0.65 + 44px)', minHeight: '300px' }}>
+                                <div className="lg:sticky lg:top-24 flex flex-col rounded-2xl border-[3px] border-black bg-[#a0d1d6] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden transition-all" style={{ maxHeight: 'calc(56.25vw * 0.65 + 44px)', minHeight: '300px' }}>
                                     <div className="flex-none border-b-[3px] border-black px-4 py-3 bg-[#a0d1d6]">
                                         <h3 className="text-lg font-black text-black tracking-wide uppercase">Episodes</h3>
-                                        <p className="text-[12px] font-bold text-black/80">TOTAL {episodes.length} EPISODE</p>
+                                        <p className="text-[12px] font-bold text-black/80">TOTAL {detail.list.length} EPISODE</p>
                                     </div>
-
-                                    <div
-                                        className="flex-1 overflow-y-auto p-4 overscroll-contain"
-                                        onWheel={(e) => e.stopPropagation()}
-                                    >
+                                    
+                                    <div className="flex-1 overflow-y-auto p-4 overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-black hover:scrollbar-thumb-black/80" onWheel={(e) => e.stopPropagation()}>
                                         <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-4 gap-3">
-                                            {episodes.map((ep) => {
-                                                const isActive = ep.chapterIndex === currentEpIndex;
+                                            {detail.list.map((ep, index) => {
+                                                const isPlaying = index === currentEpIndex;
                                                 return (
                                                     <button
-                                                        key={ep.chapterId}
-                                                        onClick={() => selectEpisode(ep.chapterIndex)}
-                                                        className={`relative flex aspect-square items-center justify-center rounded-xl border-[2.5px] text-sm font-black transition-all ${isActive
-                                                            ? "bg-yellow-400 text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] -translate-y-1"
-                                                            : "bg-white text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-y-0 active:shadow-[0_0_0_0_rgba(0,0,0,1)]"
-                                                            }`}
+                                                        key={ep.chapter_id}
+                                                        onClick={() => selectEpisode(index)}
+                                                        className={`relative flex aspect-square items-center justify-center rounded-xl border-[2.5px] text-sm font-black transition-all ${
+                                                            isPlaying
+                                                                ? "bg-yellow-400 text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] -translate-y-1"
+                                                                : "bg-white text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-y-0 active:shadow-[0_0_0_0_rgba(0,0,0,1)]"
+                                                        }`}
                                                     >
-                                                        {isActive && (
+                                                        {isPlaying && (
                                                             <div className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 ring-2 ring-black">
                                                                 <div className="h-1.5 w-1.5 animate-ping rounded-full bg-white" />
                                                             </div>
                                                         )}
-                                                        {ep.chapterIndex + 1}
+                                                        {ep.chapter_num}
                                                     </button>
                                                 );
                                             })}
@@ -503,14 +503,15 @@ function DetailContent() {
     );
 }
 
-export default function DetailPage() {
+export default function FlickReelsDetailPage() {
     return (
         <Suspense fallback={
             <div className="flex min-h-[60vh] flex-col items-center justify-center text-white">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-yellow-500 border-t-transparent" />
             </div>
         }>
             <DetailContent />
         </Suspense>
     );
 }
+

@@ -414,20 +414,20 @@ function WatchContent() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="w-full lg:w-[30%]"
+                            className="w-full lg:w-[35%]"
                         >
-                            <div className="lg:sticky lg:top-24 flex h-[600px] flex-col rounded-2xl bg-neutral-100 dark:bg-white/5 ring-1 ring-black/5 dark:ring-white/10 overflow-hidden isolate">
-                                <div className="flex-none border-b border-black/5 dark:border-white/10 p-4 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md z-10">
-                                    <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Daftar Episode</h3>
-                                    <p className="text-xs text-neutral-600 dark:text-neutral-400">Total {chapters} Episode</p>
+                            <div className="lg:sticky lg:top-24 flex h-[600px] flex-col rounded-2xl border-[3px] border-black bg-[#a0d1d6] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                                <div className="flex-none border-b-[3px] border-black px-4 py-3 bg-[#a0d1d6]">
+                                    <h3 className="text-lg font-black text-black tracking-wide uppercase">Episodes</h3>
+                                    <p className="text-[12px] font-bold text-black/80">TOTAL {chapters} EPISODE</p>
                                 </div>
 
                                 <div
-                                    className="flex-1 overflow-y-auto p-2 overscroll-contain"
+                                    className="flex-1 overflow-y-auto p-4 overscroll-contain"
                                     onWheel={(e) => e.stopPropagation()}
                                     onTouchMove={(e) => e.stopPropagation()}
                                 >
-                                    <div className="grid grid-cols-1 gap-2">
+                                    <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-4 gap-3">
                                         {episodeList.map((chapNum) => (
                                             <button
                                                 key={chapNum}
@@ -437,26 +437,19 @@ function WatchContent() {
                                                     if (currentChapterNum === chapNum) return;
                                                     fetchChapter(chapNum);
                                                 }}
-                                                className={`flex items-center gap-3 rounded-xl p-3 transition-all hover:bg-black/5 dark:hover:bg-white/10 text-left ${currentChapterNum === chapNum
-                                                    ? "bg-purple-500/10 dark:bg-purple-600/20 ring-1 ring-purple-500/30 dark:ring-purple-500/50"
-                                                    : "bg-transparent"
+                                                className={`relative flex aspect-square items-center justify-center rounded-xl border-[2.5px] text-sm font-black transition-all ${currentChapterNum === chapNum
+                                                    ? "bg-yellow-400 text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] -translate-y-1"
+                                                    : "bg-white text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-y-0 active:shadow-[0_0_0_0_rgba(0,0,0,1)]"
                                                     }`}
                                             >
-                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-black/10 dark:bg-white/10 text-sm font-bold text-neutral-700 dark:text-white">
-                                                    {chapNum}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className={`truncate text-sm font-medium ${currentChapterNum === chapNum ? "text-purple-600 dark:text-purple-400" : "text-neutral-900 dark:text-white"
-                                                        }`}>
-                                                        Episode {chapNum}
-                                                    </p>
-                                                </div>
                                                 {currentChapterNum === chapNum && (
-                                                    <div className="flex items-center gap-[2px]">
-                                                        <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-purple-500" style={{ animationDelay: '0s' }} />
-                                                        <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-purple-500" style={{ animationDelay: '0.1s' }} />
-                                                        <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-purple-500" style={{ animationDelay: '0.2s' }} />
+                                                    <div className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 ring-2 ring-black">
+                                                        <div className="h-1.5 w-1.5 animate-ping rounded-full bg-white" />
                                                     </div>
+                                                )}
+                                                {chapNum}
+                                                {currentChapterNum === chapNum && (
+                                                    <span className="sr-only">Sedang diputar</span>
                                                 )}
                                             </button>
                                         ))}

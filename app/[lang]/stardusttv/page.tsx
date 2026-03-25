@@ -94,7 +94,7 @@ function DramaCard({ item, index, accentColor }: {
     const href = `/stardusttv/watch?slug=${encodeURIComponent(item.slug)}&id=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.title)}&poster=${encodeURIComponent(item.poster)}`;
 
     return (
-        <Link href={href} className="group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-500 cursor-pointer hover:-translate-y-2"
+        <Link href={href} className="group relative flex flex-col overflow-hidden cursor-pointer border-2 border-black/80 dark:border-white/80 rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all bg-yellow-300 dark:bg-zinc-800 "
             style={{ background: 'var(--drama-card)', border: '1px solid var(--drama-border)' }}
         >
             {/* Glow on hover */}
@@ -183,7 +183,7 @@ export default function StardustTVPage() {
             <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
 
                 {/* ═══════ HERO SECTION ═══════ */}
-                <div className="noise-overlay relative mb-16 overflow-hidden rounded-[2rem] px-6 py-14 text-center sm:px-12 sm:py-20" style={{ background: 'var(--drama-card)', border: '1px solid var(--drama-border)' }}>
+                <div className="noise-overlay relative mb-16 overflow-hidden border-2 border-black/80 dark:border-white/80 rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] bg-pink-300 dark:bg-zinc-800 px-6 py-14 text-center sm:px-12 sm:py-20" style={{ background: 'var(--drama-card)', border: '1px solid var(--drama-border)' }}>
                     {/* Mesh gradient orbs */}
                     <div className="pointer-events-none absolute -top-32 left-1/4 h-80 w-80 rounded-full blur-[120px] opacity-60" style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.3) 0%, transparent 70%)' }} />
                     <div className="pointer-events-none absolute -bottom-32 right-1/4 h-64 w-64 rounded-full blur-[100px] opacity-40" style={{ background: 'radial-gradient(circle, rgba(20,184,166,0.25) 0%, transparent 70%)', animation: 'float 8s ease-in-out infinite' }} />

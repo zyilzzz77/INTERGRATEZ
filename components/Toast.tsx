@@ -23,29 +23,26 @@ export default function ToastContainer() {
     const typeConfig = {
         success: {
             icon: CheckCircle2,
-            ring: "ring-emerald-500/30",
-            iconBg: "bg-emerald-500/15",
-            iconColor: "text-emerald-200",
-            glow: "bg-emerald-500/20",
-            bar: "bg-emerald-400/70",
+            containerBg: "bg-[#a0d1d6]", // Pastel blue
+            iconBg: "bg-white",
+            iconColor: "text-emerald-600",
+            bar: "bg-black",
             label: "Success",
         },
         error: {
             icon: AlertTriangle,
-            ring: "ring-rose-500/30",
-            iconBg: "bg-rose-500/15",
-            iconColor: "text-rose-200",
-            glow: "bg-rose-500/20",
-            bar: "bg-rose-400/70",
+            containerBg: "bg-[#ffb3c6]", // Pastel pink
+            iconBg: "bg-white",
+            iconColor: "text-red-600",
+            bar: "bg-black",
             label: "Error",
         },
         info: {
             icon: Info,
-            ring: "ring-sky-500/30",
-            iconBg: "bg-sky-500/15",
-            iconColor: "text-sky-200",
-            glow: "bg-sky-500/20",
-            bar: "bg-sky-400/70",
+            containerBg: "bg-[#ffeb3b]", // Solid yellow
+            iconBg: "bg-white",
+            iconColor: "text-blue-600",
+            bar: "bg-black",
             label: "Info",
         },
     };
@@ -84,16 +81,15 @@ export default function ToastContainer() {
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: -10, scale: 0.97 }}
                                 transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                                className={`pointer-events-auto relative w-[320px] overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl backdrop-blur-lg ${cfg.ring}`}
+                                className={`pointer-events-auto relative w-[320px] overflow-hidden rounded-xl border-[3px] border-black ${cfg.containerBg} shadow-neo-sm`}
                             >
-                                <div className={`absolute inset-0 -z-10 opacity-30 blur-2xl ${cfg.glow}`} />
                                 <div className="flex items-start gap-3 p-4">
-                                    <div className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl ring-1 ${cfg.iconBg} ${cfg.ring}`}>
-                                        <Icon className={`h-4 w-4 ${cfg.iconColor}`} />
+                                    <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border-2 border-black ${cfg.iconBg} shadow-neo-sm`}>
+                                        <Icon className={`h-5 w-5 ${cfg.iconColor}`} strokeWidth={3} />
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start">
-                                            <div className="text-[11px] font-semibold uppercase tracking-wider text-white/60">
+                                            <div className="text-[11px] font-black uppercase tracking-wider text-black/70">
                                                 {cfg.label}
                                             </div>
                                             <button
@@ -101,12 +97,12 @@ export default function ToastContainer() {
                                                     activeMessages.current.delete(t.message);
                                                     setToasts(prev => prev.filter(item => item.id !== t.id));
                                                 }}
-                                                className="text-white/40 hover:text-white transition-colors"
+                                                className="text-black/50 hover:text-black transition-colors"
                                             >
                                                 ✕
                                             </button>
                                         </div>
-                                        <div className="mt-0.5 text-sm font-semibold text-white break-words">
+                                        <div className="mt-0.5 text-sm font-bold text-black break-words">
                                             {t.message}
                                         </div>
                                     </div>
@@ -115,7 +111,7 @@ export default function ToastContainer() {
                                     initial={{ width: "100%" }}
                                     animate={{ width: "0%" }}
                                     transition={{ duration: 3.1, ease: "linear" }}
-                                    className={`h-0.5 ${cfg.bar}`}
+                                    className={`h-[4px] ${cfg.bar}`}
                                 />
                             </m.div>
                         );

@@ -32,14 +32,26 @@ export async function GET(req: NextRequest) {
 
         const data = await res.json();
 
-        const items = data.status && Array.isArray(data.data) ? data.data : [];
+        // Normalize possible API shapes: some endpoints return data.data, others data.result
+        const rawItems = Array.isArray(data?.data)
+            ? data.data
+            : Array.isArray(data?.result)
+                ? data.result
+                : [];
+
+        if (!rawItems.length) {
+            return NextResponse.json(
+                { error: "Data rilis baru kosong", detail: data?.message || data?.error || "No items" },
+                { status: 502, headers: CORS },
+            );
+        }
 
         /* eslint-disable @typescript-eslint/no-explicit-any */
-        const results = items.map((item: any) => ({
+        const results = rawItems.map((item: any) => ({
             thumbnail: item.thumbnail || "",
             name: item.name || "Unknown",
-            artist: item.artist || "Unknown Artist",
-            release_date: item.release_date || "",
+            artist: item.artist || item.artists || "Unknown Artist",
+            release_date: item.release_date || item.released || "",
             url: item.url || "",
         }));
 

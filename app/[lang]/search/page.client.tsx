@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { LazyMotion, domAnimation, m } from "framer-motion";
-import { ChevronRight, Search, Wrench, ImageMinus, Wand2, ImagePlus, Zap, Link2 } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function SearchPageClient({ dict, lang }: { dict: any; lang: string }) {
@@ -89,61 +89,16 @@ export default function SearchPageClient({ dict, lang }: { dict: any; lang: stri
             icon: <Image src="/logo-stardusttv.png" alt="StardustTV" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
         },
         {
+            href: `/${lang}/flickreels`,
+            label: "FlickReels",
+            description: text.frDesc || "Nonton Drama FlickReels Gratis",
+            icon: <Image src="/logo-flickreels.png" alt="FlickReels" width={56} height={56} className="h-10 w-10 border border-neutral-200 rounded-xl object-cover sm:h-12 sm:w-12 bg-black" />,
+        },
+        {
             href: `/${lang}/search/dracin`,
             label: "iQIYI Streaming",
             description: text.iqiDesc,
             icon: <Image src="/logo-drakor.webp" alt="iQIYI" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
-        },
-    ];
-
-    const tools = [
-        {
-            href: `/${lang}/search/freefire`,
-            label: "Free Fire Check",
-            description: text.ffDesc,
-            icon: <Image src="/logo-freefire.webp" alt="Free Fire" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
-        },
-        {
-            href: `/${lang}/search/tokopedia`,
-            label: "Tokopedia Search",
-            description: text.tpDesc,
-            icon: <Image src="/logo-tokped.webp" alt="Tokopedia" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
-        },
-        {
-            href: `/${lang}/search/github`,
-            label: "GitHub Search",
-            description: text.ghDesc,
-            icon: <Image src="/logo-github.webp" alt="GitHub" width={56} height={56} className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />,
-        },
-        {
-            href: `/${lang}/search/remove-bg`,
-            label: "Remove Background",
-            description: text.rbgDesc,
-            icon: <ImageMinus className="h-10 w-10 sm:h-12 sm:w-12 text-purple-400" />,
-        },
-        {
-            href: `/${lang}/search/teks2animate`,
-            label: "Teks2Animate",
-            description: text.t2aDesc,
-            icon: <Wand2 className="h-10 w-10 sm:h-12 sm:w-12 text-cyan-400" />,
-        },
-        {
-            href: `/${lang}/search/tekstoimages`,
-            label: "TeksToImages",
-            description: text.t2iDesc,
-            icon: <ImagePlus className="h-10 w-10 sm:h-12 sm:w-12 text-orange-400" />,
-        },
-        {
-            href: `/${lang}/search/shortener`,
-            label: "URL Shortener",
-            description: text.usDesc,
-            icon: <Link2 className="h-10 w-10 sm:h-12 sm:w-12 text-indigo-400" />,
-        },
-        {
-            href: `/${lang}/search/remini`,
-            label: "Remini HD",
-            description: text.rmnDesc,
-            icon: <Zap className="h-10 w-10 sm:h-12 sm:w-12 text-amber-400" />,
         },
     ];
 
@@ -164,34 +119,34 @@ export default function SearchPageClient({ dict, lang }: { dict: any; lang: stri
 
     return (
         <LazyMotion features={domAnimation}>
-            <div className="mx-auto max-w-5xl px-4 py-8 font-sans min-h-screen">
+            <div className="mx-auto max-w-5xl px-4 py-10 font-sans min-h-screen bg-white text-black space-y-12">
                 {/* Header */}
                 <m.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="mb-10 text-left"
+                    className="text-center sm:text-left bg-[#ffeb3b] border-[3px] border-black p-6 rounded-2xl shadow-neo"
                 >
-                    <h1 className="text-3xl font-extrabold text-foreground tracking-tight sm:text-4xl">
+                    <h1 className="text-3xl font-black text-black tracking-tight sm:text-4xl">
                         {text.title}
                     </h1>
-                    <p className="mt-2 text-muted-foreground">
+                    <p className="mt-2 text-black/80 font-bold">
                         {text.subtitle}
                     </p>
                 </m.div>
 
                 {/* Section: Social Media */}
-                <div className="mb-12">
+                <div>
                     <m.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="mb-5 flex items-center gap-3"
+                        className="mb-6 flex items-center gap-3"
                     >
-                        <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
-                            <Search className="w-4 h-4 text-foreground" />
+                        <div className="w-12 h-12 rounded-2xl bg-[#a0d1d6] border-[3px] border-black shadow-neo-sm flex items-center justify-center -rotate-1">
+                            <Search className="w-6 h-6 text-black" strokeWidth={3} />
                         </div>
-                        <h2 className="text-lg font-bold text-foreground sm:text-xl">
+                        <h2 className="text-2xl font-black text-black sm:text-3xl">
                             {text.socialMedia}
                         </h2>
                     </m.div>
@@ -202,75 +157,30 @@ export default function SearchPageClient({ dict, lang }: { dict: any; lang: stri
                         animate="show"
                         className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                     >
-                        {searchPlatforms.map((p) => (
+                        {searchPlatforms.map((p, index) => {
+                            return (
                             <m.div key={p.href} variants={item}>
                                 <Link href={p.href} className="block h-full">
-                                    <Card className="h-full cursor-pointer transition-all duration-300 border-border hover:border-muted-foreground/30 hover:shadow-md bg-card group">
-                                        <CardContent className="p-5 sm:p-6 flex items-start gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 sm:w-14 sm:h-14">
+                                    <div className={`h-full cursor-pointer transition-all duration-300 border-[3px] border-black rounded-2xl shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo bg-white group`}> 
+                                        <div className="p-5 sm:p-6 flex items-start gap-4">
+                                            <div className="w-14 h-14 rounded-2xl bg-[#ffeb3b] border-[3px] border-black flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 sm:w-16 sm:h-16 overflow-hidden shadow-neo-sm">
                                                 {p.icon}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <h3 className="font-bold text-foreground text-base sm:text-lg truncate">{p.label}</h3>
-                                                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 transition-transform group-hover:translate-x-1" />
+                                                    <h3 className="font-black text-black text-lg sm:text-xl truncate">{p.label}</h3>
+                                                    <ChevronRight className="w-5 h-5 text-black font-black shrink-0 transition-transform group-hover:translate-x-1" strokeWidth={3} />
                                                 </div>
-                                                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                                                <p className="text-sm font-bold text-black/80 leading-relaxed line-clamp-2">
                                                     {p.description}
                                                 </p>
                                             </div>
-                                        </CardContent>
-                                    </Card>
+                                        </div>
+                                    </div>
                                 </Link>
                             </m.div>
-                        ))}
-                    </m.div>
-                </div>
-
-                {/* Section: Tools & Utilities */}
-                <div>
-                    <m.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="mb-5 flex items-center gap-3"
-                    >
-                        <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
-                            <Wrench className="w-4 h-4 text-foreground" />
-                        </div>
-                        <h2 className="text-lg font-bold text-foreground sm:text-xl">
-                            {text.toolsUtilities}
-                        </h2>
-                    </m.div>
-
-                    <m.div
-                        variants={container}
-                        initial="hidden"
-                        animate="show"
-                        className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                    >
-                        {tools.map((p) => (
-                            <m.div key={p.href} variants={item}>
-                                <Link href={p.href} className="block h-full">
-                                    <Card className="h-full cursor-pointer transition-all duration-300 border-border hover:border-muted-foreground/30 hover:shadow-md bg-card group">
-                                        <CardContent className="p-5 sm:p-6 flex items-start gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 sm:w-14 sm:h-14">
-                                                {p.icon}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <h3 className="font-bold text-foreground text-base sm:text-lg truncate">{p.label}</h3>
-                                                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 transition-transform group-hover:translate-x-1" />
-                                                </div>
-                                                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                                                    {p.description}
-                                                </p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </Link>
-                            </m.div>
-                        ))}
+                            );
+                        })}
                     </m.div>
                 </div>
             </div>

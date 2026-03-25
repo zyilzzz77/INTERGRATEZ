@@ -3,38 +3,38 @@
 @plugin "tailwindcss-animate";
 
 :root {
-  /* Shadcn - Zinc Theme (Dark Mode Default) */
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
+  /* Shadcn - Theme (Neobrutalism Light Mode Default) */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
 
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
 
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
 
-  --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
+  --primary: 43 100% 65%; /* Yellow/Orange typical in Saweria */
+  --primary-foreground: 0 0% 0%;
 
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
+  --secondary: 195 65% 85%; /* Pastel Blue */
+  --secondary-foreground: 0 0% 0%;
 
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
+  --muted: 0 0% 90%;
+  --muted-foreground: 0 0% 30%;
 
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
+  --accent: 280 60% 85%; /* Pastel Purple */
+  --accent-foreground: 0 0% 0%;
 
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
+  --destructive: 0 100% 64%;
+  --destructive-foreground: 0 0% 0%;
 
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 240 4.9% 83.9%;
+  --border: 0 0% 0%; /* Solid black borders */
+  --input: 0 0% 0%;
+  --ring: 0 0% 0%;
 
   --radius: 0.5rem;
 
-  /* Existing Neutral Palette (Mapped to match shadcn zinc roughly or keep custom) */
+  /* Existing Neutral Palette */
   --neutral-950: #09090b;
   --neutral-900: #18181b;
   --neutral-800: #27272a;
@@ -50,54 +50,6 @@
   /* Base Colors */
   --color-black-real: #000000;
   --color-white-real: #ffffff;
-}
-
-.light {
-  /* Shadcn - Zinc Theme (Light Mode) */
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 10% 3.9%;
-
-  /* Inverted Neutral Palette for Light Mode */
-  --neutral-950: #ffffff;
-  --neutral-900: #f4f4f5;
-  --neutral-800: #e4e4e7;
-  --neutral-700: #d4d4d8;
-  --neutral-600: #a1a1aa;
-  --neutral-500: #71717a;
-  --neutral-400: #52525b;
-  --neutral-300: #3f3f46;
-  --neutral-200: #27272a;
-  --neutral-100: #18181b;
-  --neutral-50: #09090b;
-
-  /* Invert Black/White utility to match theme */
-  --color-black-real: #ffffff;
-  --color-white-real: #000000;
 }
 
 @theme inline {
@@ -264,11 +216,25 @@
   opacity: 0.5;
 }
 
+@layer utilities {
+  .shadow-neo {
+    box-shadow: 6px 6px 0px 0px var(--color-black-real);
+  }
+  .shadow-neo-sm {
+    box-shadow: 4px 4px 0px 0px var(--color-black-real);
+  }
+  .shadow-neo-hover:hover {
+    box-shadow: 2px 2px 0px 0px var(--color-black-real);
+    transform: translate(4px, 4px);
+  }
+}
+
 /* ───── Base ───── */
 body {
   background: var(--color-background);
   color: var(--color-foreground);
-  font-family: var(--font-sans), "Inter", system-ui, sans-serif;
+  font-family: var(--font-sans), "Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif;
+  letter-spacing: 0.02em;
   min-height: 100vh;
   /* Safe area insets for Capacitor/mobile devices */
   padding-top: env(safe-area-inset-top, 0px);

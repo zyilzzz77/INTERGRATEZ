@@ -1,26 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
     ArrowLeft,
+    Calendar,
     CheckCircle2,
+    ChevronRight,
     Clock,
     Coins,
-    Calendar,
     CreditCard,
     Hash,
-    Loader2,
     History,
+    Loader2,
     X,
+    XCircle,
     Zap,
-    ChevronRight,
 } from "lucide-react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
-/* ─── Types ──────────────────────────────────────────── */
 interface TransactionRecord {
     id: string;
     paymentId: string;
@@ -28,9 +28,10 @@ interface TransactionRecord {
     credits: number;
     status: string;
     createdAt: string;
+    payUrl?: string | null;
+    qrImage?: string | null;
 }
 
-/* ─── Helpers ────────────────────────────────────────── */
 function formatIDR(value: number) {
     return new Intl.NumberFormat("id-ID", {
         style: "currency",
@@ -62,11 +63,13 @@ function formatFullDate(iso: string) {
     });
 }
 
-/* ─── Component ──────────────────────────────────────── */
 export default function HistoryPage() {
     const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTx, setSelectedTx] = useState<TransactionRecord | null>(null);
+    const [checking, setChecking] = useState(false);
+    const [checkMessage, setCheckMessage] = useState("Menunggu pembayaran...");
+    const [remainingMs, setRemainingMs] = useState(0);
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -80,6 +83,7 @@ export default function HistoryPage() {
                 setLoading(false);
             }
         };
+
         fetchHistory();
     }, []);
 
@@ -89,314 +93,407 @@ export default function HistoryPage() {
         .filter((t) => t.status === "paid")
         .reduce((sum, t) => sum + t.amount, 0);
 
+    const updateTransactionStatus = (id: string, status: string) => {
+        setTransactions((prev) => prev.map((tx) => (tx.id === id ? { ...tx, status } : tx)));
+        setSelectedTx((prev) => (prev && prev.id === id ? { ...prev, status } : prev));
+    };
+
+    useEffect(() => {
+        if (!selectedTx || selectedTx.status !== "pending") {
+            setChecking(false);
+            setCheckMessage("Menunggu pembayaran...");
+            setRemainingMs(0);
+            return;
+        }
+
+        const createdMs = new Date(selectedTx.createdAt).getTime();
+        const expiresAt = createdMs + 15 * 60 * 1000;
+        const tick = () => {
+            const diff = Math.max(0, expiresAt - Date.now());
+            setRemainingMs(diff);
+        };
+
+        tick();
+        const timer = setInterval(tick, 1000);
+
+        const checkStatus = async () => {
+            try {
+                setChecking(true);
+                const res = await fetch("/api/topup/check", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ paymentId: selectedTx.paymentId }),
+                });
+
+                const data = await res.json();
+                if (data.status === "paid") {
+                    updateTransactionStatus(selectedTx.id, "paid");
+                    setChecking(false);
+                    setCheckMessage("Pembayaran terkonfirmasi!");
+                } else if (data.status === "failed") {
+                    updateTransactionStatus(selectedTx.id, "failed");
+                    setChecking(false);
+                    setCheckMessage(
+                        data.message || "Waktu pembayaran habis, silakan buat transaksi baru."
+                    );
+                } else {
+                    setCheckMessage(data.message || "Menunggu pembayaran...");
+                }
+            } catch {
+                setCheckMessage("Gagal mengecek status, mencoba lagi...");
+            }
+        };
+
+        checkStatus();
+        const interval = setInterval(() => {
+            if (Date.now() > expiresAt) {
+                updateTransactionStatus(selectedTx.id, "failed");
+                setChecking(false);
+                setCheckMessage("Waktu pembayaran habis, silakan buat transaksi baru.");
+                return;
+            }
+            checkStatus();
+        }, 5000);
+
+        return () => {
+            clearInterval(interval);
+            clearInterval(timer);
+        };
+    }, [selectedTx]);
+
     return (
-        <div className="container mx-auto px-4 py-8 max-w-3xl font-sans min-h-screen">
-            {/* ─── Header ─────────────────────────────────── */}
-            <div className="flex items-center gap-4 mb-8">
-                <Link href="/topup">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="rounded-xl border-border hover:bg-secondary shrink-0"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </Button>
-                </Link>
-                <div>
-                    <h1 className="text-2xl font-extrabold text-foreground tracking-tight sm:text-3xl">
-                        Riwayat Pembelian
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Semua transaksi top up kredit kamu
-                    </p>
-                </div>
-            </div>
+        <div className="min-h-screen bg-[#f3f4ff] font-sans">
+            <div className="max-w-5xl mx-auto px-4 py-10 relative">
+                <div className="absolute inset-0 -z-10 opacity-70 pointer-events-none [background-image:radial-gradient(circle_at_10%_20%,rgba(59,130,246,0.14),transparent_25%),radial-gradient(circle_at_90%_10%,rgba(16,185,129,0.12),transparent_22%),radial-gradient(circle_at_30%_80%,rgba(251,191,36,0.12),transparent_22%)]" />
 
-            {/* ─── Stats Cards ────────────────────────────── */}
-            {!loading && transactions.length > 0 && (
-                <div className="grid grid-cols-3 gap-3 mb-8">
-                    <div className="bg-card border border-border rounded-2xl p-4 text-center">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                            Total
-                        </p>
-                        <p className="text-2xl font-black text-foreground tracking-tight">
-                            {transactions.length}
-                        </p>
+                <div className="mb-10 overflow-hidden rounded-[26px] border-[3px] border-black bg-gradient-to-r from-[#fef9c3] via-white to-[#99f6e4] shadow-[12px_12px_0_#0f172a] relative">
+                    <div className="absolute -top-3 -left-3 bg-black text-white text-xs font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full rotate-[-3deg] shadow-[6px_6px_0_#0f172a]">
+                        Neo Top Up
                     </div>
-                    <div className="bg-card border border-border rounded-2xl p-4 text-center">
-                        <p className="text-xs font-semibold text-emerald-500 uppercase tracking-wider mb-1">
-                            Berhasil
-                        </p>
-                        <p className="text-2xl font-black text-emerald-500 tracking-tight">
-                            {paidCount}
-                        </p>
-                    </div>
-                    <div className="bg-card border border-border rounded-2xl p-4 text-center">
-                        <p className="text-xs font-semibold text-amber-500 uppercase tracking-wider mb-1">
-                            Pending
-                        </p>
-                        <p className="text-2xl font-black text-amber-500 tracking-tight">
-                            {pendingCount}
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            {/* ─── Total Spent ────────────────────────────── */}
-            {!loading && totalSpent > 0 && (
-                <div className="mb-8 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-emerald-500/15 rounded-full flex items-center justify-center">
-                            <CreditCard className="w-5 h-5 text-emerald-500" />
+                    <div className="flex flex-col gap-6 p-6 sm:p-8">
+                        <div className="flex items-center gap-4 flex-wrap">
+                            <Link href="/topup">
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="rounded-full border-[3px] border-black bg-white text-black shadow-[6px_6px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
+                                >
+                                    <ArrowLeft className="w-5 h-5" />
+                                </Button>
+                            </Link>
+                            <div>
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-[3px] border-black bg-black text-white text-xs font-bold uppercase shadow-[6px_6px_0_#0f172a]">
+                                    <Zap className="w-4 h-4" />
+                                    Quick History
+                                </div>
+                                <h1 className="mt-3 text-3xl sm:text-4xl font-black text-black leading-tight">
+                                    Riwayat Pembelian Kredits
+                                </h1>
+                                <p className="text-sm sm:text-base text-slate-700 max-w-2xl">
+                                    Pantau semua transaksi top up kamu dengan tampilan neo-brutalist yang tebal dan jelas.
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                Total Pengeluaran
-                            </p>
-                            <p className="text-xl font-black text-foreground tracking-tight">
-                                {formatIDR(totalSpent)}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
 
-            {/* ─── Transaction List ──────────────────────── */}
-            {loading ? (
-                <div className="flex flex-col items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-3" />
-                    <p className="text-sm text-muted-foreground">Memuat riwayat...</p>
-                </div>
-            ) : transactions.length === 0 ? (
-                <div className="text-center py-20 bg-secondary/30 rounded-3xl border border-border">
-                    <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-5">
-                        <History className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <p className="text-lg font-bold text-foreground mb-1">
-                        Belum ada riwayat
-                    </p>
-                    <p className="text-sm text-muted-foreground mb-6">
-                        Transaksi top up kamu akan muncul di sini
-                    </p>
-                    <Link href="/topup">
-                        <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl px-6">
-                            <Zap className="w-4 h-4 mr-2" />
-                            Top Up Sekarang
-                        </Button>
-                    </Link>
-                </div>
-            ) : (
-                <div className="space-y-3">
-                    {transactions.map((tx, i) => {
-                        const isPaid = tx.status === "paid";
+                        {!loading && transactions.length > 0 && (
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="rounded-2xl border-[3px] border-black bg-white p-4 shadow-[8px_8px_0_#0f172a]">
+                                    <p className="text-xs font-black uppercase tracking-[0.15em] text-slate-600">
+                                        Total Transaksi
+                                    </p>
+                                    <p className="text-3xl font-black text-black mt-1">
+                                        {transactions.length}
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border-[3px] border-black bg-[#dcfce7] p-4 shadow-[8px_8px_0_#0f172a]">
+                                    <p className="text-xs font-black uppercase tracking-[0.15em] text-emerald-700">
+                                        Berhasil
+                                    </p>
+                                    <p className="text-3xl font-black text-emerald-700 mt-1">
+                                        {paidCount}
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border-[3px] border-black bg-[#fff7ed] p-4 shadow-[8px_8px_0_#0f172a]">
+                                    <p className="text-xs font-black uppercase tracking-[0.15em] text-amber-700">
+                                        Pending
+                                    </p>
+                                    <p className="text-3xl font-black text-amber-700 mt-1">
+                                        {pendingCount}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
-                        return (
-                            <motion.div
-                                key={tx.id}
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.04 }}
-                                onClick={() => setSelectedTx(tx)}
-                                className="group cursor-pointer bg-card border border-border rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
-                            >
-                                {/* Left side */}
-                                <div className="flex items-center gap-4 min-w-0">
-                                    <div
-                                        className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 ${isPaid
-                                                ? "bg-emerald-500/15"
-                                                : "bg-amber-500/15"
-                                            }`}
-                                    >
-                                        {isPaid ? (
-                                            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                                        ) : (
-                                            <Clock className="w-5 h-5 text-amber-500" />
-                                        )}
+                        {!loading && totalSpent > 0 && (
+                            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border-[3px] border-black bg-[#ecfeff] px-5 py-4 shadow-[8px_8px_0_#0f172a]">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-11 h-11 rounded-xl border-[3px] border-black bg-white flex items-center justify-center shadow-[4px_4px_0_#0f172a]">
+                                        <CreditCard className="w-5 h-5 text-sky-700" />
                                     </div>
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <span className="font-bold text-foreground">
-                                                +{tx.credits.toLocaleString("id-ID")}{" "}
-                                                <span className="text-muted-foreground font-medium">
-                                                    Kredit
-                                                </span>
-                                            </span>
-                                            <Badge
-                                                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border-0 ${isPaid
-                                                        ? "bg-emerald-500/15 text-emerald-500"
-                                                        : "bg-amber-500/15 text-amber-500"
-                                                    }`}
-                                            >
-                                                {isPaid ? "Berhasil" : "Pending"}
-                                            </Badge>
-                                        </div>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            {formatDate(tx.createdAt)}
+                                    <div>
+                                        <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-700">
+                                            Total Pengeluaran
+                                        </p>
+                                        <p className="text-2xl font-black text-black mt-1">
+                                            {formatIDR(totalSpent)}
                                         </p>
                                     </div>
                                 </div>
+                                <Badge className="border-[3px] border-black bg-black text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-[0.18em] shadow-[6px_6px_0_#0f172a]">
+                                    Fresh recap
+                                </Badge>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
-                                {/* Right side */}
-                                <div className="flex items-center gap-3 shrink-0">
-                                    <p className="text-sm font-bold text-foreground">
-                                        {formatIDR(tx.amount)}
-                                    </p>
-                                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20 rounded-[28px] border-[3px] border-dashed border-black bg-white shadow-[10px_10px_0_#0f172a]">
+                        <Loader2 className="w-8 h-8 animate-spin text-black mb-3" />
+                        <p className="text-sm font-semibold text-slate-700">Memuat riwayat...</p>
+                    </div>
+                ) : transactions.length === 0 ? (
+                    <div className="text-center py-16 px-6 rounded-[28px] border-[3px] border-black bg-gradient-to-b from-white to-[#fef9c3] shadow-[10px_10px_0_#0f172a]">
+                        <div className="w-16 h-16 rounded-2xl border-[3px] border-black bg-white flex items-center justify-center mx-auto mb-5 shadow-[6px_6px_0_#0f172a]">
+                            <History className="w-8 h-8 text-slate-800" />
+                        </div>
+                        <p className="text-xl font-black text-black mb-1">Belum ada riwayat</p>
+                        <p className="text-sm text-slate-700 mb-6">
+                            Transaksi top up kamu akan muncul di sini.
+                        </p>
+                        <Link href="/topup">
+                            <Button className="bg-black text-white hover:bg-slate-900 font-black rounded-xl px-6 py-6 border-[3px] border-black shadow-[6px_6px_0_#0f172a]">
+                                <Zap className="w-4 h-4 mr-2" />
+                                Top Up Sekarang
+                            </Button>
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {transactions.map((tx, i) => {
+                            const isPaid = tx.status === "paid";
+                            const isPending = tx.status === "pending";
+                            const isFailed = tx.status === "failed";
+
+                            return (
+                                <motion.div
+                                    key={tx.id}
+                                    initial={{ opacity: 0, y: 12 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: i * 0.04 }}
+                                    onClick={() => setSelectedTx(tx)}
+                                    className="group cursor-pointer rounded-2xl border-[3px] border-black bg-white p-4 sm:p-5 flex items-center justify-between gap-4 shadow-[8px_8px_0_#0f172a] hover:-translate-y-1 hover:shadow-[12px_12px_0_#0f172a] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <div
+                                            className={`w-12 h-12 rounded-xl border-[3px] border-black flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-rotate-3 ${isPaid
+                                                    ? "bg-[#dcfce7]"
+                                                    : isFailed
+                                                        ? "bg-[#fee2e2]"
+                                                        : "bg-[#fff7ed]"
+                                                }`}
+                                        >
+                                            {isPaid ? (
+                                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                                            ) : isFailed ? (
+                                                <XCircle className="w-5 h-5 text-rose-600" />
+                                            ) : (
+                                                <Clock className="w-5 h-5 text-amber-600" />
+                                            )}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="font-black text-black">
+                                                    +{tx.credits.toLocaleString("id-ID")} {" "}
+                                                    <span className="text-slate-600 font-semibold">Kredit</span>
+                                                </span>
+                                                <Badge
+                                                    className={`text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-md border-[3px] border-black ${isPaid
+                                                            ? "bg-[#22c55e] text-white"
+                                                            : isFailed
+                                                                ? "bg-[#ef4444] text-white"
+                                                                : "bg-[#f97316] text-white"
+                                                        } shadow-[4px_4px_0_#0f172a]`}
+                                                >
+                                                    {isPaid ? "Berhasil" : isFailed ? "Gagal" : "Pending"}
+                                                </Badge>
+                                            </div>
+                                            <p className="text-xs text-slate-600 mt-1 font-semibold">
+                                                {formatDate(tx.createdAt)}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-3 shrink-0">
+                                        <p className="text-base sm:text-lg font-black text-black">
+                                            {formatIDR(tx.amount)}
+                                        </p>
+                                        <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-1 transition-transform" />
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                <AnimatePresence>
+                    {selectedTx && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/30 backdrop-blur-sm p-4"
+                            onClick={() => setSelectedTx(null)}
+                        >
+                            <motion.div
+                                initial={{ opacity: 0, y: 60, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 60, scale: 0.95 }}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 350,
+                                    damping: 30,
+                                }}
+                                className="w-full max-w-md overflow-hidden rounded-[26px] border-[3px] border-black bg-white shadow-[16px_16px_0_#0f172a]"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="relative p-6 pb-5 bg-gradient-to-br from-[#ecfeff] via-white to-[#fef9c3] border-b-[3px] border-black">
+                                    <button
+                                        onClick={() => setSelectedTx(null)}
+                                        className="absolute top-4 right-4 w-9 h-9 rounded-full border-[3px] border-black bg-white text-black flex items-center justify-center shadow-[4px_4px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
+                                    >
+                                        <X className="w-4 h-4 text-black" />
+                                    </button>
+
+                                    <div className="flex flex-col items-center text-center">
+                                        <motion.div
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 300,
+                                                damping: 20,
+                                                delay: 0.1,
+                                            }}
+                                            className={`w-16 h-16 rounded-2xl border-[3px] border-black flex items-center justify-center mb-4 shadow-[6px_6px_0_#0f172a] ${selectedTx.status === "paid"
+                                                    ? "bg-[#dcfce7]"
+                                                    : selectedTx.status === "failed"
+                                                        ? "bg-[#fee2e2]"
+                                                        : "bg-[#fff7ed]"
+                                                }`}
+                                        >
+                                            {selectedTx.status === "paid" ? (
+                                                <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                                            ) : selectedTx.status === "failed" ? (
+                                                <XCircle className="w-8 h-8 text-rose-600" />
+                                            ) : (
+                                                <Clock className="w-8 h-8 text-amber-600" />
+                                            )}
+                                        </motion.div>
+
+                                        <Badge
+                                            className={`text-[11px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg border-[3px] border-black mb-3 shadow-[4px_4px_0_#0f172a] ${selectedTx.status === "paid"
+                                                    ? "bg-[#22c55e] text-white"
+                                                    : selectedTx.status === "failed"
+                                                        ? "bg-[#ef4444] text-white"
+                                                        : "bg-[#f97316] text-white"
+                                                }`}
+                                        >
+                                            {selectedTx.status === "paid"
+                                                ? "Pembayaran Berhasil"
+                                                : selectedTx.status === "failed"
+                                                    ? "Pembayaran Gagal"
+                                                    : "Menunggu Pembayaran"}
+                                        </Badge>
+
+                                        <p className="text-3xl font-black text-black tracking-tight">
+                                            {formatIDR(selectedTx.amount)}
+                                        </p>
+                                        {selectedTx.status === "pending" && remainingMs > 0 && (
+                                            <p className="mt-1 text-xs font-black tracking-[0.2em] text-slate-700">
+                                                Selesaikan dalam {Math.floor(remainingMs / 60000)}:{String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, "0")}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="px-6 pb-6 space-y-4">
+                                    {selectedTx.status === "pending" && selectedTx.qrImage && (
+                                        <div className="rounded-2xl border-[3px] border-black bg-white p-4 shadow-[8px_8px_0_#0f172a] text-center">
+                                            <p className="text-sm font-black text-slate-700 mb-3">Scan QR untuk membayar</p>
+                                            <div className="mx-auto w-40 h-40 rounded-xl border-[3px] border-black overflow-hidden bg-white shadow-[6px_6px_0_#0f172a]">
+                                                <img src={selectedTx.qrImage} alt="QR Pembayaran" className="w-full h-full object-contain" />
+                                            </div>
+                                            {selectedTx.payUrl && (
+                                                <a
+                                                    href={selectedTx.payUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="inline-flex items-center justify-center mt-3 px-4 py-2 rounded-xl border-[3px] border-black bg-black text-white font-black shadow-[6px_6px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
+                                                >
+                                                    Buka Link Pembayaran
+                                                </a>
+                                            )}
+                                            <p className="mt-3 text-xs text-slate-700 font-semibold">{checkMessage}</p>
+                                        </div>
+                                    )}
+
+                                    <div className="bg-white rounded-2xl border-[3px] border-black divide-y-[3px] divide-black overflow-hidden shadow-[8px_8px_0_#0f172a]">
+                                        <div className="flex items-center gap-4 px-4 py-3.5">
+                                            <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
+                                                <Coins className="w-4 h-4 text-black" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs text-slate-600 font-semibold">Jumlah Kredit</p>
+                                                <p className="font-black text-black">
+                                                    +{selectedTx.credits.toLocaleString("id-ID")} Kredit
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-4 px-4 py-3.5">
+                                            <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
+                                                <CreditCard className="w-4 h-4 text-black" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs text-slate-600 font-semibold">Nominal Pembayaran</p>
+                                                <p className="font-black text-black">{formatIDR(selectedTx.amount)}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-4 px-4 py-3.5">
+                                            <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
+                                                <Calendar className="w-4 h-4 text-black" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs text-slate-600 font-semibold">Tanggal Transaksi</p>
+                                                <p className="font-black text-black text-sm">{formatFullDate(selectedTx.createdAt)}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-4 px-4 py-3.5">
+                                            <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
+                                                <Hash className="w-4 h-4 text-black" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs text-slate-600 font-semibold">ID Transaksi</p>
+                                                <p className="font-black text-black text-xs font-mono truncate">{selectedTx.paymentId}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        onClick={() => setSelectedTx(null)}
+                                        className="w-full mt-4 h-12 rounded-xl border-[3px] border-black bg-black text-white font-black shadow-[8px_8px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
+                                    >
+                                        Tutup
+                                    </Button>
                                 </div>
                             </motion.div>
-                        );
-                    })}
-                </div>
-            )}
-
-            {/* ─── Detail Modal ──────────────────────────── */}
-            <AnimatePresence>
-                {selectedTx && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm p-4"
-                        onClick={() => setSelectedTx(null)}
-                    >
-                        <motion.div
-                            initial={{ opacity: 0, y: 60, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 60, scale: 0.95 }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 350,
-                                damping: 30,
-                            }}
-                            className="bg-card rounded-3xl shadow-2xl border border-border w-full max-w-md overflow-hidden"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {/* Modal Header */}
-                            <div className="relative p-6 pb-5">
-                                <button
-                                    onClick={() => setSelectedTx(null)}
-                                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-secondary hover:bg-muted flex items-center justify-center transition-colors"
-                                >
-                                    <X className="w-4 h-4 text-muted-foreground" />
-                                </button>
-
-                                <div className="flex flex-col items-center text-center">
-                                    {/* Status Icon */}
-                                    <motion.div
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{
-                                            type: "spring",
-                                            stiffness: 300,
-                                            damping: 20,
-                                            delay: 0.1,
-                                        }}
-                                        className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${selectedTx.status === "paid"
-                                                ? "bg-emerald-500/15"
-                                                : "bg-amber-500/15"
-                                            }`}
-                                    >
-                                        {selectedTx.status === "paid" ? (
-                                            <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-                                        ) : (
-                                            <Clock className="w-8 h-8 text-amber-500" />
-                                        )}
-                                    </motion.div>
-
-                                    <Badge
-                                        className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg border-0 mb-3 ${selectedTx.status === "paid"
-                                                ? "bg-emerald-500/15 text-emerald-500"
-                                                : "bg-amber-500/15 text-amber-500"
-                                            }`}
-                                    >
-                                        {selectedTx.status === "paid"
-                                            ? "Pembayaran Berhasil"
-                                            : "Menunggu Pembayaran"}
-                                    </Badge>
-
-                                    <p className="text-3xl font-black text-foreground tracking-tight">
-                                        {formatIDR(selectedTx.amount)}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Detail Rows */}
-                            <div className="px-6 pb-6">
-                                <div className="bg-secondary/50 rounded-2xl border border-border divide-y divide-border overflow-hidden">
-                                    {/* Credits */}
-                                    <div className="flex items-center gap-4 px-4 py-3.5">
-                                        <div className="w-9 h-9 rounded-lg bg-background flex items-center justify-center shrink-0">
-                                            <Coins className="w-4 h-4 text-foreground" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs text-muted-foreground font-medium">
-                                                Jumlah Kredit
-                                            </p>
-                                            <p className="font-bold text-foreground">
-                                                +{selectedTx.credits.toLocaleString("id-ID")}{" "}
-                                                Kredit
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Amount */}
-                                    <div className="flex items-center gap-4 px-4 py-3.5">
-                                        <div className="w-9 h-9 rounded-lg bg-background flex items-center justify-center shrink-0">
-                                            <CreditCard className="w-4 h-4 text-foreground" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs text-muted-foreground font-medium">
-                                                Nominal Pembayaran
-                                            </p>
-                                            <p className="font-bold text-foreground">
-                                                {formatIDR(selectedTx.amount)}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Date */}
-                                    <div className="flex items-center gap-4 px-4 py-3.5">
-                                        <div className="w-9 h-9 rounded-lg bg-background flex items-center justify-center shrink-0">
-                                            <Calendar className="w-4 h-4 text-foreground" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs text-muted-foreground font-medium">
-                                                Tanggal Transaksi
-                                            </p>
-                                            <p className="font-bold text-foreground text-sm">
-                                                {formatFullDate(selectedTx.createdAt)}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Transaction ID */}
-                                    <div className="flex items-center gap-4 px-4 py-3.5">
-                                        <div className="w-9 h-9 rounded-lg bg-background flex items-center justify-center shrink-0">
-                                            <Hash className="w-4 h-4 text-foreground" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs text-muted-foreground font-medium">
-                                                ID Transaksi
-                                            </p>
-                                            <p className="font-bold text-foreground text-xs font-mono truncate">
-                                                {selectedTx.paymentId}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Close Button */}
-                                <Button
-                                    onClick={() => setSelectedTx(null)}
-                                    className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl h-12"
-                                >
-                                    Tutup
-                                </Button>
-                            </div>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    )}
+                </AnimatePresence>
+            </div>
         </div>
     );
 }

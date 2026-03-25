@@ -5,8 +5,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import Hls from "hls.js";
 import { showToast } from "@/components/Toast";
 import { loadHistory, saveHistory } from "@/lib/watchHistory";
+
+// Route HLS streams through proxy to avoid CORS/user-agent issues
+const hlsProxyUrl = (url: string) => url ? `/api/hls-proxy?url=${encodeURIComponent(url)}` : "";
 
 interface Episode {
     chapterId: string;
@@ -54,6 +58,7 @@ function WatchContent() {
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const playerContainerRef = useRef<HTMLDivElement | null>(null);
+    const hlsRef = useRef<Hls | null>(null);
     const isFetchingRef = useRef<boolean>(false);
 
     // Suppress unhandled media errors
@@ -109,25 +114,33 @@ function WatchContent() {
         saveHistory("dramabox", bookId, currentEpIndex);
     }, [currentEpIndex, bookId, historyLoaded]);
 
-    // Play video when episode changes
+    // Play video when episode changes with HLS support
     const currentEp = episodes[currentEpIndex];
 
     useEffect(() => {
         const video = videoRef.current;
         if (!video || !currentEp) return;
 
+        const rawUrl = currentEp.videoUrl || "";
+        const isHls = rawUrl.includes("m3u8");
+        const proxiedUrl = isHls ? hlsProxyUrl(rawUrl) : rawUrl;
+
         const isFullscreen = !!document.fullscreenElement;
         const fsElement = document.fullscreenElement;
+
+        // Cleanup previous instance and reset video element
+        if (hlsRef.current) {
+            hlsRef.current.destroy();
+            hlsRef.current = null;
+        }
 
         video.pause();
         video.removeAttribute('src');
         video.load();
 
-        setTimeout(() => {
-            video.src = currentEp.videoUrl;
-            video.load();
+        const startPlayback = () => {
             const playPromise = video.play();
-            if (playPromise) playPromise.catch(() => { });
+            if (playPromise) playPromise.catch(() => { /* autoplay may be blocked */ });
 
             if (isFullscreen) {
                 setTimeout(() => {
@@ -144,16 +157,47 @@ function WatchContent() {
                     }
                 }, 100);
             }
-        }, 50);
+        };
+
+        if (isHls && Hls.isSupported()) {
+            const hls = new Hls({ xhrSetup: (xhr) => { xhr.withCredentials = false; } });
+            hlsRef.current = hls;
+            hls.loadSource(proxiedUrl);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => startPlayback());
+            hls.on(Hls.Events.ERROR, (_event, data) => {
+                if (data.fatal) {
+                    console.error('HLS fatal error:', data);
+                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                        hls.startLoad();
+                    } else {
+                        hls.destroy();
+                    }
+                }
+            });
+        } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = proxiedUrl;
+            video.addEventListener('loadedmetadata', startPlayback, { once: true });
+        } else {
+            video.src = proxiedUrl;
+            video.addEventListener('loadedmetadata', startPlayback, { once: true });
+        }
+
+        return () => {
+            if (hlsRef.current) {
+                hlsRef.current.destroy();
+                hlsRef.current = null;
+            }
+        };
     }, [currentEp, tokenRetry]);
 
     // Auto-refresh on video error (token expired)
     const handleVideoError = async () => {
-        if (tokenRetry >= 2 || isFetchingRef.current) return;
+        if (tokenRetry >= 1 || isFetchingRef.current) return;
         isFetchingRef.current = true;
         setIsRefreshingToken(true);
         showToast("Memperbarui sesi video...", "info");
-        console.warn(`Token expired, refreshing... (${tokenRetry + 1}/2)`);
+        console.warn(`Token expired, refreshing... (${tokenRetry + 1}/1)`);
         await fetchEpisodes();
         setTokenRetry(prev => prev + 1);
         setIsRefreshingToken(false);
@@ -280,19 +324,19 @@ function WatchContent() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="w-full lg:w-[30%]"
+                            className="w-full lg:w-[35%]"
                         >
-                            <div className="lg:sticky lg:top-24 flex h-[600px] flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
-                                <div className="flex-none border-b border-white/10 p-4 bg-neutral-900/50 backdrop-blur-md z-10">
-                                    <h3 className="text-lg font-bold text-white">Daftar Episode</h3>
-                                    <p className="text-xs text-neutral-400">Total {episodes.length} Episode</p>
+                            <div className="lg:sticky lg:top-24 flex h-[600px] flex-col rounded-2xl border-[3px] border-black bg-[#a0d1d6] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                                <div className="flex-none border-b-[3px] border-black px-4 py-3 bg-[#a0d1d6]">
+                                    <h3 className="text-lg font-black text-black tracking-wide uppercase">Episodes</h3>
+                                    <p className="text-[12px] font-bold text-black/80">TOTAL {episodes.length} EPISODE</p>
                                 </div>
 
                                 <div
-                                    className="flex-1 overflow-y-auto p-3 overscroll-contain"
+                                    className="flex-1 overflow-y-auto p-4 overscroll-contain"
                                     onWheel={(e) => e.stopPropagation()}
                                 >
-                                    <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-4 gap-3">
                                         {episodes.map((ep) => {
                                             const isActive = ep.chapterIndex === currentEpIndex;
                                             return (
@@ -300,11 +344,16 @@ function WatchContent() {
                                                     key={ep.chapterId}
                                                     id={`ep-${ep.chapterIndex}`}
                                                     onClick={() => selectEpisode(ep.chapterIndex)}
-                                                    className={`flex items-center justify-center rounded-xl py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5 active:scale-95 ${isActive
-                                                        ? "bg-red-600 text-white ring-2 ring-red-400/50 shadow-lg shadow-red-500/20"
-                                                        : "bg-white/5 text-white/80 ring-1 ring-white/5 hover:bg-white/10 hover:text-white"
+                                                    className={`relative flex aspect-square items-center justify-center rounded-xl border-[2.5px] text-sm font-black transition-all ${isActive
+                                                        ? "bg-yellow-400 text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] -translate-y-1"
+                                                        : "bg-white text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-y-0 active:shadow-[0_0_0_0_rgba(0,0,0,1)]"
                                                         }`}
                                                 >
+                                                    {isActive && (
+                                                        <div className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 ring-2 ring-black">
+                                                            <div className="h-1.5 w-1.5 animate-ping rounded-full bg-white" />
+                                                        </div>
+                                                    )}
                                                     {ep.chapterIndex + 1}
                                                 </button>
                                             );

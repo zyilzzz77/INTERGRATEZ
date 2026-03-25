@@ -77,7 +77,7 @@ function DramaImage({ src, alt }: { src: string; alt: string }) {
                     </svg>
                 </div>
             ) : (
-                <img src={imgSrc} alt={alt} className={`h-full w-full object-cover transition-all duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+                <img src={imgSrc || undefined} alt={alt} className={`h-full w-full object-cover transition-all duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
                     referrerPolicy="no-referrer" onLoad={handleLoad} onError={handleError} />
             )}
         </>
@@ -506,28 +506,33 @@ function DetailContent() {
 
                             {/* Right: Episode List */}
                             <div className="w-full lg:w-[35%]">
-                                <div className="lg:sticky lg:top-24 flex flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden" style={{ maxHeight: 'calc(56.25vw * 0.65 + 44px)', minHeight: '300px' }}>
-                                    <div className="flex-none border-b border-white/10 px-4 py-3 bg-neutral-900/50 backdrop-blur-md">
-                                        <h3 className="text-base font-bold text-white">Daftar Episode</h3>
-                                        <p className="text-[11px] text-neutral-400">Total {totalEpisodes} episode</p>
+                                <div className="lg:sticky lg:top-24 flex flex-col rounded-2xl border-[3px] border-black bg-[#a0d1d6] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden" style={{ maxHeight: 'calc(56.25vw * 0.65 + 44px)', minHeight: '300px' }}>
+                                    <div className="flex-none border-b-[3px] border-black px-4 py-3 bg-[#a0d1d6]">
+                                        <h3 className="text-lg font-black text-black tracking-wide uppercase">Episodes</h3>
+                                        <p className="text-[12px] font-bold text-black/80">TOTAL {totalEpisodes} EPISODE</p>
                                     </div>
 
                                     <div
-                                        className="flex-1 overflow-y-auto p-3 overscroll-contain"
+                                        className="flex-1 overflow-y-auto p-4 overscroll-contain"
                                         onWheel={(e) => e.stopPropagation()}
                                     >
-                                        <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-4 gap-1.5">
+                                        <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-4 gap-3">
                                             {episodes.map((epNum) => {
                                                 const isActive = epNum === currentEp;
                                                 return (
                                                     <button
                                                         key={epNum}
                                                         onClick={() => selectEpisode(epNum)}
-                                                        className={`flex items-center justify-center rounded-lg py-2 text-xs font-semibold transition-all active:scale-95 ${isActive
-                                                            ? "bg-cyan-600 text-white ring-2 ring-cyan-400/50 shadow-lg shadow-cyan-500/20"
-                                                            : "bg-white/5 text-white/80 ring-1 ring-white/5 hover:bg-cyan-600/20 hover:text-cyan-400 hover:ring-cyan-500/30"
+                                                        className={`relative flex aspect-square items-center justify-center rounded-xl border-[2.5px] text-sm font-black transition-all ${isActive
+                                                            ? "bg-yellow-400 text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] -translate-y-1"
+                                                            : "bg-white text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-y-0 active:shadow-[0_0_0_0_rgba(0,0,0,1)]"
                                                             }`}
                                                     >
+                                                        {isActive && (
+                                                            <div className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 ring-2 ring-black">
+                                                                <div className="h-1.5 w-1.5 animate-ping rounded-full bg-white" />
+                                                            </div>
+                                                        )}
                                                         {epNum}
                                                     </button>
                                                 );

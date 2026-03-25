@@ -57,25 +57,25 @@ export default function AppleMusicPage() {
     }
 
     return (
-        <div className="mx-auto max-w-5xl px-4 py-10">
+        <div className="mx-auto max-w-5xl px-4 py-10 text-black">
             {/* Header */}
             <div className="mb-8 text-center">
-                <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-pink-600 text-2xl text-white shadow-lg ring-1 ring-white/20">
-                    <Image src="/icons/applemusic.svg" alt="Apple Music" width={32} height={32} className="h-8 w-8" />
+                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl border-[3px] border-black bg-[#ffdde1] shadow-neo">
+                    <Image src="/icons/applemusic.svg" alt="Apple Music" width={36} height={36} className="h-9 w-9" />
                 </div>
-                <h1 className="text-3xl font-black text-white">
-                    Apple Music <span className="text-white">Search</span>
-                </h1>
-                <p className="mt-2 text-sm text-neutral-500">
-                    Cari lagu & album Apple Music, download MP3 High Quality
+                <h1 className="text-3xl font-black">Apple Music Search</h1>
+                <p className="mt-2 text-sm font-bold text-black/70">
+                    Cari lagu & album, download MP3 berkualitas tinggi
                 </p>
             </div>
 
-            <SearchBar
-                placeholder="Cari lagu, artis, atau paste URL..."
-                onSearch={handleSearch}
-                loading={loading}
-            />
+            <div className="rounded-2xl border-[3px] border-black bg-white p-4 shadow-neo-sm">
+                <SearchBar
+                    placeholder="Cari lagu, artis, atau paste URL..."
+                    onSearch={handleSearch}
+                    loading={loading}
+                />
+            </div>
 
             {/* Results */}
             <div className="mt-10">
@@ -84,7 +84,7 @@ export default function AppleMusicPage() {
                         {Array.from({ length: 6 }).map((_, i) => (
                             <div
                                 key={i}
-                                className="rounded-xl border border-white/5 bg-white/5 p-3"
+                                className="rounded-2xl border-[3px] border-black bg-white p-3 shadow-neo-sm"
                             >
                                 <div className="skeleton mb-3 h-16 w-16 rounded-lg" />
                                 <div className="skeleton mb-2 h-4 w-3/4" />
@@ -100,10 +100,10 @@ export default function AppleMusicPage() {
                             <div
                                 key={i}
                                 onClick={() => handleSelect(r)}
-                                className="card-hover group flex cursor-pointer items-center gap-4 overflow-hidden rounded-xl border border-white/5 bg-white/5 p-3 backdrop-blur-sm transition-all hover:border-red-500/30 hover:bg-red-500/5"
+                                className="group flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl border-[3px] border-black bg-white p-3 shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-sm"
                             >
                                 {/* Cover */}
-                                <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg shadow-sm bg-neutral-800">
+                                <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border-[3px] border-black bg-white">
                                     <Image
                                         src={r.thumbnail}
                                         alt={r.title}
@@ -119,19 +119,19 @@ export default function AppleMusicPage() {
 
                                 {/* Info */}
                                 <div className="flex min-w-0 flex-1 flex-col justify-center">
-                                    <h4 className="line-clamp-1 text-sm font-bold text-white group-hover:text-red-400">
+                                    <h4 className="line-clamp-1 text-sm font-black text-black group-hover:text-red-500">
                                         {r.title}
                                     </h4>
-                                    <p className="line-clamp-1 text-xs font-medium text-neutral-500">
+                                    <p className="line-clamp-1 text-xs font-bold text-black/60">
                                         {r.artist}
                                     </p>
-                                    <div className="mt-1 flex items-center gap-2 text-[10px] text-neutral-600">
+                                    <div className="mt-1 flex items-center gap-2 text-[10px] font-bold text-black/60">
                                         <span className="capitalize">🎵 {r.type}</span>
                                     </div>
                                 </div>
 
                                 {/* Action Icon */}
-                                <div className="mr-2 text-neutral-600 transition-colors group-hover:text-red-400">
+                                <div className="mr-2 text-black transition-colors group-hover:text-red-500">
                                     <svg
                                         className="h-6 w-6"
                                         fill="none"
@@ -152,11 +152,11 @@ export default function AppleMusicPage() {
                 )}
 
                 {!loading && hasSearched && results.length === 0 && (
-                    <div className="mt-20 text-center">
-                        <p className="text-lg font-bold text-neutral-500">
+                    <div className="mt-16 text-center">
+                        <p className="text-lg font-black text-black/80">
                             Tidak ada hasil ditemukan
                         </p>
-                        <p className="mt-1 text-sm text-neutral-600">
+                        <p className="mt-1 text-sm font-bold text-black/60">
                             Coba kata kunci lain atau paste link langsung
                         </p>
                     </div>
@@ -164,7 +164,7 @@ export default function AppleMusicPage() {
 
                 {!loading && !hasSearched && (
                     <div className="mt-16 text-center">
-                        <p className="text-5xl mb-4 opacity-20 grayscale">🎵</p>
+                        <p className="text-5xl mb-4 opacity-40">🎵</p>
                     </div>
                 )}
             </div>

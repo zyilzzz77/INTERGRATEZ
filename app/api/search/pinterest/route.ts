@@ -44,51 +44,115 @@ async function handleSearch(req: NextRequest) {
             );
         }
 
-        const canAfford = await deductCredit();
-        if (!canAfford) {
-            return NextResponse.json(
-                { success: false, error: "Kredit tidak mencukupi" },
-                { status: 403, headers: CORS },
-            );
-        }
-
         const type = req.nextUrl.searchParams.get("type") || "photo";
 
         if (type === "video") {
-            const videoRes = await fetch(`https://api.neoxr.eu/api/pinterest-v2?q=${encodeURIComponent(query)}&show=50&type=video&apikey=${process.env.NEOXR_API_KEY}`);
-            const videoData = await videoRes.json();
-
-            if (!videoData.status || !videoData.data) {
+            const apiKey = process.env.NEOXR_API_KEY;
+            if (!apiKey) {
                 return NextResponse.json(
-                    { success: false, error: "Pinterest video search failed" },
-                    { status: 500, headers: CORS },
+                    {
+                        success: false,
+                        comingSoon: true,
+                        message: "Pencarian video Pinterest sementara tidak tersedia (API key hilang)",
+                    },
+                    { status: 200, headers: CORS },
+                );
+            }
+
+            const canAfford = await deductCredit();
+            if (!canAfford) {
+                return NextResponse.json(
+                    { success: false, error: "Kredit tidak mencukupi" },
+                    { status: 403, headers: CORS },
+                );
+            }
+
+            let videoJson: any = null;
+            try {
+                const videoRes = await fetch(
+                    `https://api.neoxr.eu/api/pinterest-v2?q=${encodeURIComponent(query)}&show=50&type=video&apikey=${apiKey}`,
+                );
+
+                const raw = await videoRes.text();
+                try {
+                    videoJson = raw ? JSON.parse(raw) : null;
+                } catch {
+                    videoJson = null;
+                }
+
+                if (!videoRes.ok) {
+                    const upstreamMsg =
+                        videoJson?.message ||
+                        videoJson?.error ||
+                        (typeof raw === "string" && raw.length < 200 ? raw : "");
+                    return NextResponse.json(
+                        {
+                            success: false,
+                            comingSoon: true,
+                            message: upstreamMsg || "Pinterest video search gagal (upstream)",
+                        },
+                        { status: 200, headers: CORS },
+                    );
+                }
+            } catch (error) {
+                const msg = error instanceof Error ? error.message : "Unknown error";
+                return NextResponse.json(
+                    {
+                        success: false,
+                        comingSoon: true,
+                        message: `Pinterest video search error: ${msg}`,
+                    },
+                    { status: 200, headers: CORS },
+                );
+            }
+
+            const items = Array.isArray(videoJson?.data)
+                ? videoJson.data
+                : Array.isArray(videoJson?.result)
+                    ? videoJson.result
+                    : [];
+
+            if (!items.length) {
+                return NextResponse.json(
+                    { success: true, keyword: query, count: 0, pins: [], items: [] },
+                    { headers: CORS },
                 );
             }
 
             const proxyUrl = (url: string) =>
                 url ? `/api/proxy-image?url=${encodeURIComponent(url)}` : "";
 
-            const pins = videoData.data.map((item: any) => {
-                const videoContent = item.content?.[0] || {};
+            const pins = items.map((item: any) => {
+                const videoContent = item.content?.[0] || item.media?.[0] || {};
+                const thumbnail = videoContent.thumbnail || item.thumbnail || item.images?.[0] || "";
+                const videoUrl =
+                    videoContent.url ||
+                    item.download?.[0]?.url ||
+                    item.source ||
+                    item.url ||
+                    "";
+
+                const sourceId = item.source?.split?.("/")?.pop?.() || item.id || crypto.randomUUID();
+
                 return {
-                    id: item.source.split('/').pop() || String(Math.random()),
-                    images_url: proxyUrl(videoContent.thumbnail),
-                    images_url_original: videoContent.thumbnail,
-                    grid_title: item.title && item.title !== '-' ? item.title : '',
-                    description: item.description && item.description !== '-' ? item.description : '',
-                    pin: item.source,
-                    created_at: '',
-                    type: 'video',
+                    id: sourceId,
+                    images_url: proxyUrl(thumbnail),
+                    images_url_original: thumbnail,
+                    grid_title: item.title && item.title !== "-" ? item.title : "",
+                    description: item.description && item.description !== "-" ? item.description : "",
+                    pin: item.source || item.url || "",
+                    created_at: item.created_at || "",
+                    type: "video",
                     pinner: {
-                        full_name: item.author?.full_name || '',
-                        image_small_url: proxyUrl(item.author?.image_small_url || ''),
+                        full_name: item.author?.full_name || item.owner?.full_name || "",
+                        image_small_url: proxyUrl(item.author?.image_small_url || item.owner?.avatar || ""),
                         follower_count: item.author?.follower_count || 0,
                     },
                     board: null,
-                    reaction_counts: {},
-                    dominant_color: '#27272a',
-                    video_url: videoContent.url,
-                    duration: videoContent.duration,
+                    reaction_counts: item.reaction_counts || {},
+                    dominant_color: item.dominant_color || "#27272a",
+                    video_url: videoUrl,
+                    duration: videoContent.duration || item.duration,
                 };
             });
 
@@ -115,7 +179,15 @@ async function handleSearch(req: NextRequest) {
                         duration: p.duration,
                     })),
                 },
-                { headers: CORS }
+                { headers: CORS },
+            );
+        }
+
+        const canAfford = await deductCredit();
+        if (!canAfford) {
+            return NextResponse.json(
+                { success: false, error: "Kredit tidak mencukupi" },
+                { status: 403, headers: CORS },
             );
         }
 

@@ -124,8 +124,8 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
     };
 
     return (
-        <form onSubmit={handleSubmit} className="relative w-full max-w-2xl">
-            <div className="relative flex items-center overflow-hidden rounded-2xl bg-secondary p-2 shadow-lg ring-1 ring-border transition-all focus-within:ring-2 focus-within:ring-primary/40">
+        <form onSubmit={handleSubmit} className="relative w-full max-w-2xl transform transition-transform">
+            <div className="relative flex items-center overflow-hidden rounded-2xl bg-white p-2 border-[3px] border-black shadow-neo">
                 {/* Icon / Paste Button */}
                 <div className="flex-shrink-0 pl-2">
                     <Button
@@ -133,7 +133,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
                         variant="ghost"
                         size="icon"
                         onClick={handlePaste}
-                        className="h-10 w-10 rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground"
+                        className="h-10 w-10 rounded-xl text-black hover:bg-gray-100 transition-colors"
                         title="Paste Link"
                     >
                         <Clipboard className="h-5 w-5" />
@@ -147,7 +147,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
                     onChange={(e) => setUrl(e.target.value)}
                     onPaste={handleInputPaste}
                     placeholder="Tempel link video di sini..."
-                    className="border-none bg-transparent px-4 py-6 text-base font-medium text-foreground placeholder:text-muted-foreground focus-visible:ring-0 shadow-none"
+                    className="border-none bg-transparent px-4 py-6 text-base font-medium text-black placeholder:text-gray-400 focus-visible:ring-0 shadow-none outline-none focus:outline-none"
                     disabled={loading}
                     ref={inputRef}
                 />
@@ -155,21 +155,19 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
                 {/* Clear / Loading / Submit */}
                 <div className="flex-shrink-0 pr-2 flex items-center gap-2">
                     {url && !loading && (
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
+                        <div
+                            role="button"
                             onClick={handleClear}
-                            className="h-8 w-8 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+                            className="flex h-8 w-8 items-center justify-center rounded-full text-black hover:bg-gray-100 cursor-pointer transition-colors"
                         >
                             <X className="h-4 w-4" />
-                        </Button>
+                        </div>
                     )}
 
                     <Button
                         type="submit"
                         disabled={loading || !url}
-                        className="h-10 gap-2 rounded-xl bg-primary px-6 font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:brightness-110"
+                        className="h-10 gap-2 rounded-xl bg-[#ffeb3b] border-[2px] border-black px-6 font-black text-black shadow-neo-sm transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:-translate-x-1 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#ffeb3b]/90"
                     >
                         {loading ? (
                             <>

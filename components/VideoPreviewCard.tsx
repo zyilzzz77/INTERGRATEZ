@@ -41,20 +41,31 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
     // Safety check for formats array
     const formats = Array.isArray(data.formats) ? data.formats : [];
 
+    const imageFormats = formats.filter((f) => (f.type || "").toLowerCase() === "jpg");
+
     const videoFormats = formats.filter((f) => f.type !== "mp3");
     const audioFormats = formats.filter((f) => f.type === "mp3");
     const isYouTube = data.platform === "youtube";
     const activeFormats = tab === "audio" ? audioFormats : videoFormats;
     const formatsToShow = isYouTube ? activeFormats : formats;
 
+    const handleDownloadAllImages = () => {
+        if (!imageFormats.length) return;
+        imageFormats.forEach((f, idx) => {
+            const ext = (f.type || "jpg").replace(/\./g, "") || "jpg";
+            const filename = `instagram-image-${idx + 1}.${ext}`;
+            downloadMedia(null, f.url, filename);
+        });
+    };
+
     console.log("[VideoPreviewCard] Rendering with data:", { title: data.title, formatsCount: formats.length });
 
     return (
         <LazyMotion features={domAnimation}>
-            <Card className="mx-auto w-full max-w-2xl overflow-hidden border-white/10 bg-white/5 backdrop-blur-sm shadow-xl">
+            <Card className="mx-auto w-full max-w-2xl overflow-hidden border-[3px] border-black bg-white shadow-neo rounded-2xl">
                 <div className="flex flex-col sm:flex-row">
                     {/* Thumbnail */}
-                    <div className="relative shrink-0 overflow-hidden bg-neutral-800 sm:w-56">
+                    <div className="relative shrink-0 overflow-hidden bg-gray-100 sm:w-56 border-b-[3px] sm:border-b-0 sm:border-r-[3px] border-black">
                         {data.thumbnail ? (
                             <m.img
                                 initial={{ scale: 1.1, opacity: 0 }}
@@ -65,7 +76,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                                 className="h-48 w-full object-cover sm:h-full transition-transform hover:scale-105 duration-500"
                             />
                         ) : (
-                            <div className="flex h-48 w-full items-center justify-center text-4xl text-neutral-600 sm:h-full">
+                            <div className="flex h-48 w-full items-center justify-center text-4xl text-gray-300 sm:h-full">
                                 <PlayCircle className="h-12 w-12" />
                             </div>
                         )}
@@ -74,7 +85,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.3 }}
-                                className="absolute bottom-2 right-2 rounded-md bg-black/70 px-2 py-0.5 text-xs font-semibold text-white"
+                                className="absolute bottom-2 right-2 rounded-lg bg-black px-2 py-0.5 text-xs font-black text-white border-[2px] border-white"
                             >
                                 {data.duration}
                             </m.span>
@@ -82,10 +93,10 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                     </div>
 
                     {/* Info */}
-                    <div className="flex flex-1 flex-col">
+                    <div className="flex flex-1 flex-col bg-[#fff6e8]">
                         <CardHeader className="p-4 pb-2">
                             <div className="flex items-start justify-between gap-2">
-                                <CardTitle className="line-clamp-2 text-base font-bold leading-snug text-white">
+                                <CardTitle className="line-clamp-2 text-base font-bold leading-snug text-black">
                                     {data.title || "No Title"}
                                 </CardTitle>
                                 <PlatformDetector platform={data.platform} />
@@ -95,7 +106,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="flex flex-col gap-1 text-xs text-neutral-400 mt-2"
+                                    className="flex flex-col gap-1 text-xs text-gray-700 mt-2 font-medium"
                                 >
                                     {data.artist && (
                                         <div className="flex items-center gap-1 line-clamp-1">
@@ -117,39 +128,39 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                         </CardHeader>
 
                         <CardContent className="p-4 pt-0 grow">
+                            {data.platform === "instagram" && imageFormats.length > 0 && (
+                                <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#ffe8f2] border-[3px] border-black px-3 py-2 shadow-neo-sm">
+                                    <span className="text-sm font-black text-black">Instagram Media</span>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        onClick={handleDownloadAllImages}
+                                        className="h-8 gap-2 rounded-lg bg-[#ff4f9a] border-[2px] border-black px-3 text-xs font-black text-white shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:-translate-x-0.5"
+                                    >
+                                        <Download className="h-3.5 w-3.5" /> Download All Images
+                                    </Button>
+                                </div>
+                            )}
+
                             {/* YouTube tab toggle */}
                             {isYouTube && audioFormats.length > 0 && (
-                                <div className="flex gap-1 rounded-lg bg-neutral-900/50 p-1 ring-1 ring-white/10 mb-4">
+                                <div className="flex gap-1 rounded-xl bg-white border-[3px] border-black p-1 mb-4 shadow-neo-sm">
                                     <Button
-                                        variant={tab === "video" ? "secondary" : "ghost"}
+                                        variant={tab === "video" ? "default" : "ghost"}
                                         size="sm"
                                         onClick={() => setTab("video")}
-                                        className="flex-1 text-xs font-bold h-8 relative"
+                                        className={`flex-1 text-xs font-bold h-8 relative rounded-lg ${tab === "video" ? "bg-black text-white" : "text-black hover:bg-gray-100"}`}
                                     >
-                                        {tab === "video" && (
-                                            <m.div
-                                                layoutId="activeTab"
-                                                className="absolute inset-0 bg-secondary rounded-md"
-                                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                            />
-                                        )}
                                         <span className="relative z-10 flex items-center justify-center">
                                             <PlayCircle className="mr-1.5 h-3.5 w-3.5" /> Video (MP4)
                                         </span>
                                     </Button>
                                     <Button
-                                        variant={tab === "audio" ? "secondary" : "ghost"}
+                                        variant={tab === "audio" ? "default" : "ghost"}
                                         size="sm"
                                         onClick={() => setTab("audio")}
-                                        className="flex-1 text-xs font-bold h-8 relative"
+                                        className={`flex-1 text-xs font-bold h-8 relative rounded-lg ${tab === "audio" ? "bg-black text-white" : "text-black hover:bg-gray-100"}`}
                                     >
-                                        {tab === "audio" && (
-                                            <m.div
-                                                layoutId="activeTab"
-                                                className="absolute inset-0 bg-secondary rounded-md"
-                                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                            />
-                                        )}
                                         <span className="relative z-10 flex items-center justify-center">
                                             <Music className="mr-1.5 h-3.5 w-3.5" /> Audio (MP3)
                                         </span>
@@ -157,7 +168,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                            <div className="grid grid-cols-2 gap-2 flex-wrap">
                                 <AnimatePresence mode="popLayout">
                                     {formatsToShow.length > 0 ? (
                                         formatsToShow.map((f, i) => (
@@ -186,7 +197,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                                                         downloadMedia(e, f.url, filename);
                                                     }}
                                                     disabled={!f.url}
-                                                    className="w-full justify-start gap-2 overflow-hidden text-xs font-bold"
+                                                    className="w-full justify-start gap-2 overflow-hidden text-xs font-bold bg-[#c5b3e6] border-[2px] border-black text-black hover:bg-[#b09ed1] shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-y-px hover:translate-x-px hover:shadow-[1px_1px_0_0_rgba(0,0,0,1)] transition-all"
                                                     title={!f.url ? "Format tidak tersedia" : `Download ${f.quality}`}
                                                 >
                                                     <Download className="h-3.5 w-3.5 shrink-0" />
@@ -198,7 +209,7 @@ export default function VideoPreviewCard({ data }: { data: VideoData | null }) {
                                         <m.div
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="col-span-full py-2 text-center text-sm text-neutral-500"
+                                            className="col-span-full py-2 text-center text-sm font-bold text-gray-500"
                                         >
                                             Tidak ada format tersedia untuk kategori ini.
                                         </m.div>

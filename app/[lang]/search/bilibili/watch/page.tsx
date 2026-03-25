@@ -190,15 +190,15 @@ function BilibiliWatchContent() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-900 px-4 py-8">
+        <div className="min-h-screen bg-white px-4 py-8 mt-16">
             <div className="mx-auto max-w-[1600px]">
                 {/* Back Button */}
                 <button
                     onClick={() => router.push('/search/bilibili')}
-                    className="mb-6 flex items-center gap-2 text-sm font-medium text-neutral-400 transition hover:text-white"
+                    className="mb-8 flex items-center gap-2 rounded-xl border-[3px] border-black bg-white px-4 py-2 text-sm font-black text-black transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#ffeb3b] hover:shadow-neo"
                 >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     Kembali ke Pencarian
                 </button>
@@ -207,31 +207,31 @@ function BilibiliWatchContent() {
                     {/* Left Column: Player (Span 2 on LG, Span 3 on XL) */}
                     <div className="lg:col-span-2 xl:col-span-3">
                         {loading ? (
-                            <div className="flex aspect-video w-full flex-col items-center justify-center rounded-2xl bg-white/5 text-white">
-                                <div className="h-12 w-12 animate-spin rounded-full border-4 border-sky-500 border-t-transparent shadow-lg shadow-sky-500/20" />
-                                <p className="mt-4 animate-pulse font-medium">Memuat video...</p>
+                            <div className="flex aspect-video w-full flex-col items-center justify-center rounded-2xl border-[3px] border-black bg-[#a0d1d6] text-black shadow-neo">
+                                <div className="h-12 w-12 animate-spin rounded-full border-4 border-black border-t-transparent" />
+                                <p className="mt-4 animate-pulse font-black text-lg">Memuat video...</p>
                             </div>
                         ) : error ? (
-                            <div className="flex aspect-video w-full flex-col items-center justify-center rounded-2xl bg-white/5 p-8 text-center text-white">
-                                <div className="rounded-full bg-red-500/10 p-6 text-red-500 ring-1 ring-red-500/20">
-                                    <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            <div className="flex aspect-video w-full flex-col items-center justify-center rounded-2xl border-[3px] border-black bg-[#ffb3c6] p-8 text-center text-black shadow-neo">
+                                <div className="rounded-xl border-[3px] border-black bg-white p-4 shadow-neo-sm">
+                                    <svg className="h-12 w-12 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
                                 </div>
                                 <div className="mt-6">
-                                    <p className="text-xl font-bold text-red-400">Gagal Memutar Video</p>
-                                    <p className="mt-2 text-neutral-400">{error}</p>
+                                    <p className="text-2xl font-black text-black">Gagal Memutar Video</p>
+                                    <p className="mt-2 font-bold text-black/80">{error}</p>
                                 </div>
                             </div>
                         ) : (
-                            <div className="overflow-hidden rounded-2xl bg-black shadow-2xl ring-1 ring-white/10">
+                            <div className="overflow-hidden rounded-2xl border-[3px] border-black bg-black shadow-neo">
                                 {/* Player */}
                                 <div className="relative aspect-video w-full bg-black">
                                     <video
                                         ref={videoRef}
                                         src={videoUrl!}
                                         controls
-                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                        className="h-full w-full object-contain"
                                         controlsList="nodownload"
                                         crossOrigin="anonymous"
                                         onContextMenu={(e) => e.preventDefault()}
@@ -250,14 +250,14 @@ function BilibiliWatchContent() {
                                 </div>
 
                                 {/* Metadata */}
-                                <div className="border-t border-white/10 bg-neutral-900 p-6">
-                                    <h1 className="text-xl font-bold text-white md:text-2xl">{meta?.title}</h1>
-                                    <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral-400">
-                                        <div className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1">
+                                <div className="border-t-[3px] border-black bg-[#c4b5fd] p-6">
+                                    <h1 className="text-xl font-black text-black md:text-2xl">{meta?.title}</h1>
+                                    <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-bold text-black">
+                                        <div className="flex items-center gap-2 rounded-xl border-[3px] border-black bg-white px-3 py-1.5 shadow-neo-sm">
                                             <span>👁</span>
                                             <span>{meta?.views} Views</span>
                                         </div>
-                                        <div className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1">
+                                        <div className="flex items-center gap-2 rounded-xl border-[3px] border-black bg-white px-3 py-1.5 shadow-neo-sm">
                                             <span>❤️</span>
                                             <span>{meta?.likes} Likes</span>
                                         </div>
@@ -269,10 +269,10 @@ function BilibiliWatchContent() {
 
                     {/* Right Column: Related Videos */}
                     <div className="lg:col-span-1">
-                        <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-white">Video Terkait</h3>
+                        <div className="mb-6 flex items-center justify-between">
+                            <h3 className="text-xl font-black text-black">Video Terkait</h3>
                             {queryParam && (
-                                <span className="rounded bg-sky-500/10 px-2 py-0.5 text-xs text-sky-400">
+                                <span className="rounded-lg border-[3px] border-black bg-[#ffeb3b] px-2 py-0.5 text-xs font-black text-black shadow-neo-sm">
                                     &quot;{queryParam}&quot;
                                 </span>
                             )}
@@ -281,11 +281,11 @@ function BilibiliWatchContent() {
                         <div className="flex flex-col gap-4">
                             {relatedLoading ? (
                                 Array.from({ length: 4 }).map((_, i) => (
-                                    <div key={i} className="flex gap-3 rounded-lg border border-white/5 bg-white/5 p-2">
-                                        <div className="skeleton aspect-video w-32 rounded bg-neutral-800" />
+                                    <div key={i} className="flex gap-3 rounded-2xl border-[3px] border-black bg-white p-2 shadow-neo-sm">
+                                        <div className="skeleton aspect-video w-32 rounded-xl border-2 border-black bg-gray-200" />
                                         <div className="flex-1 space-y-2 py-1">
-                                            <div className="skeleton h-3 w-full rounded bg-neutral-800" />
-                                            <div className="skeleton h-3 w-2/3 rounded bg-neutral-800" />
+                                            <div className="skeleton h-3 w-full rounded bg-gray-200" />
+                                            <div className="skeleton h-3 w-2/3 rounded bg-gray-200" />
                                         </div>
                                     </div>
                                 ))
@@ -293,14 +293,14 @@ function BilibiliWatchContent() {
                                 relatedVideos.map((item, idx) => (
                                     <div
                                         key={idx}
-                                        className="group flex cursor-pointer gap-3 rounded-lg border border-transparent p-2 transition hover:bg-white/5"
+                                        className="group flex cursor-pointer gap-3 rounded-2xl border-[3px] border-black bg-white p-2 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#ffb3c6] hover:shadow-neo"
                                         onClick={() => handleRelatedWatch(item.videoUrl)}
                                     >
-                                        <div className="relative aspect-video w-36 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-800">
+                                        <div className="relative aspect-video w-36 flex-shrink-0 overflow-hidden rounded-xl border-2 border-black bg-black">
                                             <img
                                                 src={item.thumbnail}
                                                 alt={item.title}
-                                                className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                 loading="lazy"
                                                 referrerPolicy="no-referrer"
                                                 onContextMenu={(e) => e.preventDefault()}
@@ -309,26 +309,26 @@ function BilibiliWatchContent() {
                                             {/* Transparent Overlay for protection */}
                                             <div className="absolute inset-0 z-10" onContextMenu={(e) => e.preventDefault()} />
 
-                                            <span className="absolute bottom-1 right-1 z-20 rounded bg-black/80 px-1 py-0.5 text-[10px] font-bold text-white">
+                                            <span className="absolute bottom-1 right-1 z-20 rounded-md border-2 border-white bg-black px-1.5 py-0.5 text-[10px] font-black text-white">
                                                 {item.duration}
                                             </span>
                                         </div>
                                         <div className="flex flex-1 flex-col justify-center">
-                                            <h4 className="line-clamp-2 text-sm font-medium text-neutral-200 group-hover:text-sky-400">
+                                            <h4 className="line-clamp-2 text-sm font-black text-black">
                                                 {item.title}
                                             </h4>
-                                            <p className="mt-1 text-xs text-neutral-500">
+                                            <p className="mt-1 text-xs font-bold text-black/70">
                                                 {item.author}
                                             </p>
-                                            <p className="text-xs text-neutral-500">
+                                            <p className="text-[11px] font-bold text-black/60">
                                                 {item.views.replace("· ", "")} views
                                             </p>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <div className="rounded-xl border border-dashed border-neutral-700 p-8 text-center">
-                                    <p className="text-sm text-neutral-500">
+                                <div className="rounded-2xl border-[3px] border-dashed border-black bg-gray-50 p-8 text-center">
+                                    <p className="font-bold text-black/60">
                                         {queryParam ? "Tidak ada video terkait lainnya." : "Lakukan pencarian untuk melihat video terkait."}
                                     </p>
                                 </div>
@@ -343,7 +343,7 @@ function BilibiliWatchContent() {
 
 export default function BilibiliWatchPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-neutral-900" />}>
+        <Suspense fallback={<div className="min-h-screen bg-white" />}>
             <BilibiliWatchContent />
         </Suspense>
     );

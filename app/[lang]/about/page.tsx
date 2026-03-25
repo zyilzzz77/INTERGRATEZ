@@ -24,60 +24,70 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
     return (
         <div className="container mx-auto px-4 py-16 max-w-5xl min-h-screen">
             <div className="text-center mb-16">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
-                    {text.title} <span className="text-emerald-500">{text.brand}</span>
+                <h1 className="text-4xl md:text-6xl font-black text-black mb-6 tracking-tight uppercase">
+                    {text.title} <span className="bg-primary px-2 border-[3px] border-black rotate-2 inline-block rounded-lg shadow-neo-sm">{text.brand}</span>
                 </h1>
-                <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-lg md:text-xl text-black/80 font-bold max-w-2xl mx-auto leading-relaxed">
                     {text.subtitle}
                 </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20 items-center">
-                <div className="space-y-6 text-gray-300">
-                    <h2 className="text-3xl font-bold text-white tracking-tight">{text.missionTitle}</h2>
-                    <p className="leading-relaxed">
+                <div className="space-y-6 text-black">
+                    <h2 className="text-3xl md:text-4xl font-black text-black tracking-tight">{text.missionTitle}</h2>
+                    <p className="leading-relaxed font-semibold text-lg text-black/80">
                         {text.missionText1}
                     </p>
-                    <p className="leading-relaxed">
+                    <p className="leading-relaxed font-semibold text-lg text-black/80">
                         {text.missionText2}
                     </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col items-center text-center">
-                        <Zap className="w-10 h-10 text-emerald-400 mb-4" />
-                        <h3 className="text-white font-bold mb-2">{text.feature1Title}</h3>
-                        <p className="text-sm text-gray-400">{text.feature1Desc}</p>
+                    <div className="bg-[#a0d1d6] border-[3px] border-black p-6 rounded-2xl flex flex-col items-center text-center shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-transform duration-200">
+                        <div className="w-12 h-12 rounded-xl bg-white border-2 border-black flex items-center justify-center mb-4">
+                            <Zap className="w-6 h-6 text-black" strokeWidth={3} />
+                        </div>
+                        <h3 className="text-black font-black mb-2 text-lg">{text.feature1Title}</h3>
+                        <p className="text-sm font-bold text-black/70">{text.feature1Desc}</p>
                     </div>
-                    <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col items-center text-center">
-                        <Shield className="w-10 h-10 text-blue-400 mb-4" />
-                        <h3 className="text-white font-bold mb-2">{text.feature2Title}</h3>
-                        <p className="text-sm text-gray-400">{text.feature2Desc}</p>
+                    <div className="bg-[#ffb3c6] border-[3px] border-black p-6 rounded-2xl flex flex-col items-center text-center shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-transform duration-200">
+                        <div className="w-12 h-12 rounded-xl bg-white border-2 border-black flex items-center justify-center mb-4">
+                            <Shield className="w-6 h-6 text-black" strokeWidth={3} />
+                        </div>
+                        <h3 className="text-black font-black mb-2 text-lg">{text.feature2Title}</h3>
+                        <p className="text-sm font-bold text-black/70">{text.feature2Desc}</p>
                     </div>
-                    <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col items-center text-center">
-                        <Coffee className="w-10 h-10 text-amber-400 mb-4" />
-                        <h3 className="text-white font-bold mb-2">{text.feature3Title}</h3>
-                        <p className="text-sm text-gray-400">{text.feature3Desc}</p>
+                    <div className="bg-[#ffeb3b] border-[3px] border-black p-6 rounded-2xl flex flex-col items-center text-center shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-transform duration-200">
+                        <div className="w-12 h-12 rounded-xl bg-white border-2 border-black flex items-center justify-center mb-4">
+                            <Coffee className="w-6 h-6 text-black" strokeWidth={3} />
+                        </div>
+                        <h3 className="text-black font-black mb-2 text-lg">{text.feature3Title}</h3>
+                        <p className="text-sm font-bold text-black/70">{text.feature3Desc}</p>
                     </div>
-                    <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col items-center text-center">
-                        <Heart className="w-10 h-10 text-pink-400 mb-4" />
-                        <h3 className="text-white font-bold mb-2">{text.feature4Title}</h3>
-                        <p className="text-sm text-gray-400">{text.feature4Desc}</p>
+                    <div className="bg-[#c4b5fd] border-[3px] border-black p-6 rounded-2xl flex flex-col items-center text-center shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-transform duration-200">
+                        <div className="w-12 h-12 rounded-xl bg-white border-2 border-black flex items-center justify-center mb-4">
+                            <Heart className="w-6 h-6 text-black" strokeWidth={3} />
+                        </div>
+                        <h3 className="text-black font-black mb-2 text-lg">{text.feature4Title}</h3>
+                        <p className="text-sm font-bold text-black/70">{text.feature4Desc}</p>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-white/10 rounded-3xl p-8 md:p-12 text-center mt-12">
-                <h2 className="text-3xl font-bold text-white mb-6">{text.ctaTitle}</h2>
-                <p className="text-gray-300 mb-8 max-w-xl mx-auto">
-                    {text.ctaSubtitle}
-                </p>
-                <div className="flex flex-wrap justify-center gap-4">
-                    <a href={`/${lang}/search`} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-full transition-all">
-                        {text.btnTry}
-                    </a>
-                    <a href={`/${lang}/topup`} className="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-8 rounded-full transition-all backdrop-blur-sm border border-white/10">
-                        {text.btnVip}
-                    </a>
+            <div className="bg-primary border-[3px] border-black shadow-neo rounded-3xl p-8 md:p-12 text-center mt-12 relative overflow-hidden">
+                <div className="relative z-10">
+                    <h2 className="text-3xl md:text-4xl font-black text-black mb-6 uppercase">{text.ctaTitle}</h2>
+                    <p className="text-black/80 font-bold mb-8 max-w-xl mx-auto text-lg">
+                        {text.ctaSubtitle}
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-4">
+                        <a href={`/${lang}/search`} className="bg-white border-[3px] border-black text-black font-black py-4 px-8 rounded-xl shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-all text-lg">
+                            {text.btnTry}
+                        </a>
+                        <a href={`/${lang}/topup`} className="bg-secondary border-[3px] border-black text-black font-black py-4 px-8 rounded-xl shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-all text-lg">
+                            {text.btnVip}
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

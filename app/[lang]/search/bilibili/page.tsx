@@ -75,25 +75,25 @@ export default function BilibiliSearchPage() {
     }
 
     return (
-        <div className="mx-auto max-w-5xl px-4 py-10">
+        <div className="mx-auto max-w-5xl px-4 py-10 text-black">
             {/* Header */}
             <div className="mb-8 text-center">
-                <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-sky-600 text-2xl text-white shadow-lg ring-1 ring-white/20 overflow-hidden">
+                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl border-[3px] border-black bg-[#b3e5fc] shadow-neo overflow-hidden">
                     <Image src="/logo-bilibili.webp" alt="Bilibili" width={56} height={56} className="h-full w-full object-cover" />
                 </div>
-                <h1 className="text-3xl font-black text-white">
-                    Bilibili <span className="text-white">Search</span>
-                </h1>
-                <p className="mt-2 text-sm text-neutral-500">
-                    Cari video dari Bilibili, lihat durasi & views
+                <h1 className="text-3xl font-black">Bilibili Search</h1>
+                <p className="mt-2 text-sm font-bold text-black/70">
+                    Cari video Bilibili dengan kartu neobrutalism
                 </p>
             </div>
 
-            <SearchBar
-                placeholder="Cari video atau tempel link Bilibili..."
-                onSearch={handleSearch}
-                loading={loading}
-            />
+            <div className="rounded-2xl border-[3px] border-black bg-white p-4 shadow-neo-sm">
+                <SearchBar
+                    placeholder="Cari video atau tempel link Bilibili..."
+                    onSearch={handleSearch}
+                    loading={loading}
+                />
+            </div>
 
             {/* Results */}
             <div className="mt-10">
@@ -101,7 +101,7 @@ export default function BilibiliSearchPage() {
                 {loading && (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="rounded-xl border border-white/5 bg-white/5 p-2">
+                            <div key={i} className="rounded-2xl border-[3px] border-black bg-white p-2 shadow-neo-sm">
                                 <div className="skeleton mb-2 aspect-video w-full rounded-lg" />
                                 <div className="p-2">
                                     <div className="skeleton mb-2 h-4 w-3/4" />
@@ -118,7 +118,7 @@ export default function BilibiliSearchPage() {
                         {results.map((r, idx) => (
                             <div
                                 key={idx}
-                                className="card-hover group flex flex-col overflow-hidden rounded-xl border border-white/5 bg-white/5 backdrop-blur-sm transition-all hover:border-sky-500/30"
+                                className="group flex flex-col overflow-hidden rounded-2xl border-[3px] border-black bg-white shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-sm"
                             >
                                 {/* Thumbnail */}
                                 <div className="relative aspect-video w-full overflow-hidden bg-neutral-800">
@@ -135,12 +135,12 @@ export default function BilibiliSearchPage() {
                                     <div className="absolute inset-0 z-10" onContextMenu={(e) => e.preventDefault()} />
 
                                     {r.duration && (
-                                        <span className="absolute bottom-2 right-2 z-20 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                                        <span className="absolute bottom-2 right-2 z-20 rounded border-[2px] border-black bg-[#e0f2fe] px-1.5 py-0.5 text-[10px] font-black text-black shadow-neo-sm">
                                             {r.duration}
                                         </span>
                                     )}
                                     {r.views && (
-                                        <span className="absolute bottom-2 left-2 z-20 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                                        <span className="absolute bottom-2 left-2 z-20 rounded border-[2px] border-black bg-white px-1.5 py-0.5 text-[10px] font-black text-black shadow-neo-sm">
                                             👁 {r.views.replace("· ", "")}
                                         </span>
                                     )}
@@ -148,11 +148,11 @@ export default function BilibiliSearchPage() {
 
                                 {/* Info */}
                                 <div className="flex flex-1 flex-col p-3">
-                                    <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-neutral-200 group-hover:text-white">
+                                    <h3 className="line-clamp-2 text-sm font-black leading-tight text-black group-hover:text-sky-600">
                                         {r.title}
                                     </h3>
 
-                                    <p className="mt-1.5 truncate text-xs text-neutral-500">
+                                    <p className="mt-1.5 truncate text-xs font-bold text-black/60">
                                         👤 {r.author}
                                     </p>
 
@@ -161,7 +161,7 @@ export default function BilibiliSearchPage() {
                                         {r.videoUrl && (
                                             <button
                                                 onClick={() => handleWatch(r.videoUrl)}
-                                                className="flex-1 rounded-lg bg-gradient-to-r from-sky-500 to-sky-600 px-3 py-2 text-center text-xs font-bold text-white transition hover:from-sky-600 hover:to-sky-700"
+                                                className="flex-1 rounded-xl border-[3px] border-black bg-[#b3e5fc] px-3 py-2 text-center text-xs font-black text-black shadow-neo-sm transition-all hover:-translate-y-0.5 hover:-translate-x-0.5"
                                             >
                                                 ▶ Watch
                                             </button>
@@ -172,7 +172,7 @@ export default function BilibiliSearchPage() {
                                                     const url = `/api/proxy-download?url=${encodeURIComponent(r.videoUrl)}&filename=bilibili-video.mp4&download=true`;
                                                     downloadMedia(e, url, "bilibili-video.mp4");
                                                 }}
-                                                className="flex-1 rounded-lg bg-white px-3 py-2 text-center text-xs font-bold text-black transition hover:bg-neutral-200"
+                                                className="flex-1 rounded-xl border-[3px] border-black bg-white px-3 py-2 text-center text-xs font-black text-black shadow-neo-sm transition-all hover:-translate-y-0.5 hover:-translate-x-0.5"
                                             >
                                                 ⬇ Download
                                             </button>
@@ -186,11 +186,11 @@ export default function BilibiliSearchPage() {
 
                 {/* No results */}
                 {!loading && hasSearched && results.length === 0 && (
-                    <div className="mt-20 text-center">
-                        <p className="text-lg font-bold text-neutral-500">
+                    <div className="mt-16 text-center">
+                        <p className="text-lg font-black text-black/80">
                             Tidak ada hasil ditemukan
                         </p>
-                        <p className="mt-1 text-sm text-neutral-600">
+                        <p className="mt-1 text-sm font-bold text-black/60">
                             Coba kata kunci yang berbeda
                         </p>
                     </div>

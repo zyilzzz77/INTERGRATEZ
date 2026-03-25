@@ -110,63 +110,53 @@ export default function PinterestSearchPage() {
     }
 
     return (
-        <div className="mx-auto max-w-5xl px-4 py-10">
+        <div className="mx-auto max-w-5xl px-4 py-10 text-black">
             {/* Header */}
             <div className="mb-8 text-center">
-                <div className="mb-3 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 shadow-lg shadow-pink-500/20 backdrop-blur-sm">
+                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl border-[3px] border-black bg-[#ffcdd2] shadow-neo">
                     <Image
                         src="/logo-pinterest.webp"
                         alt="Pinterest"
-                        width={64}
-                        height={64}
-                        className="h-16 w-16 object-contain rounded-2xl"
+                        width={48}
+                        height={48}
+                        className="h-12 w-12 object-contain"
                     />
                 </div>
-                <h1 className="text-3xl font-black text-white">
-                    Pinterest Search
-                </h1>
-                <p className="mt-2 text-sm text-neutral-500">
-                    Cari foto dan gambar inspirasi
+                <h1 className="text-3xl font-black">Pinterest Search</h1>
+                <p className="mt-2 text-sm font-bold text-black/70">
+                    Cari foto dan video inspirasi dengan gaya neobrutalism
                 </p>
             </div>
 
             {/* Type Toggle */}
             <div className="mb-6 flex justify-center gap-2">
-                <button
-                    onClick={() => {
-                        if (searchType === "photo") return;
-                        setSearchType("photo");
-                        setResults([]);
-                        setHasSearched(false);
-                    }}
-                    className={`rounded-full px-6 py-2 text-sm font-bold transition-all ${searchType === "photo"
-                        ? "bg-white text-black shadow-lg shadow-white/20"
-                        : "bg-white/10 text-white hover:bg-white/20"
-                        }`}
-                >
-                    Photo
-                </button>
-                <button
-                    onClick={() => {
-                        if (searchType === "video") return;
-                        setSearchType("video");
-                        setResults([]);
-                        setHasSearched(false);
-                    }}
-                    className={`rounded-full px-6 py-2 text-sm font-bold transition-all ${searchType === "video"
-                        ? "bg-white text-black shadow-lg shadow-white/20"
-                        : "bg-white/10 text-white hover:bg-white/20"
-                        }`}
-                >
-                    Video
-                </button>
+                {[{ key: "photo", label: "Photo", color: "#ffeb3b" }, { key: "video", label: "Video", color: "#b3e5fc" }].map((item) => {
+                    const active = searchType === item.key;
+                    return (
+                        <button
+                            key={item.key}
+                            onClick={() => {
+                                if (searchType === item.key) return;
+                                setSearchType(item.key as typeof searchType);
+                                setResults([]);
+                                setHasSearched(false);
+                            }}
+                            className={`rounded-xl border-[3px] border-black px-4 py-2 text-sm font-black shadow-neo-sm transition-all ${active ? "bg-white" : "hover:-translate-y-0.5 hover:-translate-x-0.5"}`}
+                            style={{ backgroundColor: active ? undefined : item.color }}
+                        >
+                            {item.label}
+                        </button>
+                    );
+                })}
             </div>
 
-            <SearchBar
-                placeholder={`Cari ${searchType === "photo" ? "gambar" : "video"} di Pinterest...`}
-                onSearch={handleSearch}
-                loading={loading}
-            />
+            <div className="rounded-2xl border-[3px] border-black bg-white p-4 shadow-neo-sm">
+                <SearchBar
+                    placeholder={`Cari ${searchType === "photo" ? "gambar" : "video"} di Pinterest...`}
+                    onSearch={handleSearch}
+                    loading={loading}
+                />
+            </div>
 
             {/* Results */}
             <div className="mt-10">
@@ -185,12 +175,12 @@ export default function PinterestSearchPage() {
 
                 {/* Coming soon */}
                 {!loading && comingSoon && (
-                    <div className="mt-20 text-center">
-                        <div className="float-anim mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-red-500 to-pink-500 text-4xl text-white shadow-xl">
+                    <div className="mt-16 text-center">
+                        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border-[3px] border-black bg-[#ffe4e1] text-3xl shadow-neo">
                             🚧
                         </div>
-                        <p className="text-xl font-black text-neutral-300">{comingSoonMsg}</p>
-                        <p className="mt-2 text-sm text-neutral-600">
+                        <p className="text-xl font-black text-black">{comingSoonMsg}</p>
+                        <p className="mt-2 text-sm font-bold text-black/70">
                             Kami sedang mengembangkan fitur ini. Stay tuned!
                         </p>
                     </div>
@@ -202,7 +192,7 @@ export default function PinterestSearchPage() {
                         {results.map((r) => (
                             <div
                                 key={r.id}
-                                className="card-hover mb-4 break-inside-avoid overflow-hidden rounded-xl border border-white/5 bg-white/5 backdrop-blur-sm"
+                                className="mb-4 break-inside-avoid overflow-hidden rounded-2xl border-[3px] border-black bg-white shadow-neo"
                             >
                                 {/* Image */}
                                 <div className="relative overflow-hidden">
@@ -222,9 +212,9 @@ export default function PinterestSearchPage() {
                                 </div>
 
                                 {/* Info section */}
-                                <div className="p-2.5">
+                                <div className="p-3">
                                     {r.title && (
-                                        <p className="line-clamp-2 text-xs font-semibold text-neutral-300">
+                                        <p className="line-clamp-2 text-sm font-black text-black">
                                             {r.title}
                                         </p>
                                     )}
@@ -235,24 +225,24 @@ export default function PinterestSearchPage() {
                                                 <img
                                                     src={r.pinner.image_small_url}
                                                     alt={r.pinner.full_name}
-                                                    className="h-4 w-4 rounded-full"
+                                                    className="h-5 w-5 rounded-full border border-black/10"
                                                     loading="lazy"
                                                     onContextMenu={(e) => e.preventDefault()}
                                                     draggable={false}
                                                 />
                                             )}
-                                            <span className="truncate text-[10px] text-neutral-500">
+                                            <span className="truncate text-[11px] font-bold text-black/70">
                                                 {r.pinner.full_name}
                                             </span>
                                             {r.pinner.follower_count > 0 && (
-                                                <span className="text-[10px] text-neutral-600">
+                                                <span className="text-[11px] font-bold text-black/50">
                                                     · {r.pinner.follower_count.toLocaleString()}
                                                 </span>
                                             )}
                                         </div>
                                     )}
 
-                                    <div className="mt-1.5 flex items-center gap-2 text-[10px] text-neutral-600">
+                                    <div className="mt-1.5 flex items-center gap-2 text-[11px] font-bold text-black/60">
                                         {getTotalReactions(r.reaction_counts) > 0 && (
                                             <span>❤️ {getTotalReactions(r.reaction_counts).toLocaleString()}</span>
                                         )}
@@ -262,19 +252,19 @@ export default function PinterestSearchPage() {
                                     </div>
 
                                     {r.board?.name && (
-                                        <div className="mt-1 text-[10px] text-neutral-600">
+                                        <div className="mt-1 text-[11px] font-bold text-black/60">
                                             📋 {r.board.name}
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Action buttons */}
-                                <div className="flex flex-col gap-1 px-2.5 pb-2.5">
-                                    <div className="flex gap-1">
-                                        {r.type === 'video' && r.video_url ? (
+                                <div className="flex flex-col gap-1 px-3 pb-3">
+                                    <div className="flex gap-2">
+                                        {r.type === "video" && r.video_url ? (
                                             <Link
                                                 href={`/pinterest/watch?v=${btoa(r.video_url)}&title=${encodeURIComponent(r.title || r.description || "-")}&pinnerName=${encodeURIComponent(r.pinner?.full_name || "-")}&pinnerAvatar=${btoa(r.pinner?.image_small_url || "")}&pinId=${r.id}`}
-                                                className="flex-1 rounded-lg bg-red-500 px-2.5 py-1.5 text-center text-[11px] font-bold text-white transition hover:bg-red-600 flex items-center justify-center gap-1"
+                                                className="flex-1 rounded-xl border-[3px] border-black bg-[#ffeb3b] px-3 py-2 text-center text-xs font-black text-black shadow-neo-sm transition-all hover:-translate-y-0.5 hover:-translate-x-0.5"
                                             >
                                                 ▶ Play Video
                                             </Link>
@@ -284,7 +274,7 @@ export default function PinterestSearchPage() {
                                                     const url = `/api/proxy-download?url=${encodeURIComponent(r.image_original)}&filename=pinterest-${r.id}.jpg&download=true`;
                                                     downloadMedia(e, url, `pinterest-${r.id}.jpg`);
                                                 }}
-                                                className="flex-1 rounded-lg bg-white px-2.5 py-1.5 text-center text-[11px] font-bold text-black transition hover:bg-neutral-200"
+                                                className="flex-1 rounded-xl border-[3px] border-black bg-white px-3 py-2 text-center text-xs font-black text-black shadow-neo-sm transition-all hover:-translate-y-0.5 hover:-translate-x-0.5"
                                             >
                                                 ⬇ Download
                                             </button>
@@ -294,13 +284,13 @@ export default function PinterestSearchPage() {
                                                 href={r.pin_url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-bold text-neutral-400 transition hover:border-pink-500/30 hover:text-pink-400 flex items-center justify-center"
+                                                className="rounded-xl border-[3px] border-black bg-[#b3e5fc] px-3 py-2 text-xs font-black text-black shadow-neo-sm transition-all hover:-translate-y-0.5 hover:-translate-x-0.5 flex items-center justify-center"
                                             >
                                                 ↗ Pin
                                             </a>
                                         )}
                                     </div>
-                                    {r.type === 'video' && r.video_url && (
+                                    {r.type === "video" && r.video_url && (
                                         <button
                                             onClick={async () => {
                                                 const { showToast } = await import("@/components/Toast");
@@ -319,8 +309,8 @@ export default function PinterestSearchPage() {
                                                     const blob = await response.blob();
                                                     const downloadUrl = window.URL.createObjectURL(blob);
 
-                                                    const a = document.createElement('a');
-                                                    a.style.display = 'none';
+                                                    const a = document.createElement("a");
+                                                    a.style.display = "none";
                                                     a.href = downloadUrl;
                                                     a.download = `pinterest-video-${r.id}.mp4`;
                                                     document.body.appendChild(a);
@@ -337,7 +327,7 @@ export default function PinterestSearchPage() {
                                                     showToast("Gagal mengunduh video.", "error");
                                                 }
                                             }}
-                                            className="w-full rounded-lg bg-white/10 px-2.5 py-1.5 text-center text-[11px] font-bold text-white transition hover:bg-white/20 mt-1"
+                                            className="w-full rounded-xl border-[3px] border-black bg-[#ffe4e1] px-3 py-2 text-center text-xs font-black text-black shadow-neo-sm transition-all hover:-translate-y-0.5 hover:-translate-x-0.5"
                                         >
                                             ⬇ Download Video (.mp4)
                                         </button>
@@ -350,11 +340,11 @@ export default function PinterestSearchPage() {
 
                 {/* No results */}
                 {!loading && hasSearched && !comingSoon && results.length === 0 && (
-                    <div className="mt-20 text-center">
-                        <p className="text-lg font-bold text-neutral-500">
+                    <div className="mt-16 text-center">
+                        <p className="text-lg font-black text-black/80">
                             Tidak ada hasil ditemukan
                         </p>
-                        <p className="mt-1 text-sm text-neutral-600">
+                        <p className="mt-1 text-sm font-bold text-black/60">
                             Coba kata kunci yang berbeda
                         </p>
                     </div>

@@ -594,48 +594,37 @@ export async function GET(req: NextRequest) {
                 break;
             }
             case "instagram": {
-                const igRes = await fetch(
-                    "https://api.nexray.web.id/downloader/v2/instagram?url=" +
-                    encodeURIComponent(url),
-                    { headers: { "User-Agent": "Mozilla/5.0" } }
-                );
+                const IG_API_KEY = process.env.NEOXR_API_KEY || "OXlJB9";
+                const igEndpoint = `https://api.neoxr.eu/api/ig?url=${encodeURIComponent(url)}&apikey=${IG_API_KEY}`;
+
+                const igRes = await fetch(igEndpoint, { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" });
                 if (!igRes.ok) throw new Error("Instagram API " + igRes.status);
                 const igData = await igRes.json();
-                const igResult = igData?.result || {};
-                const igMedia = Array.isArray(igResult.media)
-                    ? igResult.media
-                    : [];
-                const igFormats: Format[] = igMedia.map(
-                    (m: { type?: string; url?: string }, i: number) => ({
-                        quality:
-                            m.type === "mp4"
-                                ? "Video (MP4)"
-                                : m.type === "jpg"
-                                    ? "Photo (JPG)"
-                                    : "Media " + (i + 1),
-                        url: m.url || "",
-                        type: m.type || "mp4",
-                    })
-                );
-                if (igFormats.length === 0)
+
+                if (!igData.status || !Array.isArray(igData.data) || igData.data.length === 0) {
                     throw new Error("Tidak ada media ditemukan");
-                const igTitle =
-                    igResult.title ||
-                    (igResult.username
-                        ? "@" + igResult.username
-                        : "Instagram Post");
+                }
+
+                const igFormats: Format[] = igData.data.map((m: { type?: string; url?: string }, i: number) => {
+                    const ext = (m.type || "").toLowerCase();
+                    const isImage = ext === "jpg" || ext === "png" || ext === "webp";
+                    return {
+                        quality: isImage ? `Image ${i + 1}` : `Media ${i + 1}`,
+                        url: m.url || "",
+                        type: isImage ? "jpg" : ext || "mp4",
+                    };
+                }).filter((f: Format) => !!f.url);
+
+                if (igFormats.length === 0) throw new Error("Tidak ada media ditemukan");
+
+                const thumbCandidate = igFormats.find((f) => f.type === "jpg")?.url || igFormats[0].url;
+
                 result = {
-                    title:
-                        igTitle.length > 80
-                            ? igTitle.substring(0, 80) + "..."
-                            : igTitle,
-                    thumbnail: igResult.thumbnail || "",
+                    title: "Instagram Media",
+                    thumbnail: proxyThumb(thumbCandidate),
                     duration: "-",
                     platform: "instagram",
                     formats: dedup(igFormats),
-                    artist: igResult.username
-                        ? "@" + igResult.username
-                        : undefined,
                 };
                 break;
             }

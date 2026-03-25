@@ -43,6 +43,24 @@ export async function POST(req: NextRequest) {
             });
         }
 
+        // Expire after 15 minutes
+        const createdAtMs = new Date(transaction.createdAt).getTime();
+        const expireMs = createdAtMs + 15 * 60 * 1000;
+        const nowMs = Date.now();
+
+        if (nowMs > expireMs && transaction.status !== "failed") {
+            await prisma.transaction.update({
+                where: { paymentId },
+                data: { status: "failed" },
+            });
+
+            return NextResponse.json({
+                success: true,
+                status: "failed",
+                message: "Waktu pembayaran habis, silakan buat transaksi baru",
+            });
+        }
+
         // Check payment status via Saweria API
         const url = `${SAWERIA_CHECK_URL}?userid=${SAWERIA_USER_ID}&id=${encodeURIComponent(paymentId)}&apikey=${SAWERIA_API_KEY}`;
         const response = await fetch(url);

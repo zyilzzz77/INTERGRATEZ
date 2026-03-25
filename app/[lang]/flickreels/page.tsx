@@ -7,27 +7,14 @@ import { LazyMotion, domAnimation, m } from "framer-motion";
 import { Search, Play } from "lucide-react";
 import { showToast } from "@/components/Toast";
 
-interface DramaBoxItem {
+interface FlickReelsItem {
     id: string;
-    cover: string;
     title: string;
-    uri?: string;
-    chapterCount?: number;
-    introduction?: string;
-    tags?: string[];
-    playCount?: string;
-    corner?: { cornerType: number; name: string; color: string };
-    rankVo?: { rankType: number; hotCode: string; recCopy: string; sort: number };
-    statistics?: { views: number; chapters: number };
-    labels?: string[];
-    synopsis?: string;
-    protagonist?: string;
-}
-
-interface DramaBoxResponse {
-    status: boolean;
-    title?: string;
-    data: DramaBoxItem[];
+    cover: string;
+    abstract: string;
+    episodeCount: number;
+    tags: string[];
+    category: string;
 }
 
 /* ═══════ LOADING STATE ═══════ */
@@ -35,9 +22,9 @@ function LoadingState() {
     return (
         <div className="flex min-h-[40vh] flex-col items-center justify-center">
             <div className="relative mb-8 flex items-center justify-center">
-                <div className="absolute h-28 w-28 rounded-full bg-[#a0d1d6]/60 animate-ping" />
+                <div className="absolute h-28 w-28 rounded-full bg-[#fce043]/60 animate-ping" />
                 <div className="relative z-10 h-20 w-20 overflow-hidden rounded-2xl border-[3px] border-black bg-white shadow-neo-sm">
-                    <Image src="/logo-dramabox.png" alt="DramaBox" width={80} height={80} className="h-full w-full object-cover" />
+                    <Image src="/logo-flickreels.png" alt="FlickReels" width={80} height={80} className="h-full w-full object-cover" />
                 </div>
             </div>
             <div className="h-1 w-48 overflow-hidden rounded-full bg-black/10">
@@ -87,9 +74,9 @@ function DramaImage({ src, alt, priority }: { src: string; alt: string; priority
 }
 
 /* ═══════ PREMIUM CARD ═══════ */
-function DramaBoxCard({ item, index }: { item: DramaBoxItem; index: number }) {
+function FlickReelsCard({ item, index }: { item: FlickReelsItem; index: number }) {
     return (
-        <Link href={`/dramabox/detail?id=${item.id}`}
+        <Link href={`/flickreels/detail?id=${item.id}`}
             className="group relative flex flex-col overflow-hidden border-[3px] border-black rounded-2xl bg-white shadow-neo-sm transition-transform duration-200 hover:-translate-y-1">
 
             <div className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 shadow-[0_0_0_6px_rgba(0,0,0,0.05)]" />
@@ -105,99 +92,47 @@ function DramaBoxCard({ item, index }: { item: DramaBoxItem; index: number }) {
                     </div>
                 </div>
 
-                {/* Corner Badge */}
-                {item.corner && (
-                    <div className="absolute top-2.5 left-2.5 z-20 rounded-lg px-2.5 py-1 text-[10px] font-bold text-white shadow-neo-sm backdrop-blur-sm bg-black/70">
-                        {item.corner.name}
-                    </div>
-                )}
-                {!item.corner && item.labels && item.labels[0] && (
-                    <div className="absolute top-2.5 left-2.5 z-20 rounded-lg px-2.5 py-1 text-[10px] font-bold text-white shadow-neo-sm backdrop-blur-sm bg-black/70">
-                        {item.labels[0]}
-                    </div>
-                )}
-
-                {/* Rank Badge */}
-                {item.rankVo && (
-                    <div className="absolute top-2.5 right-2.5 z-20 rounded-lg px-2.5 py-1 text-[10px] font-bold text-yellow-400 shadow-neo-sm backdrop-blur-sm bg-black/70">
-                        🏆 {item.rankVo.recCopy}
-                    </div>
-                )}
-
                 {/* Stats */}
                 <div className="absolute bottom-0 left-0 right-0 p-3 z-20 flex flex-wrap gap-1.5">
-                    {item.playCount && <span className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md bg-black/60">🔥 {item.playCount}</span>}
-                    {item.chapterCount && item.chapterCount > 0 && <span className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md bg-black/60">📑 {item.chapterCount} Eps</span>}
-                    {!item.playCount && item.statistics && (
-                        <>
-                            <span className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md bg-black/60">👁️ {item.statistics.views.toLocaleString()}</span>
-                            <span className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md bg-black/60">📑 {item.statistics.chapters}</span>
-                        </>
-                    )}
+                    {item.episodeCount > 0 && <span className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md bg-black/60">📑 {item.episodeCount} Eps</span>}
                 </div>
             </div>
 
             <div className="flex flex-1 flex-col p-3.5">
                 <h3 className="line-clamp-2 text-[13px] font-bold leading-tight text-black">{item.title}</h3>
                 <div className="mt-2 flex flex-wrap gap-1">
-                    {item.tags && item.tags.length > 0 ? (
-                        item.tags.slice(0, 2).map((tag, idx) => (
-                            <span key={idx} className="text-[10px] rounded-full px-2 py-0.5 bg-white border border-black/30 text-black/70">{tag}</span>
-                        ))
-                    ) : item.protagonist ? (
-                        <span className="text-[10px] line-clamp-1 text-black/70">{item.protagonist}</span>
-                    ) : null}
+                    {item.tags?.slice(0, 2).map((tag, idx) => (
+                        <span key={idx} className="text-[10px] rounded-full px-2 py-0.5 border border-black/30 bg-white text-black/70">{tag}</span>
+                    ))}
                 </div>
             </div>
         </Link>
     );
 }
 
-/* ═══════ FEATURE BUTTONS ═══════ */
-const featureButtons = [
-    { href: "/dramabox/foryou", icon: "✨", title: "Untukmu", desc: "Pilihan spesial", gradient: "from-purple-600 to-pink-600" },
-    { href: "/dramabox/trending", icon: "📈", title: "Trending", desc: "Paling populer", gradient: "from-yellow-500 to-orange-600" },
-    { href: "/dramabox/dubbed", icon: "🎙️", title: "Sulih Suara", desc: "Drama dubbing Indo", gradient: "from-indigo-600 to-purple-600" },
-    { href: "/dramabox/vip", icon: "💎", title: "VIP", desc: "Premium dramas", gradient: "from-pink-600 to-purple-600" },
-];
-
 /* ═══════ MAIN PAGE ═══════ */
-export default function DramaBoxPage() {
-    const [data, setData] = useState<DramaBoxItem[]>([]);
-    const [sectionTitle, setSectionTitle] = useState("Rekomendasi Populer");
-    const [searchResults, setSearchResults] = useState<DramaBoxItem[]>([]);
+export default function FlickReelsPage() {
+    const [data, setData] = useState<FlickReelsItem[]>([]);
+    const [searchResults, setSearchResults] = useState<FlickReelsItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
     const [isSearching, setIsSearching] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const INITIAL_PAGES = 3;
+    const [nextPage, setNextPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         async function fetchInitialData() {
             showToast("Memuat drama...", "info");
             try {
-                const pagePromises = Array.from({ length: INITIAL_PAGES }, (_, i) =>
-                    fetch(`/api/dramabox/home?page=${i + 1}`).then(r => r.json())
-                );
-                const results = await Promise.all(pagePromises);
-                let allItems: DramaBoxItem[] = [];
-                for (const json of results) {
-                    if (json.status && Array.isArray(json.data)) {
-                        allItems = [...allItems, ...json.data];
-                        if (json.title && !sectionTitle) setSectionTitle(json.title);
-                    }
+                const res = await fetch(`/api/flickreels/home?page=1`);
+                const json = await res.json();
+                if (json.status && Array.isArray(json.data)) {
+                    setData(json.data); setHasMore(json.hasMore ?? false); setNextPage(json.nextPage ?? 2);
                 }
-                const seen = new Set<string>();
-                allItems = allItems.filter(item => { if (seen.has(item.id)) return false; seen.add(item.id); return true; });
-                setData(allItems);
-                setCurrentPage(INITIAL_PAGES);
-                const lastResult = results[results.length - 1];
-                if (!lastResult?.status || !lastResult?.data?.length || lastResult.data.length < 5) setHasMore(false);
                 showToast("Drama berhasil dimuat", "success");
-            } catch (error) {
-                console.error("Failed to fetch DramaBox:", error);
+            } catch (err) {
+                console.error("Failed to fetch FlickReels:", err);
                 showToast("Gagal memuat drama", "error");
             }
             finally { setLoading(false); }
@@ -210,15 +145,13 @@ export default function DramaBoxPage() {
         setLoadingMore(true);
         showToast("Memuat drama lainnya...", "info");
         try {
-            const nextPage = currentPage + 1;
-            const res = await fetch(`/api/dramabox/home?page=${nextPage}`);
+            const res = await fetch(`/api/flickreels/home?page=${nextPage}`);
             const json = await res.json();
             if (json.status && Array.isArray(json.data) && json.data.length > 0) {
                 const ids = new Set(data.map(d => d.id));
-                const newItems = json.data.filter((i: DramaBoxItem) => !ids.has(i.id));
+                const newItems = json.data.filter((i: FlickReelsItem) => !ids.has(i.id));
                 if (newItems.length > 0) setData(prev => [...prev, ...newItems]);
-                setCurrentPage(nextPage);
-                if (json.data.length < 5) setHasMore(false);
+                setHasMore(json.hasMore ?? false); setNextPage(json.nextPage ?? nextPage + 1);
                 showToast(`Memuat ${newItems.length} drama tambahan`, "success");
             } else { setHasMore(false); }
         } catch (err) {
@@ -234,8 +167,8 @@ export default function DramaBoxPage() {
         setIsSearching(true);
         showToast(`Mencari: ${searchQuery}...`, "info");
         try {
-            const res = await fetch(`/api/dramabox/search?query=${encodeURIComponent(searchQuery)}`);
-            const json: DramaBoxResponse = await res.json();
+            const res = await fetch(`/api/flickreels/search?q=${encodeURIComponent(searchQuery)}`);
+            const json = await res.json();
             const results = json.status && Array.isArray(json.data) ? json.data : [];
             setSearchResults(results);
             showToast(`Ditemukan ${results.length} hasil untuk "${searchQuery}"`, "success");
@@ -255,19 +188,16 @@ export default function DramaBoxPage() {
             <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
 
                 {/* ═══════ HERO ═══════ */}
-                <div className="relative mb-12 overflow-hidden rounded-3xl border-[3px] border-black bg-[#a0d1d6] px-6 py-10 text-center shadow-neo sm:px-10 sm:py-14">
+                <div className="relative mb-12 overflow-hidden rounded-3xl border-[3px] border-black bg-[#fce043] px-6 py-10 text-center shadow-neo sm:px-10 sm:py-14">
                     <m.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-4 inline-flex items-center gap-2 rounded-full border-[3px] border-black bg-white px-4 py-2 text-[11px] font-black uppercase tracking-widest">
-                        <span className="h-2 w-2 rounded-full bg-rose-500" />
-                        DramaBox
+                        <span className="h-2 w-2 rounded-full bg-black" />
+                        FlickReels
                     </m.div>
-                    <m.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="flex items-center justify-center gap-3 text-4xl font-black tracking-tight sm:text-5xl">
-                        <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl border-[3px] border-black bg-white shadow-neo-sm sm:h-16 sm:w-16">
-                            <Image src="/logo-dramabox.png" alt="DramaBox" fill sizes="64px" className="object-cover" />
-                        </span>
-                        DramaBox
+                    <m.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="text-4xl font-black tracking-tight sm:text-5xl">
+                        Nonton Drama FlickReels Gratis
                     </m.h1>
                     <m.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="mx-auto mt-3 max-w-2xl text-base font-semibold text-black/70">
-                        Koleksi drama populer dengan tampilan ringan yang konsisten dengan beranda.
+                        Kumpulan drama pendek terbaik dengan kualitas HD dan sub Indo.
                     </m.p>
 
                     {/* Search */}
@@ -275,61 +205,31 @@ export default function DramaBoxPage() {
                         <form onSubmit={handleSearch} className="flex flex-col gap-3 sm:flex-row">
                             <div className="relative flex-1">
                                 <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center"><Search className="h-5 w-5 text-black/60" /></div>
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => { setSearchQuery(e.target.value); if (!e.target.value) setSearchResults([]); }}
-                                    className="w-full rounded-2xl border-[3px] border-black bg-white px-12 py-4 text-[15px] font-semibold text-black shadow-neo-sm outline-none"
+                                <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); if (!e.target.value) setSearchResults([]); }}
+                                    className="w-full rounded-2xl border-[3px] border-black bg-white px-12 py-4 text-[15px] font-semibold text-black shadow-neo-sm outline-none placeholder:text-black/50"
                                     placeholder="Cari drama..."
                                 />
                             </div>
-                            <button
-                                type="submit"
-                                className="rounded-2xl border-[3px] border-black bg-white px-6 py-4 text-sm font-black text-black shadow-neo-sm transition-transform duration-200 hover:-translate-y-1"
-                            >
-                                Cari
+                            <button type="submit" disabled={isSearching} className="disabled:opacity-50 rounded-2xl border-[3px] border-black bg-white px-6 py-4 text-sm font-black text-black shadow-neo-sm transition-transform duration-200">
+                                {isSearching ? "Mencari..." : "Cari"}
                             </button>
                         </form>
                     </m.div>
                 </div>
 
-                {/* ═══════ FEATURE BUTTONS ═══════ */}
-                {!isShowingSearch && !isLoading && (
-                    <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        {featureButtons.map((btn) => (
-                            <Link
-                                key={btn.href}
-                                href={btn.href}
-                                className="group flex items-center gap-3 rounded-2xl border-[3px] border-black bg-white px-4 py-3 shadow-neo-sm transition-transform duration-200 hover:-translate-y-1"
-                            >
-                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-[3px] border-black bg-black text-white shadow-neo-sm">
-                                    {btn.icon}
-                                </div>
-                                <div className="min-w-0">
-                                    <h3 className="truncate text-sm font-black text-black">{btn.title}</h3>
-                                    <p className="truncate text-[11px] font-semibold text-black/60">{btn.desc}</p>
-                                </div>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-auto h-4 w-4 text-black">
-                                    <path d="m9 18 6-6-6-6" />
-                                </svg>
-                            </Link>
-                        ))}
-                    </m.div>
-                )}
-
                 {/* ═══════ CONTENT ═══════ */}
                 {isLoading ? <LoadingState /> : (
                     <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="flex flex-col gap-16">
                         {displayData.length > 0 && (
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 mb--10">
                                 <div className="h-8 w-1 rounded-full bg-black" />
                                 <h2 className="text-xl font-black sm:text-2xl text-black">
-                                    {isShowingSearch ? <>Hasil: <span className="text-black/60">"{searchQuery}"</span></> : `🔥 ${sectionTitle}`}
+                                    {isShowingSearch ? <>Hasil: <span className="text-black/60">"{searchQuery}"</span></> : '🔥 Update Terbaru'}
                                 </h2>
                             </div>
                         )}
 
-                        {displayData.length === 0 && isShowingSearch && (
+                        {displayData.length === 0 && isShowingSearch && !isSearching && (
                             <div className="rounded-2xl border-[3px] border-black bg-white p-12 text-center shadow-neo-sm">
                                 <Search className="mx-auto mb-4 h-12 w-12 text-black/50" />
                                 <h3 className="mb-1 text-lg font-black text-black">Tidak ditemukan</h3>
@@ -338,7 +238,7 @@ export default function DramaBoxPage() {
                         )}
 
                         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                            {displayData.map((item, i) => <DramaBoxCard key={`${item.id}-${i}`} item={item} index={i} />)}
+                            {displayData.map((item, i) => <FlickReelsCard key={`${item.id}-${i}`} item={item} index={i} />)}
                         </div>
 
                         {!isShowingSearch && hasMore && (

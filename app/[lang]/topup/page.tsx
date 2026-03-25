@@ -251,70 +251,79 @@ export default function TopUpPage() {
             {/* Page Header */}
             <div className="mb-6 flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-foreground tracking-tight sm:text-4xl">Top Up Kredit</h1>
-                    <p className="mt-2 text-muted-foreground">Pilih paket yang sesuai dengan kebutuhan download-mu.</p>
-                    <p className="mt-1.5 text-xs text-muted-foreground/70 italic">* Harga yang tertera belum termasuk biaya admin payment gateway.</p>
+                    <h1 className="text-4xl md:text-5xl font-black text-black tracking-tight uppercase">
+                        Top Up <span className="text-black inline-block -rotate-2 bg-primary px-2 border-[3px] border-black rounded-lg shadow-neo-sm">Kredit</span>
+                    </h1>
+                    <p className="mt-4 text-black/80 font-bold text-lg">Pilih paket yang sesuai dengan kebutuhan download-mu.</p>
+                    <p className="mt-1.5 text-sm text-black/60 font-semibold italic">* Harga yang tertera belum termasuk biaya admin payment gateway.</p>
                 </div>
                 <Link href="/topup/history">
                     <Button
                         variant="outline"
-                        className="rounded-xl border-border hover:bg-secondary font-bold gap-2 shrink-0"
+                        className="rounded-xl border-[3px] border-black hover:bg-secondary hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo font-black gap-2 shrink-0 transition-all text-base"
                     >
-                        <History className="w-4 h-4" />
+                        <History className="w-5 h-5" strokeWidth={3} />
                         <span className="hidden sm:inline">Riwayat</span>
                     </Button>
                 </Link>
             </div>
 
             {/* 1. Credit Balance Banner */}
-            <div className="mb-8 p-5 md:p-6 bg-secondary/50 border border-border rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+            <div className="mb-12 p-6 md:p-8 bg-[#ffb3c6] border-[3px] border-black shadow-neo rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8 relative z-10">
                     <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wider">Kredit kamu saat ini</p>
-                        <div className="flex items-center gap-2">
-                            <Zap className="w-6 h-6 text-foreground fill-foreground" />
-                            <span className="text-4xl font-black tracking-tighter text-foreground">
+                        <p className="text-sm font-black text-black mb-2 uppercase tracking-wider bg-white px-3 py-1 rounded-lg border-2 border-black inline-block">Kredit Reguler</p>
+                        <div className="flex items-center gap-3 mt-2">
+                            <div className="w-12 h-12 bg-white rounded-xl border-2 border-black flex items-center justify-center -rotate-6">
+                                <Zap className="w-7 h-7 text-black" strokeWidth={3} fill="currentColor" />
+                            </div>
+                            <span className="text-5xl font-black tracking-tighter text-black">
                                 <RealtimeCredits initialCredits={creditInfo.credits} />
                             </span>
                         </div>
                     </div>
 
-                    <div className="hidden sm:block h-12 w-px bg-border"></div>
+                    <div className="hidden sm:block h-16 w-[3px] bg-black rounded-full"></div>
 
                     <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wider">Bonus Kredit</p>
-                        <div className="flex items-center gap-2">
-                            <Gem className="w-5 h-5 text-purple-500" />
-                            <span className="text-2xl sm:text-3xl font-black tracking-tighter text-purple-500">
+                        <p className="text-sm font-black text-black mb-2 uppercase tracking-wider bg-white px-3 py-1 rounded-lg border-2 border-black inline-block">Bonus Kredit</p>
+                        <div className="flex items-center gap-3 mt-2">
+                            <div className="w-10 h-10 bg-white rounded-xl border-2 border-black flex items-center justify-center rotate-6">
+                                <Gem className="w-5 h-5 text-black" strokeWidth={3} />
+                            </div>
+                            <span className="text-3xl sm:text-4xl font-black tracking-tighter text-black">
                                 <RealtimeBonus initialBonus={creditInfo.bonusCredits || 0} />
                             </span>
                         </div>
                     </div>
 
-                    <div className="hidden sm:block h-12 w-px bg-border"></div>
+                    <div className="hidden sm:block h-16 w-[3px] bg-black rounded-full"></div>
 
                     <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wider">Streaming</p>
-                        <div className="flex items-center mt-1">
+                        <p className="text-sm font-black text-black mb-2 uppercase tracking-wider bg-white px-3 py-1 rounded-lg border-2 border-black inline-block">Streaming</p>
+                        <div className="flex items-center mt-2">
                             {(creditInfo.role === "vip" || creditInfo.role === "vip-max") ? (
                                 <UnlimitedBadge />
                             ) : (
-                                <Badge variant="outline" className="text-muted-foreground bg-secondary/50 font-bold">Reguler</Badge>
+                                <Badge variant="outline" className="text-black bg-white border-[3px] border-black font-black text-xs px-3 py-1 rounded-xl">Reguler</Badge>
                             )}
                         </div>
                     </div>
                 </div>
-                <div className="hidden sm:block">
-                    <div className="bg-secondary rounded-full px-4 py-2 text-sm text-muted-foreground font-medium whitespace-nowrap">
-                        Status: <span className="text-foreground font-bold capitalize">{creditInfo.role === "premium" ? "Premium" : "Free"}</span>
+                <div className="hidden sm:block relative z-10">
+                    <div className="bg-white border-[3px] border-black rounded-xl px-4 py-2 text-sm text-black font-bold whitespace-nowrap shadow-neo-sm">
+                        Status: <span className="text-primary font-black uppercase">{creditInfo.role === "premium" ? "Premium" : "Free"}</span>
                     </div>
                 </div>
             </div>
 
             <div className="mb-8">
                 {/* 2. Pricing Cards Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-12">
-                    {packages.map((pkg) => (
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+                    {packages.map((pkg, index) => {
+                        const bgColors = ["bg-[#a0d1d6]", "bg-[#ffb3c6]", "bg-[#c4b5fd]", "bg-[#ffeb3b]"];
+                        const bgColor = bgColors[index % bgColors.length];
+                        return (
                         <motion.div
                             key={pkg.id}
                             whileHover={{ scale: 1.03 }}
@@ -322,41 +331,41 @@ export default function TopUpPage() {
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         >
                             <Card
-                                className={`relative h-full cursor-pointer transition-all duration-300 rounded-2xl ${selectedPackage === pkg.id
-                                    ? "border-primary border-2 shadow-lg shadow-primary/10 bg-secondary/50"
-                                    : "border-border hover:border-muted-foreground/30 hover:shadow-md bg-card"
+                                className={`relative h-full cursor-pointer transition-all duration-300 rounded-3xl border-[3px] border-black p-5 sm:p-6 ${selectedPackage === pkg.id
+                                    ? `shadow-neo -translate-y-1 -translate-x-1 ${bgColor}`
+                                    : "bg-white hover:shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1"
                                     }`}
                                 onClick={() => setSelectedPackage(pkg.id)}
                             >
                                 {pkg.popular && (
-                                    <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-3 py-0.5 font-bold text-[10px] shadow-sm whitespace-nowrap">
+                                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-white hover:bg-black rounded-xl px-4 py-1 font-black text-xs shadow-none border-[3px] border-black whitespace-nowrap">
                                         POPULAR
                                     </Badge>
                                 )}
-                                <div className="p-4 sm:p-5 space-y-3">
+                                <div className="space-y-4">
                                     {/* Period Badge */}
-                                    <Badge variant="outline" className="bg-secondary/50 border-border text-muted-foreground text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                                    <Badge variant="outline" className="bg-white border-2 border-black text-black text-xs font-black uppercase tracking-wider px-3 py-1 rounded-xl">
                                         {pkg.period}
                                     </Badge>
 
                                     {/* Package Name */}
-                                    <h3 className="font-extrabold text-foreground text-lg tracking-tight">{pkg.name}</h3>
+                                    <h3 className="font-black text-black text-2xl tracking-tight">{pkg.name}</h3>
 
                                     {/* Credits & Period */}
-                                    <div className="space-y-1.5">
-                                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                                            <Coins className="w-3.5 h-3.5 shrink-0" />
-                                            <span className="text-xs font-medium">{pkg.credits.toLocaleString("id-ID")} Kredit</span>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2 text-black/80 font-bold">
+                                            <Coins className="w-4 h-4 shrink-0 text-black hidden" />
+                                            <span>{pkg.credits.toLocaleString("id-ID")} Kredit</span>
                                         </div>
-                                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                                            <Clock className="w-3.5 h-3.5 shrink-0" />
-                                            <span className="text-xs font-medium">{pkg.period}</span>
+                                        <div className="flex items-center gap-2 text-black/80 font-bold">
+                                            <Clock className="w-4 h-4 shrink-0 text-black hidden" />
+                                            <span>{pkg.period}</span>
                                         </div>
                                     </div>
 
                                     {/* Price */}
-                                    <div className="pt-1">
-                                        <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{formatIDR(pkg.price)}</p>
+                                    <div className="pt-2 pb-4">
+                                        <p className="text-2xl sm:text-3xl font-black text-black tracking-tight">{formatIDR(pkg.price)}</p>
                                     </div>
 
                                     {/* Button */}
@@ -367,13 +376,13 @@ export default function TopUpPage() {
                                             e.stopPropagation();
                                             handlePackagePayment(pkg.id);
                                         }}
-                                        className={`w-full h-9 text-sm font-bold rounded-xl transition-all duration-300 ${selectedPackage === pkg.id
-                                            ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
-                                            : "border border-border text-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                                        className={`w-full h-12 text-base font-black rounded-xl transition-all duration-300 border-[3px] border-black ${selectedPackage === pkg.id
+                                            ? "bg-white text-black hover:bg-black hover:text-white"
+                                            : "bg-primary text-black hover:bg-primary/90 shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo"
                                             }`}
                                     >
                                         {isLoading && selectedPackage === pkg.id ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                                         ) : (
                                             "Pilih Paket"
                                         )}
@@ -381,20 +390,27 @@ export default function TopUpPage() {
                                 </div>
                             </Card>
                         </motion.div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 {/* VIP Packages Grid */}
-                <div className="mb-6 flex items-center gap-3">
-                    <div className="h-px bg-border flex-1"></div>
-                    <div className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 shadow-sm">
-                        <span className="text-sm font-black bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent uppercase tracking-widest shrink-0">VIP Packages</span>
+                <div className="mb-8 flex items-center gap-4">
+                    <div className="h-[3px] bg-black flex-1 rounded-full"></div>
+                    <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-white border-[3px] border-black shadow-neo-sm">
+                        <span className="text-base font-black text-black uppercase tracking-widest shrink-0 flex items-center gap-2">
+                            <Gem className="w-5 h-5 text-black" strokeWidth={3} />
+                            VIP Packages
+                        </span>
                     </div>
-                    <div className="h-px bg-border flex-1"></div>
+                    <div className="h-[3px] bg-black flex-1 rounded-full"></div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-                    {vipPackages.map((pkg) => (
+                    {vipPackages.map((pkg, index) => {
+                        const bgColors = ["bg-[#ffeb3b]", "bg-[#ffb3c6]", "bg-[#a0d1d6]"];
+                        const bgColor = bgColors[index % bgColors.length];
+                        return (
                         <motion.div
                             key={pkg.id}
                             whileHover={{ scale: 1.02, y: -5 }}
@@ -402,19 +418,15 @@ export default function TopUpPage() {
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         >
                             <Card
-                                className={`relative h-full cursor-pointer transition-all duration-300 rounded-3xl overflow-hidden border ${selectedPackage === pkg.id
-                                    ? `border-amber-500 shadow-2xl ${pkg.shadow}`
-                                    : "border-border hover:border-amber-500/50 hover:shadow-xl bg-card"
+                                className={`relative h-full cursor-pointer transition-all duration-300 rounded-3xl overflow-hidden border-[3px] border-black ${selectedPackage === pkg.id
+                                    ? `shadow-neo -translate-y-1 -translate-x-1 ${bgColor}`
+                                    : "bg-white hover:shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:bg-gray-50"
                                     }`}
                                 onClick={() => setSelectedPackage(pkg.id)}
                             >
-                                {/* Decorative background gradient */}
-                                <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-[0.03] pointer-events-none`}></div>
-
                                 {pkg.popular && (
-                                    <div className="absolute top-0 inset-x-0 z-10">
-                                        <div className={`h-1 w-full bg-gradient-to-r ${pkg.gradient}`}></div>
-                                        <div className="absolute top-0 right-6 bg-gradient-to-b from-amber-500 to-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-b-lg shadow-md uppercase tracking-wider">
+                                    <div className="absolute top-0 inset-x-0 z-10 hidden">
+                                        <div className="absolute top-0 right-6 bg-black text-white text-[10px] font-black px-3 py-1 rounded-b-lg shadow-none border-x-[3px] border-b-[3px] border-black uppercase tracking-wider">
                                             BEST VALUE
                                         </div>
                                     </div>
@@ -423,10 +435,10 @@ export default function TopUpPage() {
                                 <div className="p-6 md:p-8 flex flex-col h-full relative z-20">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <Badge variant="outline" className={`mb-3 bg-secondary/80 border-border text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-md text-amber-500`}>
+                                            <Badge variant="outline" className={`mb-3 bg-white border-2 border-black text-xs font-black uppercase tracking-widest px-3 py-1 rounded-xl text-black`}>
                                                 {pkg.period}
                                             </Badge>
-                                            <h3 className={`font-black text-2xl tracking-tight bg-gradient-to-br ${pkg.gradient} bg-clip-text text-transparent`}>
+                                            <h3 className={`font-black text-3xl tracking-tight text-black`}>
                                                 {pkg.name}
                                             </h3>
                                         </div>
@@ -434,14 +446,14 @@ export default function TopUpPage() {
 
                                     <div className="mb-6">
                                         <div className="flex items-baseline gap-1">
-                                            <span className="text-3xl font-black text-foreground tracking-tight">{formatIDR(pkg.price)}</span>
+                                            <span className="text-4xl font-black text-black tracking-tight">{formatIDR(pkg.price)}</span>
                                         </div>
                                     </div>
 
                                     {/* Benefits List */}
-                                    <div className="space-y-3.5 mb-8 flex-1">
-                                        <div className="flex items-start gap-3">
-                                            <div className="mt-0.5 w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
+                                    <div className="space-y-4 mb-8 flex-1">
+                                        <div className="flex items-start gap-4">
+                                            <div className="mt-0.5 w-6 h-6 rounded-lg bg-white border-2 border-black flex items-center justify-center shrink-0">
                                                 <Coins className="w-3 h-3 text-amber-500" />
                                             </div>
                                             <span className="text-sm font-medium text-foreground leading-snug">{pkg.creditsDesc}</span>
@@ -463,13 +475,13 @@ export default function TopUpPage() {
                                             e.stopPropagation();
                                             handlePackagePayment(pkg.id);
                                         }}
-                                        className={`w-full h-12 text-sm font-black rounded-xl transition-all duration-300 ${selectedPackage === pkg.id
-                                            ? `bg-gradient-to-r ${pkg.gradient} text-white shadow-lg ${pkg.shadow} border-0`
-                                            : "border-2 border-border text-foreground hover:border-amber-500/30 hover:bg-amber-500/5 hover:text-amber-500"
+                                        className={`w-full h-12 text-sm font-black rounded-xl transition-all duration-300 border-[3px] border-black ${selectedPackage === pkg.id
+                                            ? `bg-black text-white`
+                                            : "bg-white text-black hover:bg-black hover:text-white"
                                             }`}
                                     >
                                         {isLoading && selectedPackage === pkg.id ? (
-                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                                         ) : (
                                             "Pilih VIP"
                                         )}
@@ -477,23 +489,22 @@ export default function TopUpPage() {
                                 </div>
                             </Card>
                         </motion.div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 {/* 3. Custom Nominal Section */}
-                <div className="bg-secondary rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group border border-border">
-                    <div className="absolute top-0 right-0 w-80 h-80 bg-muted rounded-full blur-3xl opacity-40 -mr-40 -mt-40 pointer-events-none transition-opacity duration-700 group-hover:opacity-60"></div>
-
+                <div className="bg-[#a0d1d6] border-[3px] border-black rounded-3xl p-6 md:p-10 shadow-neo relative overflow-hidden group">
                     <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                         <div>
-                            <div className="inline-block bg-muted text-muted-foreground text-xs font-bold uppercase tracking-wider py-1 px-3 rounded-md mb-4">Alternatif</div>
-                            <h3 className="text-3xl font-black mb-3 tracking-tight text-foreground">Beli Nominal Custom</h3>
-                            <p className="text-muted-foreground text-base mb-8 leading-relaxed">Masukkan nominal sesuai keinginanmu. Minimal Rp 1.000, kelipatan bebas.</p>
+                            <div className="inline-block bg-white text-black text-xs font-black uppercase tracking-wider py-1 px-3 rounded-lg border-2 border-black mb-4">Alternatif</div>
+                            <h3 className="text-3xl lg:text-4xl font-black mb-4 tracking-tight text-black uppercase">Beli Nominal <span className="bg-white px-2 border-2 border-black rounded-lg inline-block -rotate-2">Custom</span></h3>
+                            <p className="text-black/80 font-bold text-lg mb-8 leading-relaxed">Masukkan nominal sesuai keinginanmu. Minimal Rp 1.000, kelipatan bebas.</p>
 
                             <div className="space-y-3">
-                                <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Masukkan Nominal (Rp)</label>
+                                <label className="text-sm font-black text-black uppercase tracking-wide">Masukkan Nominal (Rp)</label>
                                 <div className="relative group/input">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold group-focus-within/input:text-foreground transition-colors">Rp</span>
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-black font-black transition-colors">Rp</span>
                                     <Input
                                         type="text"
                                         inputMode="numeric"
@@ -501,19 +512,19 @@ export default function TopUpPage() {
                                         onChange={handleCustomNominalChange}
                                         onBlur={handleNominalBlur}
                                         placeholder="1.000"
-                                        className="pl-14 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-ring h-14 text-xl font-bold rounded-xl transition-all"
+                                        className="pl-14 bg-white border-[3px] border-black text-black placeholder:text-black/40 focus-visible:ring-0 focus-visible:border-black h-14 text-xl font-bold rounded-xl transition-all shadow-neo-sm"
                                     />
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 text-xs font-medium uppercase tracking-widest pointer-events-none">IDR</div>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-black/60 font-black uppercase tracking-widest pointer-events-none">IDR</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-muted/50 rounded-2xl p-6 md:p-8 border border-border backdrop-blur-md shadow-inner h-full flex flex-col justify-between">
+                        <div className="bg-white rounded-2xl p-6 md:p-8 border-[3px] border-black shadow-neo-sm h-full flex flex-col justify-between">
                             <div className="grid grid-cols-2 gap-4 mb-8 h-full">
-                                <div className="bg-background/50 rounded-xl p-4 border border-border flex flex-col justify-center">
-                                    <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Total Kredit</p>
+                                <div className="bg-[#ffeb3b] rounded-xl p-4 border-[3px] border-black flex flex-col justify-center">
+                                    <p className="text-xs font-black text-black mb-2 uppercase tracking-wide">Total Kredit</p>
                                     <div className="flex items-center gap-2">
-                                        <Zap className="w-5 h-5 text-foreground fill-foreground" />
+                                        <Zap className="w-5 h-5 text-black" strokeWidth={3} />
                                         <AnimatePresence mode="popLayout">
                                             <motion.span
                                                 key={customCredits}
@@ -521,35 +532,35 @@ export default function TopUpPage() {
                                                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                                                 exit={{ opacity: 0, y: 10, filter: "blur(4px)" }}
                                                 transition={{ duration: 0.2 }}
-                                                className="text-3xl font-black text-foreground tracking-tighter"
+                                                className="text-3xl font-black text-black tracking-tighter"
                                             >
                                                 {customCredits > 0 ? customCredits.toLocaleString('id-ID') : "0"}
                                             </motion.span>
                                         </AnimatePresence>
                                     </div>
                                 </div>
-                                <div className="bg-background/50 rounded-xl p-4 border border-border flex flex-col justify-center">
-                                    <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Masa Aktif</p>
+                                <div className="bg-[#ffb3c6] rounded-xl p-4 border-[3px] border-black flex flex-col justify-center">
+                                    <p className="text-xs font-black text-black mb-2 uppercase tracking-wide">Masa Aktif</p>
                                     <div className="flex items-center gap-2">
-                                        <Clock className="w-5 h-5 text-muted-foreground" />
-                                        <p className="text-xl font-bold text-foreground">30 Hari</p>
+                                        <Clock className="w-5 h-5 text-black" strokeWidth={3} />
+                                        <p className="text-xl font-black text-black">30 Hari</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Admin Fee Summary */}
                             {typeof customNominal === "number" && customNominal >= 1000 && (
-                                <div className="space-y-1 text-sm mb-6 bg-background/50 rounded-xl p-4 border border-border">
-                                    <div className="flex justify-between text-muted-foreground">
+                                <div className="space-y-2 text-sm mb-6 bg-gray-50 rounded-xl p-4 border-2 border-black font-bold">
+                                    <div className="flex justify-between text-black/80">
                                         <span>Nominal</span>
                                         <span>{formatIDR(customNominal)}</span>
                                     </div>
-                                    <div className="flex justify-between text-muted-foreground">
+                                    <div className="flex justify-between text-black/80">
                                         <span>Biaya Admin</span>
                                         <span>{formatIDR(calcAdminFee(customNominal))}</span>
                                     </div>
-                                    <div className="h-px w-full bg-border my-1" />
-                                    <div className="flex justify-between font-bold text-foreground text-base">
+                                    <div className="h-[2px] w-full bg-black my-2 rounded-full" />
+                                    <div className="flex justify-between font-black text-black text-base">
                                         <span>Total Bayar</span>
                                         <span>{formatIDR(calcTotal(customNominal))}</span>
                                     </div>
@@ -557,7 +568,7 @@ export default function TopUpPage() {
                             )}
 
                             <Button
-                                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-14 font-black text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                                className="w-full bg-primary text-black border-[3px] border-black hover:bg-primary/90 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo h-14 font-black text-lg rounded-xl shadow-neo-sm transition-all duration-300"
                                 disabled={!customNominal || customNominal < 1000 || isLoading}
                                 onClick={handleCustomPayment}
                             >
@@ -569,7 +580,7 @@ export default function TopUpPage() {
                                 ) : (
                                     <>
                                         Lanjutkan
-                                        <ChevronRight className="ml-2 w-6 h-6" />
+                                        <ChevronRight className="ml-2 w-6 h-6" strokeWidth={3} />
                                     </>
                                 )}
                             </Button>
@@ -579,28 +590,28 @@ export default function TopUpPage() {
             </div>
 
             {/* 4. Footer Notes */}
-            <div className="mt-12 pt-8 border-t border-border">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-start gap-4 p-4 rounded-xl bg-secondary/50 border border-border">
-                        <div className="bg-card p-2 rounded-lg shadow-sm border border-border shrink-0">
-                            <Zap className="w-5 h-5 text-foreground" />
+            <div className="mt-12 pt-8 border-t-[3px] border-black">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-black">
+                    <div className="flex items-start gap-4 p-5 rounded-2xl bg-white border-[3px] border-black shadow-neo-sm">
+                        <div className="bg-[#ffeb3b] p-3 rounded-xl border-[3px] border-black shrink-0">
+                            <Zap className="w-6 h-6 text-black" strokeWidth={3} />
                         </div>
                         <div>
-                            <p className="font-semibold text-foreground mb-1">Penggunaan Kredit</p>
-                            <p className="leading-relaxed">1 Kredit = 1x Download ringan. Fitur premium (kualitas tinggi/fitur khusus) mungkin memerlukan lebih banyak kredit.</p>
+                            <p className="font-black text-black mb-1 uppercase tracking-wide">Penggunaan Kredit</p>
+                            <p className="font-bold text-black/80 leading-relaxed">1 Kredit = 1x Download ringan. Fitur premium (kualitas tinggi/fitur khusus) mungkin memerlukan lebih banyak kredit.</p>
                         </div>
                     </div>
-                    <div className="flex items-start gap-4 p-4 rounded-xl bg-secondary/50 border border-border shadow-sm">
-                        <div className="bg-secondary/50 p-2 rounded-lg shadow-sm border border-border shrink-0">
-                            <QrCode className="w-5 h-5 text-foreground" />
+                    <div className="flex items-start gap-4 p-5 rounded-2xl bg-[#c4b5fd] border-[3px] border-black shadow-neo-sm">
+                        <div className="bg-white p-3 rounded-xl border-[3px] border-black shrink-0">
+                            <QrCode className="w-6 h-6 text-black" strokeWidth={3} />
                         </div>
                         <div>
-                            <p className="font-semibold text-foreground mb-2">Metode Pembayaran</p>
+                            <p className="font-black text-black mb-2 uppercase tracking-wide">Metode Pembayaran</p>
                             <div className="flex flex-col gap-1.5">
-                                <Badge variant="outline" className="w-fit bg-background border-border text-foreground font-bold">
+                                <Badge variant="outline" className="w-fit bg-white border-2 border-black text-black font-black uppercase text-xs shadow-neo-sm rounded-lg">
                                     QRIS All Payment
                                 </Badge>
-                                <p className="text-xs font-medium text-muted-foreground">
+                                <p className="text-xs font-bold text-black/80 mt-1">
                                     Support Semua E-Wallet dan Bank
                                 </p>
                             </div>
@@ -617,7 +628,7 @@ export default function TopUpPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
                         onClick={closePaymentModal}
                     >
                         <motion.div
@@ -625,19 +636,19 @@ export default function TopUpPage() {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 30 }}
                             transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                            className="bg-card rounded-3xl shadow-2xl border border-border w-full max-w-md max-h-[90vh] overflow-y-auto"
+                            className="bg-white rounded-3xl shadow-neo border-[3px] border-black w-full max-w-md max-h-[90vh] overflow-y-auto"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Modal Header */}
-                            <div className="flex items-center justify-between p-5 border-b border-border">
-                                <h3 className="text-lg font-bold text-foreground">
+                            <div className="flex items-center justify-between p-5 border-b-[3px] border-black bg-[#ffeb3b] rounded-t-[1.3rem]">
+                                <h3 className="text-xl font-black text-black uppercase tracking-wide">
                                     {paymentError ? "Pembayaran Gagal" : "Pembayaran"}
                                 </h3>
                                 <button
                                     onClick={closePaymentModal}
-                                    className="w-8 h-8 rounded-full bg-secondary hover:bg-muted flex items-center justify-center transition-colors"
+                                    className="w-10 h-10 rounded-xl bg-white border-2 border-black hover:bg-black hover:text-white flex items-center justify-center transition-colors shadow-neo-sm"
                                 >
-                                    <X className="w-4 h-4 text-muted-foreground" />
+                                    <X className="w-6 h-6" strokeWidth={3} />
                                 </button>
                             </div>
 
@@ -645,31 +656,31 @@ export default function TopUpPage() {
                             <div className="p-6">
                                 {paymentError ? (
                                     <div className="text-center py-6">
-                                        <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
-                                            <X className="w-8 h-8 text-muted-foreground" />
+                                        <div className="w-16 h-16 rounded-2xl border-4 border-black bg-[#ffb3c6] flex items-center justify-center mx-auto mb-4 -rotate-3 shadow-neo-sm">
+                                            <X className="w-10 h-10 text-black" strokeWidth={4} />
                                         </div>
-                                        <p className="text-muted-foreground text-base mb-6">{paymentError}</p>
+                                        <p className="text-black font-bold text-lg mb-6 leading-relaxed">{paymentError}</p>
                                         <Button
                                             onClick={closePaymentModal}
-                                            className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-8 py-3 rounded-xl"
+                                            className="bg-primary text-black hover:bg-primary/90 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo font-black text-lg px-8 py-3 rounded-xl border-[3px] border-black h-14 shadow-neo-sm transition-all duration-300 w-full uppercase"
                                         >
                                             Tutup
                                         </Button>
                                     </div>
                                 ) : paymentData && paymentSuccess ? (
                                     /* ─── Success State ──────────────── */
-                                    <div className="text-center py-6 space-y-5">
+                                    <div className="text-center py-6 space-y-6">
                                         <motion.div
                                             initial={{ scale: 0 }}
                                             animate={{ scale: 1 }}
                                             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                                            className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center mx-auto"
+                                            className="w-20 h-20 rounded-2xl bg-[#a0d1d6] border-[4px] border-black flex items-center justify-center mx-auto rotate-3 shadow-neo-sm"
                                         >
-                                            <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none">
+                                            <svg className="w-12 h-12 text-black" viewBox="0 0 24 24" fill="none">
                                                 <motion.path
                                                     d="M5 13l4 4L19 7"
                                                     stroke="currentColor"
-                                                    strokeWidth="3"
+                                                    strokeWidth="4"
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
                                                     initial={{ pathLength: 0 }}
@@ -679,54 +690,58 @@ export default function TopUpPage() {
                                             </svg>
                                         </motion.div>
                                         <div>
-                                            <h4 className="text-xl font-black text-foreground mb-1">Pembayaran Berhasil!</h4>
-                                            <p className="text-muted-foreground text-sm">Kredit kamu telah ditambahkan.</p>
+                                            <h4 className="text-2xl font-black text-black mb-2 uppercase tracking-wide">Pembayaran Berhasil!</h4>
+                                            <p className="text-black/80 font-bold text-base">Kredit kamu telah ditambahkan.</p>
                                         </div>
-                                        <div className="bg-secondary/50 border border-border rounded-xl p-4">
-                                            <p className="text-sm text-muted-foreground mb-1">Total Dibayar</p>
-                                            <p className="text-2xl font-black text-foreground">{formatIDR(paymentData.amount)}</p>
+                                        <div className="bg-white border-[3px] border-black shadow-neo-sm rounded-2xl p-5 relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-2 h-full bg-[#ffb3c6] border-l-[3px] border-black"></div>
+                                            <p className="text-sm font-black uppercase text-black/70 mb-2 tracking-widest">Total Dibayar</p>
+                                            <p className="text-3xl font-black text-black">{formatIDR(paymentData.amount)}</p>
                                         </div>
                                         <Button
                                             onClick={closePaymentModal}
-                                            className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-10 py-3 rounded-xl h-12"
+                                            className="bg-primary text-black hover:bg-primary/90 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo font-black text-lg px-8 py-3 rounded-xl border-[3px] border-black h-14 shadow-neo-sm transition-all duration-300 w-full uppercase"
                                         >
                                             Selesai
                                         </Button>
                                     </div>
                                 ) : paymentData ? (
-                                    <div className="space-y-5">
+                                    <div className="space-y-6">
                                         {/* Amount */}
                                         <div className="text-center">
-                                            <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider mb-1">Total Pembayaran</p>
-                                            <p className="text-4xl font-black text-foreground tracking-tight">{formatIDR(paymentData.amount)}</p>
+                                            <p className="text-sm text-black/70 font-black uppercase tracking-widest mb-2">Total Pembayaran</p>
+                                            <div className="inline-block bg-[#a0d1d6] px-4 py-2 border-[3px] border-black rounded-xl shadow-neo-sm -rotate-1">
+                                                <p className="text-4xl font-black text-black tracking-tight">{formatIDR(paymentData.amount)}</p>
+                                            </div>
                                         </div>
 
                                         {/* QR Code */}
                                         <div className="flex justify-center">
-                                            <div className="bg-[#ffffff] border-2 border-border rounded-2xl p-3 shadow-sm">
+                                            <div className="bg-white border-[3px] border-black rounded-2xl p-4 shadow-neo-sm rotate-1">
                                                 <Image
                                                     src={paymentData.qr_image}
                                                     alt="QR Code Pembayaran"
-                                                    width={160}
-                                                    height={160}
+                                                    width={180}
+                                                    height={180}
                                                     className="rounded-lg"
                                                     unoptimized
                                                 />
                                             </div>
                                         </div>
 
-                                        <p className="text-center text-sm text-muted-foreground">
+                                        <p className="text-center text-sm font-bold text-black bg-[#ffeb3b] p-3 border-2 border-black rounded-xl shadow-neo-sm mx-4">
                                             Scan QR di atas menggunakan aplikasi e-wallet kamu
                                         </p>
 
                                         {/* Status Check Indicator */}
-                                        <div className="bg-secondary/50 border border-border rounded-xl p-4 flex flex-col items-center gap-3">
+                                        <div className="bg-white border-[3px] border-black shadow-neo-sm rounded-xl p-5 flex flex-col items-center gap-4 relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-2 h-full bg-[#c4b5fd] border-l-[3px] border-black"></div>
                                             <div className="flex items-center gap-3">
-                                                <p className="text-sm text-muted-foreground font-medium">Menunggu pembayaran...</p>
+                                                <p className="text-base font-black text-black uppercase tracking-wide">Menunggu pembayaran...</p>
                                             </div>
                                             {/* Spinner */}
-                                            <div className="w-8 h-8 rounded-full border-[3px] border-muted-foreground/20 border-t-foreground animate-spin" />
-                                            <span className="text-xs text-muted-foreground/60 font-medium">Auto-check setiap 5 detik</span>
+                                            <div className="w-10 h-10 rounded-full border-[4px] border-black/20 border-t-black animate-spin" />
+                                            <span className="text-xs font-black text-black/50 uppercase tracking-widest">Auto-check setiap 5 detik</span>
                                         </div>
 
                                         {/* Expiry */}

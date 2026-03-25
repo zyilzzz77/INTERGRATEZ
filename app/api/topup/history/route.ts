@@ -22,6 +22,8 @@ export async function GET() {
                 credits: true,
                 status: true,
                 createdAt: true,
+                payUrl: true,
+                qrImage: true,
             },
         });
 

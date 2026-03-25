@@ -4,8 +4,12 @@ import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import Hls from "hls.js";
 import { showToast } from "@/components/Toast";
 import { loadHistory, saveHistory } from "@/lib/watchHistory";
+
+// Route HLS streams through proxy to avoid CORS/user-agent issues
+const hlsProxyUrl = (url: string) => url ? `/api/hls-proxy?url=${encodeURIComponent(url)}` : "";
 
 interface MeloloDetail {
     id: string;
@@ -67,7 +71,7 @@ function DramaImage({ src, alt }: { src: string; alt: string }) {
                     </svg>
                 </div>
             ) : (
-                <img src={imgSrc} alt={alt} className={`h-full w-full object-cover transition-all duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+                <img src={imgSrc || undefined} alt={alt} className={`h-full w-full object-cover transition-all duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
                     crossOrigin="anonymous" onLoad={handleLoad} onError={handleError} />
             )}
         </>
@@ -94,10 +98,14 @@ function DetailContent() {
     const [loadingVideo, setLoadingVideo] = useState(false);
     const [isRefreshingToken, setIsRefreshingToken] = useState(false);
     const [historyLoaded, setHistoryLoaded] = useState(false);
+    const [tokenRetry, setTokenRetry] = useState(0);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const playerContainerRef = useRef<HTMLDivElement | null>(null);
+    const hlsRef = useRef<Hls | null>(null);
     const playerSectionRef = useRef<HTMLDivElement | null>(null);
+    const isFetchingRef = useRef<boolean>(false);
+    const lastFetchedBookId = useRef<string | null>(null);
 
     // Suppress unhandled media errors
     useEffect(() => {
@@ -112,6 +120,9 @@ function DetailContent() {
     // Fetch detail
     useEffect(() => {
         if (!bookId) return;
+        if (lastFetchedBookId.current === bookId) return;
+        lastFetchedBookId.current = bookId;
+        setTokenRetry(0);
 
         async function fetchDetail() {
             showToast("Memuat detail drama...", "info");
@@ -129,7 +140,7 @@ function DetailContent() {
                             const videoRes = await fetch(`/api/melolo/video?vid=${vid}`);
                             const videoJson = await videoRes.json();
                             if (videoJson.status && videoJson.data?.url) {
-                                setVideoUrl(videoJson.data.url);
+                                setVideoUrl(`${videoJson.data.url}#${Date.now()}`);
                             }
                         }
                     }
@@ -161,9 +172,10 @@ function DetailContent() {
             const res = await fetch(`/api/melolo/video?vid=${vid}`);
             const json = await res.json();
             if (json.status && json.data?.url) {
-                setVideoUrl(json.data.url);
+                const freshUrl = `${json.data.url}#${Date.now()}`; // hash so HLS reloads without altering request
+                setVideoUrl(freshUrl);
                 showToast("Video berhasil dimuat", "success");
-                return json.data.url;
+                return freshUrl;
             }
         } catch (error) {
             console.error("Failed to fetch video:", error);
@@ -174,24 +186,31 @@ function DetailContent() {
         return "";
     };
 
-    // Play video when URL changes
+    // Play video when URL changes with HLS support
     useEffect(() => {
         const video = videoRef.current;
         if (!video || !videoUrl) return;
 
+        const rawUrl = videoUrl.replace(/#\d+$/, "");
+        const isHls = rawUrl.includes("m3u8");
+        const proxiedUrl = isHls ? hlsProxyUrl(rawUrl) : rawUrl;
+
         const isFullscreen = !!document.fullscreenElement;
         const fsElement = document.fullscreenElement;
 
-        // Pause and clear out old source to prevent AbortError
+        // Cleanup previous instance and reset video element
+        if (hlsRef.current) {
+            hlsRef.current.destroy();
+            hlsRef.current = null;
+        }
+
         video.pause();
         video.removeAttribute('src');
         video.load();
 
-        setTimeout(() => {
-            video.src = videoUrl;
-            video.load();
+        const startPlayback = () => {
             const playPromise = video.play();
-            if (playPromise) playPromise.catch(() => { });
+            if (playPromise) playPromise.catch(() => { /* autoplay may be blocked */ });
 
             if (isFullscreen) {
                 setTimeout(() => {
@@ -208,7 +227,38 @@ function DetailContent() {
                     }
                 }, 100);
             }
-        }, 50);
+        };
+
+        if (isHls && Hls.isSupported()) {
+            const hls = new Hls({ xhrSetup: (xhr) => { xhr.withCredentials = false; } });
+            hlsRef.current = hls;
+            hls.loadSource(proxiedUrl);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => startPlayback());
+            hls.on(Hls.Events.ERROR, (_event, data) => {
+                if (data.fatal) {
+                    console.error('HLS fatal error:', data);
+                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                        hls.startLoad();
+                    } else {
+                        hls.destroy();
+                    }
+                }
+            });
+        } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = proxiedUrl;
+            video.addEventListener('loadedmetadata', startPlayback, { once: true });
+        } else {
+            video.src = proxiedUrl;
+            video.addEventListener('loadedmetadata', startPlayback, { once: true });
+        }
+
+        return () => {
+            if (hlsRef.current) {
+                hlsRef.current.destroy();
+                hlsRef.current = null;
+            }
+        };
     }, [videoUrl]);
 
     // Handle video error - try to refresh
@@ -217,17 +267,21 @@ function DetailContent() {
         const err = video?.error;
         if (err?.code === MediaError.MEDIA_ERR_ABORTED) return;
         if (!detail || currentEpIndex < 0) return;
+        if (tokenRetry >= 1 || isFetchingRef.current) return; // guard against infinite loops
 
+        isFetchingRef.current = true;
         setIsRefreshingToken(true);
         showToast("Memperbarui sesi video...", "info");
         const vid = detail.videos[currentEpIndex]?.vid;
         if (vid) {
             await fetchVideoUrl(vid);
+            setTokenRetry((prev) => prev + 1);
             showToast("Sesi video diperbarui", "success");
         } else {
             showToast("Gagal memuat info video", "error");
         }
         setIsRefreshingToken(false);
+        isFetchingRef.current = false;
     };
 
     // Auto-play next episode
@@ -273,6 +327,7 @@ function DetailContent() {
         }
 
         setCurrentEpIndex(index);
+        setTokenRetry(0);
         const vid = detail.videos[index]?.vid;
         if (vid) await fetchVideoUrl(vid);
 
@@ -461,29 +516,34 @@ function DetailContent() {
 
                             {/* Right: Episode List */}
                             <div className="w-full lg:w-[35%]">
-                                <div className="lg:sticky lg:top-24 flex flex-col rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden" style={{ maxHeight: 'calc(56.25vw * 0.65 + 44px)', minHeight: '300px' }}>
-                                    <div className="flex-none border-b border-white/10 px-4 py-3 bg-neutral-900/50 backdrop-blur-md">
-                                        <h3 className="text-base font-bold text-white">Daftar Episode</h3>
-                                        <p className="text-[11px] text-neutral-400">Total {detail.videos.length} episode</p>
+                                <div className="lg:sticky lg:top-24 flex flex-col rounded-2xl border-[3px] border-black bg-[#a0d1d6] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden" style={{ maxHeight: 'calc(56.25vw * 0.65 + 44px)', minHeight: '300px' }}>
+                                    <div className="flex-none border-b-[3px] border-black px-4 py-3 bg-[#a0d1d6]">
+                                        <h3 className="text-lg font-black text-black tracking-wide uppercase">Episodes</h3>
+                                        <p className="text-[12px] font-bold text-black/80">TOTAL {detail.videos.length} EPISODE</p>
                                     </div>
 
                                     <div
-                                        className="flex-1 overflow-y-auto p-3 overscroll-contain"
+                                        className="flex-1 overflow-y-auto p-4 overscroll-contain"
                                         onWheel={(e) => e.stopPropagation()}
                                     >
-                                        <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-4 gap-1.5">
+                                        <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-4 gap-3">
                                             {detail.videos.map((ep, idx) => {
                                                 const isActive = idx === currentEpIndex;
                                                 return (
                                                     <button
                                                         key={ep.vid}
                                                         onClick={() => selectEpisode(idx)}
-                                                        className={`flex items-center justify-center rounded-lg py-2 text-xs font-semibold transition-all active:scale-95 ${isActive
-                                                            ? "bg-rose-600 text-white ring-2 ring-rose-400/50 shadow-lg shadow-rose-500/20"
-                                                            : "bg-white/5 text-white/80 ring-1 ring-white/5 hover:bg-rose-600/20 hover:text-rose-400 hover:ring-rose-500/30"
+                                                        className={`relative flex aspect-square items-center justify-center rounded-xl border-[2.5px] text-sm font-black transition-all ${isActive
+                                                            ? "bg-yellow-400 text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] -translate-y-1"
+                                                            : "bg-white text-black border-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-y-0 active:shadow-[0_0_0_0_rgba(0,0,0,1)]"
                                                             }`}
                                                         title={`Episode ${ep.episode} (${formatDuration(ep.duration)})`}
                                                     >
+                                                        {isActive && (
+                                                            <div className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 ring-2 ring-black">
+                                                                <div className="h-1.5 w-1.5 animate-ping rounded-full bg-white" />
+                                                            </div>
+                                                        )}
                                                         {ep.episode}
                                                     </button>
                                                 );

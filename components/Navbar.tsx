@@ -3,9 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useTheme } from "./ThemeProvider";
 import { Button } from "@/components/ui/button";
-import { Home, Search, Moon, Sun } from "lucide-react";
+import { Home, Search } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 
@@ -24,7 +23,6 @@ export default function Navbar({ dict, lang }: { dict: any; lang: string }) {
             icon: <Search className="h-4 w-4 sm:h-5 sm:w-5" />,
         },
     ];
-    const { theme, toggleTheme, mounted } = useTheme();
 
     return (
         <LazyMotion features={domAnimation}>
@@ -32,19 +30,19 @@ export default function Navbar({ dict, lang }: { dict: any; lang: string }) {
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-                style={{ paddingTop: "env(safe-area-inset-top)" }}
+                className="sticky top-0 z-50 w-full bg-background pt-2 pb-2"
+                style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.5rem)" }}
             >
-                <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16">
+                <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
                     {/* Logo Text */}
-                    <Link href={`/${lang}`} className="flex items-center select-none">
-                        <span className="text-lg font-extrabold tracking-tight text-foreground sm:text-xl">
-                            Inver<span className="text-muted-foreground">save</span>
+                    <Link href={`/${lang}`} className="flex items-center select-none gap-2">
+                        <span className="text-2xl font-black tracking-tight text-foreground sm:text-3xl flex items-center">
+                            inversave
                         </span>
                     </Link>
 
-                    {/* Nav Pills */}
-                    <div className="flex items-center gap-0.5 sm:gap-1">
+                    {/* Nav Pills & Actions */}
+                    <div className="flex items-center gap-2 sm:gap-3">
                         {links.map((l) => {
                             const routePath = l.href === "/" ? `/${lang}` : `/${lang}${l.href}`;
                             const active =
@@ -52,54 +50,19 @@ export default function Navbar({ dict, lang }: { dict: any; lang: string }) {
                                     ? pathname === "/" || pathname === `/${lang}`
                                     : pathname.startsWith(routePath) || pathname.startsWith(l.href);
                             return (
-                                <Button
-                                    key={l.href}
-                                    asChild
-                                    variant="ghost"
-                                    size="sm"
-                                    className={`gap-1 px-2 text-xs font-semibold relative sm:gap-2 sm:px-3 sm:text-sm ${active ? "text-foreground" : "text-muted-foreground"}`}
-                                >
-                                    <Link href={routePath}>
-                                        {active && (
-                                            <m.div
-                                                layoutId="navbar-indicator"
-                                                className="absolute inset-0 bg-secondary rounded-md -z-10"
-                                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                            />
-                                        )}
+                                <Link key={l.href} href={routePath} className="relative group">
+                                    <div className={`flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl border-[3px] border-black transition-transform duration-200 ease-in-out ${active ? "bg-primary text-black shadow-neo-sm -translate-y-1 -translate-x-1" : "bg-white text-black hover:bg-secondary hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-sm"}`}>
                                         {l.icon}
                                         <span className="hidden sm:inline">{l.label}</span>
-                                    </Link>
-                                </Button>
+                                    </div>
+                                </Link>
                             );
                         })}
 
-                        {/* Theme Toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={toggleTheme}
-                            disabled={!mounted}
-                            className="ml-1 h-9 w-9 sm:h-10 sm:w-10"
-                            title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                            aria-label="Toggle Theme"
-                        >
-                            <m.div
-                                key={theme}
-                                initial={{ scale: 0.5, rotate: -90, opacity: 0 }}
-                                animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                {theme === "dark" ? (
-                                    <Sun className="h-4 w-4 sm:h-5 sm:w-5" />
-                                ) : (
-                                    <Moon className="h-4 w-4 sm:h-5 sm:w-5" />
-                                )}
-                            </m.div>
-                        </Button>
-
                         {/* User Menu */}
-                        <UserMenu dict={dict} lang={lang} />
+                        <div className="rounded-xl border-[3px] border-black bg-[#e2d5cb] transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-sm text-black inline-flex">
+                            <UserMenu dict={dict} lang={lang} />
+                        </div>
                     </div>
                 </div>
             </m.nav>

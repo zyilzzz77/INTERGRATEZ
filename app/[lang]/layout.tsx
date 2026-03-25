@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Fredoka } from "next/font/google";
 import "../globals.css";
 import { i18n } from "../../i18n.config";
 import Navbar from "@/components/Navbar";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ToastContainer from "@/components/Toast";
 import DownloadManager from "@/components/DownloadManager";
@@ -17,10 +16,11 @@ import { constructMetadata } from "@/lib/seo";
 
 import JsonLd from "@/components/JsonLd";
 
-const fontSans = Plus_Jakarta_Sans({
+const fontSans = Fredoka({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = constructMetadata();
@@ -40,7 +40,7 @@ export default async function RootLayout({
   const dict = await getDictionary(lang);
 
   return (
-    <html lang={lang} className="dark">
+    <html lang={lang} className="light">
       <head>
         {/* Viewport with safe area support for Capacitor/mobile */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -58,20 +58,18 @@ export default async function RootLayout({
         <BackgroundAnimation />
         <SmoothScroll>
           <ErrorBoundary>
-            <ThemeProvider>
-              <AuthProvider>
-                <FingerprintProvider>
-                  <Navbar dict={dict.navbar} lang={lang} />
-                  <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+            <AuthProvider>
+              <FingerprintProvider>
+                <Navbar dict={dict.navbar} lang={lang} />
+                <main className="min-h-[calc(100vh-4rem)]">{children}</main>
 
-                  {/* Footer */}
-                  <Footer dict={dict.footer} lang={lang} />
+                {/* Footer */}
+                <Footer dict={dict.footer} lang={lang} />
 
-                  <ToastContainer />
-                  <DownloadManager />
-                </FingerprintProvider>
-              </AuthProvider>
-            </ThemeProvider>
+                <ToastContainer />
+                <DownloadManager />
+              </FingerprintProvider>
+            </AuthProvider>
           </ErrorBoundary>
         </SmoothScroll>
       </body>
