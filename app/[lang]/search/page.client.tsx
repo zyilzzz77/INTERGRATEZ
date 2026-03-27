@@ -125,7 +125,7 @@ export default function SearchPageClient({ dict, lang }: { dict: any; lang: stri
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="text-center sm:text-left bg-[#ffeb3b] border-[3px] border-black p-6 rounded-2xl shadow-neo"
+                    className="text-center sm:text-left bg-[#e8e6d7] border-[3px] border-black p-6 rounded-2xl shadow-neo"
                 >
                     <h1 className="text-3xl font-black text-black tracking-tight sm:text-4xl">
                         {text.title}
@@ -163,7 +163,7 @@ export default function SearchPageClient({ dict, lang }: { dict: any; lang: stri
                                 <Link href={p.href} className="block h-full">
                                     <div className={`h-full cursor-pointer transition-all duration-300 border-[3px] border-black rounded-2xl shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo bg-white group`}> 
                                         <div className="p-5 sm:p-6 flex items-start gap-4">
-                                            <div className="w-14 h-14 rounded-2xl bg-[#ffeb3b] border-[3px] border-black flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 sm:w-16 sm:h-16 overflow-hidden shadow-neo-sm">
+                                            <div className="w-14 h-14 rounded-2xl bg-[#e8e6d7] border-[3px] border-black flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 sm:w-16 sm:h-16 overflow-hidden shadow-neo-sm">
                                                 {p.icon}
                                             </div>
                                             <div className="flex-1 min-w-0">

@@ -16,6 +16,11 @@ import UnlimitedBadge from "@/components/UnlimitedBadge";
 const ADMIN_FEE_PERCENT = 7.5;
 const calcAdminFee = (amount: number) => Math.ceil(amount * ADMIN_FEE_PERCENT / 100);
 const calcTotal = (amount: number) => amount + calcAdminFee(amount);
+const calculateCreditsFromAmount = (amount: number) => {
+    if (amount >= 20000) return Math.floor(amount * 2.25);
+    if (amount >= 10000) return Math.floor(amount * 1.45);
+    return Math.floor(amount * 1.5);
+};
 
 /* ─── Types ──────────────────────────────────────────── */
 interface PaymentData {
@@ -32,7 +37,7 @@ const packages = [
         id: "starter",
         name: "Starter",
         price: 5000,
-        credits: 250,
+        credits: 7500,
         period: "30 Hari",
         popular: false,
     },
@@ -40,23 +45,15 @@ const packages = [
         id: "basic",
         name: "Basic",
         price: 10000,
-        credits: 750,
+        credits: 14500,
         period: "30 Hari",
         popular: true,
     },
     {
         id: "pro",
         name: "Pro",
-        price: 25000,
-        credits: 3500,
-        period: "30 Hari",
-        popular: false,
-    },
-    {
-        id: "premium",
-        name: "Premium",
-        price: 50000,
-        credits: 15000,
+        price: 20000,
+        credits: 45000,
         period: "30 Hari",
         popular: false,
     },
@@ -64,37 +61,15 @@ const packages = [
 
 const vipPackages = [
     {
-        id: "vip-1",
-        name: "VIP",
-        price: 15000,
-        creditsDesc: "2.500 Kredit Download & Tools",
-        period: "14 Hari",
-        popular: false,
-        benefits: ["Unlock Unlimited Streaming All Aplikasi Drama China"],
-        gradient: "from-amber-300 to-yellow-500",
-        shadow: "shadow-yellow-500/20"
-    },
-    {
-        id: "vip-2",
-        name: "VIP Pro",
-        price: 35000,
-        creditsDesc: "6.500 + Bonus 9.500 Kredit",
+        id: "vip-plus",
+        name: "VIP Plus",
+        price: 25000,
+        creditsDesc: "Unlimited Kredit Download & Tools",
         period: "30 Hari",
         popular: true,
         benefits: ["Unlock Unlimited Streaming All Aplikasi Drama China"],
         gradient: "from-amber-400 via-orange-400 to-amber-600",
         shadow: "shadow-orange-500/20"
-    },
-    {
-        id: "vip-3",
-        name: "VIP Max",
-        price: 50000,
-        creditsDesc: "Unlimited Download & Tools",
-        period: "45 Hari",
-        popular: false,
-        benefits: ["Bonus 15.000 Kredit", "Unlock Unlimited Streaming All Aplikasi Drama China"],
-        gradient: "from-yellow-400 via-orange-500 to-red-500",
-        shadow: "shadow-red-500/20"
     }
 ];
 
@@ -184,7 +159,7 @@ export default function TopUpPage() {
         }
     };
 
-    const customCredits = typeof customNominal === "number" ? Math.floor((customNominal / 1000) * 50) : 0;
+    const customCredits = typeof customNominal === "number" ? calculateCreditsFromAmount(customNominal) : 0;
 
     /* ─── Create Payment ───────────────────────────────── */
     const createPayment = async (packageId?: string, customAmount?: number) => {
@@ -312,14 +287,18 @@ export default function TopUpPage() {
                 </div>
                 <div className="hidden sm:block relative z-10">
                     <div className="bg-white border-[3px] border-black rounded-xl px-4 py-2 text-sm text-black font-bold whitespace-nowrap shadow-neo-sm">
-                        Status: <span className="text-primary font-black uppercase">{creditInfo.role === "premium" ? "Premium" : "Free"}</span>
+                        Status: <span className="text-primary font-black uppercase">{
+                            creditInfo.role === "vip-max" ? "VIP Plus" :
+                                creditInfo.role === "vip" ? "VIP" :
+                                    creditInfo.role === "premium" ? "Premium" : "Free"
+                        }</span>
                     </div>
                 </div>
             </div>
 
             <div className="mb-8">
                 {/* 2. Pricing Cards Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
                     {packages.map((pkg, index) => {
                         const bgColors = ["bg-[#a0d1d6]", "bg-[#ffb3c6]", "bg-[#c4b5fd]", "bg-[#ffeb3b]"];
                         const bgColor = bgColors[index % bgColors.length];
@@ -406,64 +385,49 @@ export default function TopUpPage() {
                     <div className="h-[3px] bg-black flex-1 rounded-full"></div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-                    {vipPackages.map((pkg, index) => {
-                        const bgColors = ["bg-[#ffeb3b]", "bg-[#ffb3c6]", "bg-[#a0d1d6]"];
-                        const bgColor = bgColors[index % bgColors.length];
-                        return (
+                <div className="mb-16 flex justify-center">
+                    {vipPackages.map((pkg) => (
                         <motion.div
                             key={pkg.id}
-                            whileHover={{ scale: 1.02, y: -5 }}
-                            whileTap={{ scale: 0.98 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                            whileHover={{ scale: 1.03, y: -6 }}
+                            whileTap={{ scale: 0.97 }}
+                            transition={{ type: "spring", stiffness: 320, damping: 25 }}
+                            className="w-full max-w-xl"
                         >
                             <Card
-                                className={`relative h-full cursor-pointer transition-all duration-300 rounded-3xl overflow-hidden border-[3px] border-black ${selectedPackage === pkg.id
-                                    ? `shadow-neo -translate-y-1 -translate-x-1 ${bgColor}`
-                                    : "bg-white hover:shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:bg-gray-50"
-                                    }`}
+                                className={`relative overflow-hidden rounded-3xl border-[3px] border-black shadow-neo h-full cursor-pointer transition-all duration-300 ${selectedPackage === pkg.id ? "-translate-y-1 -translate-x-1" : "hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-sm"}`}
                                 onClick={() => setSelectedPackage(pkg.id)}
                             >
-                                {pkg.popular && (
-                                    <div className="absolute top-0 inset-x-0 z-10 hidden">
-                                        <div className="absolute top-0 right-6 bg-black text-white text-[10px] font-black px-3 py-1 rounded-b-lg shadow-none border-x-[3px] border-b-[3px] border-black uppercase tracking-wider">
-                                            BEST VALUE
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="p-6 md:p-8 flex flex-col h-full relative z-20">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <Badge variant="outline" className={`mb-3 bg-white border-2 border-black text-xs font-black uppercase tracking-widest px-3 py-1 rounded-xl text-black`}>
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#d8f8ef] via-[#a4ead7] to-[#6fd5c1]" aria-hidden />
+                                <div className="absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_top_left,#ffffff_0,transparent_45%)]" aria-hidden />
+                                <div className="relative z-10 p-6 md:p-8 flex flex-col h-full gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="space-y-2">
+                                            <Badge variant="outline" className="bg-white/80 border-2 border-black text-xs font-black uppercase tracking-widest px-3 py-1 rounded-xl text-black">
                                                 {pkg.period}
                                             </Badge>
-                                            <h3 className={`font-black text-3xl tracking-tight text-black`}>
-                                                {pkg.name}
-                                            </h3>
+                                            <h3 className="font-black text-3xl tracking-tight text-black drop-shadow-sm">{pkg.name}</h3>
+                                            <p className="text-4xl font-black text-black tracking-tight drop-shadow-sm">{formatIDR(pkg.price)}</p>
+                                        </div>
+                                        <div className="hidden sm:flex items-center gap-2 bg-black text-white px-3 py-2 rounded-xl border-2 border-white/70 shadow-neo-sm">
+                                            <Zap className="w-4 h-4" strokeWidth={3} />
+                                            <span className="text-xs font-black uppercase tracking-widest">Best Deal</span>
                                         </div>
                                     </div>
 
-                                    <div className="mb-6">
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-4xl font-black text-black tracking-tight">{formatIDR(pkg.price)}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Benefits List */}
-                                    <div className="space-y-4 mb-8 flex-1">
-                                        <div className="flex items-start gap-4">
-                                            <div className="mt-0.5 w-6 h-6 rounded-lg bg-white border-2 border-black flex items-center justify-center shrink-0">
-                                                <Coins className="w-3 h-3 text-amber-500" />
+                                    <div className="bg-white/80 backdrop-blur-sm border-[3px] border-black rounded-2xl p-5 shadow-neo-sm space-y-3">
+                                        <div className="flex items-start gap-3">
+                                            <div className="mt-0.5 w-7 h-7 rounded-lg bg-[#c7f1e3] border-2 border-black flex items-center justify-center shrink-0">
+                                                <Coins className="w-4 h-4 text-black" />
                                             </div>
-                                            <span className="text-sm font-medium text-foreground leading-snug">{pkg.creditsDesc}</span>
+                                            <span className="text-sm font-bold text-black leading-snug">{pkg.creditsDesc}</span>
                                         </div>
                                         {pkg.benefits.map((benefit, i) => (
                                             <div key={i} className="flex items-start gap-3">
-                                                <div className="mt-0.5 w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
-                                                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                                <div className="mt-0.5 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 border-2 border-black">
+                                                    <Check className="w-3.5 h-3.5" />
                                                 </div>
-                                                <span className="text-sm font-medium text-foreground leading-snug">{benefit}</span>
+                                                <span className="text-sm font-bold text-black leading-snug">{benefit}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -476,9 +440,8 @@ export default function TopUpPage() {
                                             handlePackagePayment(pkg.id);
                                         }}
                                         className={`w-full h-12 text-sm font-black rounded-xl transition-all duration-300 border-[3px] border-black ${selectedPackage === pkg.id
-                                            ? `bg-black text-white`
-                                            : "bg-white text-black hover:bg-black hover:text-white"
-                                            }`}
+                                            ? "bg-black text-white"
+                                            : "bg-white text-black hover:bg-black hover:text-white"}`}
                                     >
                                         {isLoading && selectedPackage === pkg.id ? (
                                             <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -489,8 +452,7 @@ export default function TopUpPage() {
                                 </div>
                             </Card>
                         </motion.div>
-                        );
-                    })}
+                    ))}
                 </div>
 
                 {/* 3. Custom Nominal Section */}
@@ -499,7 +461,7 @@ export default function TopUpPage() {
                         <div>
                             <div className="inline-block bg-white text-black text-xs font-black uppercase tracking-wider py-1 px-3 rounded-lg border-2 border-black mb-4">Alternatif</div>
                             <h3 className="text-3xl lg:text-4xl font-black mb-4 tracking-tight text-black uppercase">Beli Nominal <span className="bg-white px-2 border-2 border-black rounded-lg inline-block -rotate-2">Custom</span></h3>
-                            <p className="text-black/80 font-bold text-lg mb-8 leading-relaxed">Masukkan nominal sesuai keinginanmu. Minimal Rp 1.000, kelipatan bebas.</p>
+                            <p className="text-black/80 font-bold text-lg mb-8 leading-relaxed">Masukkan nominal sesuai keinginanmu. Minimal Rp 1.000, kelipatan bebas. Kredit mengikuti skema paket Starter/Basic/Pro.</p>
 
                             <div className="space-y-3">
                                 <label className="text-sm font-black text-black uppercase tracking-wide">Masukkan Nominal (Rp)</label>

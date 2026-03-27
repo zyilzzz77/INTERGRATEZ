@@ -36,7 +36,6 @@ import {
     BadgeCheck
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import WeeklyChart from "@/components/WeeklyChart";
 import UserIpDisplay from "@/components/UserIpDisplay";
 import RealtimeCredits from "@/components/RealtimeCredits";
 import RealtimeBonus from "@/components/RealtimeBonus";
@@ -181,11 +180,10 @@ export default async function ProfilePage() {
                 </div>
 
                 {/* --- MAIN CONTENT AREA --- */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 gap-4 sm:gap-6">
 
-                    {/* Left: Chart Area (compact, real-time) */}
-                    <div className="lg:col-span-2">
-                        <WeeklyChart />
+                    {/* Left: (mobile stats) */}
+                    <div>
                         {/* Active Limit Header */}
                         <div className="grid grid-cols-2 gap-3 sm:hidden mb-6">
                             <div className="rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-4 ring-1 ring-amber-500/20">

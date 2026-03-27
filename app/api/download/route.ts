@@ -414,6 +414,7 @@ export async function GET(req: NextRequest) {
         const { searchParams } = req.nextUrl;
         const url = searchParams.get("url");
         const platform = searchParams.get("platform");
+        const isFree = searchParams.get("free") === "1";
 
         if (!url) {
             return NextResponse.json({ error: "Missing url parameter" }, { status: 400, headers: CORS });
@@ -422,11 +423,12 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Missing platform parameter" }, { status: 400, headers: CORS });
         }
 
-        // Deduct credit before processing
-        // Exceptions can be added here if needed, but the prompt says 1 download/search = 1 credit.
-        const canAfford = await deductCredit();
-        if (!canAfford) {
-            return NextResponse.json({ error: "Kredit tidak mencukupi. Silakan top up." }, { status: 403, headers: CORS });
+        // Deduct credit unless marked free (home UrlInput flow)
+        if (!isFree) {
+            const canAfford = await deductCredit();
+            if (!canAfford) {
+                return NextResponse.json({ error: "Kredit tidak mencukupi. Silakan top up." }, { status: 403, headers: CORS });
+            }
         }
 
         let result: DownloadResult;

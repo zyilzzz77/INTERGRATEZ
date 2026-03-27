@@ -116,7 +116,7 @@ export default function DubbedPage() {
         }
 
         try {
-            const res = await fetch(`/api/dramabox/dubbed?classify=${encodeURIComponent(cls)}&page=${page}`);
+            const res = await fetch(`/api/dramabox/dubbed?classify=${encodeURIComponent(cls)}&page=${page}`, { cache: "no-store" });
             const json = await res.json();
 
             if (json.status && Array.isArray(json.data)) {
@@ -168,14 +168,14 @@ export default function DubbedPage() {
             <div className="mx-auto max-w-6xl px-4 py-10">
                 {/* Header */}
                 <div className="mb-8">
-                    <Link href="/dramabox" className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors mb-4">
+                    <Link href="/dramabox" className="inline-flex items-center gap-2 text-sm font-black text-black bg-white border-[3px] border-black rounded-full px-4 py-2 shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="m15 18-6-6 6-6" /></svg>
                         Kembali ke DramaBox
                     </Link>
-                    <h1 className="text-3xl font-black text-white sm:text-4xl flex items-center gap-3">
-                        🎙️ <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">Sulih Suara</span>
+                    <h1 className="mt-4 text-3xl font-black text-black sm:text-4xl flex items-center gap-3">
+                        🎙️ <span className="px-2 rounded-lg border-[3px] border-black bg-gradient-to-r from-[#c7f1e3] to-[#a0d1d6]">Sulih Suara</span>
                     </h1>
-                    <p className="mt-2 text-sm text-neutral-400">Drama dengan dubbing bahasa Indonesia</p>
+                    <p className="mt-2 text-sm font-bold text-black/70">Drama dengan dubbing bahasa Indonesia</p>
                 </div>
 
                 {/* Classify Tabs */}
@@ -184,9 +184,9 @@ export default function DubbedPage() {
                         <button
                             key={opt.value}
                             onClick={() => setClassify(opt.value)}
-                            className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${classify === opt.value
-                                ? "bg-purple-600 text-white shadow-lg shadow-purple-500/20 ring-2 ring-purple-400/30"
-                                : "bg-white/5 text-white/70 ring-1 ring-white/10 hover:bg-white/10 hover:text-white"
+                            className={`rounded-full px-5 py-2 text-sm font-black border-[3px] transition-all ${classify === opt.value
+                                ? "bg-black text-white border-black shadow-neo"
+                                : "bg-white text-black border-black hover:-translate-y-0.5 hover:-translate-x-0.5 shadow-neo-sm"
                                 }`}
                         >
                             {opt.label}
@@ -209,35 +209,35 @@ export default function DubbedPage() {
                                         <Link
                                             href={`/dramabox/detail?id=${item.id}`}
                                             key={`dubbed-${item.id}`}
-                                            className="group relative flex flex-col overflow-hidden rounded-xl border border-white/5 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10 cursor-pointer"
+                                            className="group relative flex flex-col overflow-hidden rounded-2xl border-[3px] border-black bg-white transition-all duration-300 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo"
                                         >
-                                            <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-800">
+                                            <div className="relative aspect-[2/3] w-full overflow-hidden bg-[#f3f3f3]">
                                                 <DramaImage src={item.cover.trim()} alt={item.title} priority={index < 6} />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-80 z-20 pointer-events-none" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-70 transition-opacity group-hover:opacity-90 z-20 pointer-events-none" />
 
                                                 {item.corner && (
-                                                    <div className="absolute top-2 left-2 z-20 rounded-md px-2 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm" style={{ backgroundColor: item.corner.color || "#8773DF" }}>
+                                                    <div className="absolute top-2 left-2 z-20 rounded-md px-2 py-0.5 text-[10px] font-black text-black bg-white border-[2px] border-black shadow-neo-sm" style={{ backgroundColor: item.corner.color || "#c7f1e3" }}>
                                                         {item.corner.name}
                                                     </div>
                                                 )}
 
                                                 <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
-                                                    <div className="flex items-center gap-2 text-[10px] font-medium text-white/90 flex-wrap">
+                                                    <div className="flex items-center gap-2 text-[10px] font-black text-white flex-wrap">
                                                         {item.playCount && (
-                                                            <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">🔥 {item.playCount}</span>
+                                                            <span className="flex items-center gap-1 bg-black/60 px-1.5 py-0.5 rounded-full">🔥 {item.playCount}</span>
                                                         )}
                                                         {item.chapterCount && item.chapterCount > 0 && (
-                                                            <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">📑 {item.chapterCount} Eps</span>
+                                                            <span className="flex items-center gap-1 bg-black/60 px-1.5 py-0.5 rounded-full">📑 {item.chapterCount} Eps</span>
                                                         )}
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div className="flex flex-1 flex-col p-3">
-                                                <h3 className="line-clamp-2 text-sm font-bold text-white group-hover:text-purple-400 leading-tight">{item.title}</h3>
+                                                <h3 className="line-clamp-2 text-sm font-black text-black group-hover:text-primary leading-tight">{item.title}</h3>
                                                 <div className="mt-2 flex flex-wrap gap-1">
                                                     {item.tags && item.tags.slice(0, 2).map((tag, idx) => (
-                                                        <span key={idx} className="text-[10px] rounded-full bg-white/5 px-2 py-0.5 text-neutral-400 border border-white/5">{tag}</span>
+                                                        <span key={idx} className="text-[10px] rounded-full bg-[#c7f1e3] px-2 py-0.5 text-black font-bold border-[2px] border-black">{tag}</span>
                                                     ))}
                                                 </div>
                                             </div>
@@ -251,7 +251,7 @@ export default function DubbedPage() {
                                         <button
                                             onClick={loadMore}
                                             disabled={loadingMore}
-                                            className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="flex items-center gap-2 rounded-full border-[3px] border-black bg-white px-8 py-3 text-sm font-black text-black transition-all shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 disabled:opacity-60 disabled:cursor-not-allowed"
                                         >
                                             {loadingMore ? (
                                                 <>

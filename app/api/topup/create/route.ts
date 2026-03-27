@@ -7,6 +7,12 @@ const SAWERIA_API_URL = "https://api.neoxr.eu/api/saweria-create";
 const SAWERIA_USER_ID = process.env.SAWERIA_USER_ID;
 const SAWERIA_API_KEY = process.env.TAKO_API_KEY;
 
+const calcCreditsFromCustomAmount = (amount: number) => {
+    if (amount >= 20000) return Math.floor(amount * 2.25);
+    if (amount >= 10000) return Math.floor(amount * 1.45);
+    return Math.floor(amount * 1.5);
+};
+
 export async function POST(req: NextRequest) {
     try {
         const session = await auth();
@@ -35,7 +41,7 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: "Nominal top up harus kelipatan Rp 1.000" }, { status: 400 });
             }
             amount = amountNum;
-            creditsToGive = Math.floor(amountNum / 1000) * 50;
+            creditsToGive = calcCreditsFromCustomAmount(amountNum);
             bonusToGive = 0;
             activeDays = 30;
             packageName = `Custom Nominal (Rp ${amount})`;

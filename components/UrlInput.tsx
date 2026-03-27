@@ -48,7 +48,7 @@ export default function UrlInput({ onResult, onLoading, onPlatform }: UrlInputPr
         onLoading(true);
 
         try {
-            const endpoint = `/api/download?url=${encodeURIComponent(inputUrl)}&platform=${encodeURIComponent(platform.name)}`;
+            const endpoint = `/api/download?url=${encodeURIComponent(inputUrl)}&platform=${encodeURIComponent(platform.name)}&free=1`;
             const res = await fetch(endpoint);
             const data = await res.json();
 

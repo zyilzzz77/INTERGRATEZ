@@ -95,6 +95,7 @@ export async function POST(req: NextRequest) {
                 p => p.credits === transaction.credits && p.days === transaction.days
             );
             const roleToSet = matchingPkg?.role || "premium";
+            const pkgLabel = matchingPkg?.name || `${transaction.credits} Koin (${transaction.days} Hari)`;
 
             await prisma.$transaction([
                 prisma.transaction.update({
@@ -114,8 +115,7 @@ export async function POST(req: NextRequest) {
 
             // Send notification email asynchronously
             if (session?.user?.email && session?.user?.name) {
-                const pkgName = `${transaction.credits} Koin (${transaction.days} Hari)`;
-                sendTopupSuccessEmail(session.user.email, session.user.name, pkgName, transaction.amount, transaction.credits).catch((err) => {
+                sendTopupSuccessEmail(session.user.email, session.user.name, pkgLabel, transaction.amount, transaction.credits).catch((err) => {
                     console.error("[Email] Failed to send topup email:", err);
                 });
             }
@@ -123,7 +123,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
                 success: true,
                 status: "paid",
-                message: `Pembayaran berhasil! +${transaction.credits} credits ditambahkan.`,
+                message: roleToSet === "vip-max"
+                    ? `Pembayaran berhasil! Paket ${pkgLabel} aktif ${transaction.days} hari dengan akses unlimited.`
+                    : `Pembayaran berhasil! +${transaction.credits} credits ditambahkan.`,
                 creditsAdded: transaction.credits,
             });
         }

@@ -109,7 +109,7 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
             {open && (
                 <div className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-xl bg-white shadow-neo border-[3px] border-black z-50">
                     {/* User info */}
-                    <div className="border-b-[3px] border-black bg-[#ffeb3b] p-4">
+                    <div className="border-b-[3px] border-black bg-[#e8e6d7] p-4">
                         <div className="flex items-center gap-3">
                             {session.user.image ? (
                                 <Image
@@ -172,7 +172,7 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                         <Link
                             href={`/${lang}/profile`}
                             onClick={() => setOpen(false)}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-black border-2 border-transparent hover:border-black hover:bg-[#ffeb3b] hover:shadow-neo-sm transition-all"
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-black border-2 border-transparent hover:border-black hover:bg-[#e8e6d7] hover:shadow-neo-sm transition-all"
                         >
                             <User className="h-4 w-4 text-blue-600" strokeWidth={3} />
                             {dict.profile || "My Profile"}

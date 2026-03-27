@@ -6,17 +6,14 @@ const GUEST_DEFAULT = 100;
 
 // Top-up packages
 export const TOPUP_PACKAGES = [
-    { id: "starter", name: "Starter", price: 5000, credits: 250, days: 30, role: "premium" },
-    { id: "basic", name: "Basic", price: 10000, credits: 750, days: 30, role: "premium" },
-    { id: "pro", name: "Pro", price: 25000, credits: 3500, days: 30, role: "premium" },
-    { id: "premium", name: "Premium", price: 50000, credits: 15000, days: 30, role: "premium" },
+    { id: "starter", name: "Starter", price: 5000, credits: 7500, days: 30, role: "premium" },
+    { id: "basic", name: "Basic", price: 10000, credits: 14500, days: 30, role: "premium" },
+    { id: "pro", name: "Pro", price: 20000, credits: 45000, days: 30, role: "premium" },
 ];
 
 // VIP packages
 export const VIP_PACKAGES = [
-    { id: "vip-1", name: "VIP", price: 15000, credits: 2500, bonus: 0, days: 14, role: "vip" },
-    { id: "vip-2", name: "VIP Pro", price: 35000, credits: 6500, bonus: 9500, days: 30, role: "vip" },
-    { id: "vip-3", name: "VIP Max", price: 50000, credits: 0, bonus: 15000, days: 45, role: "vip-max" },
+    { id: "vip-plus", name: "VIP Plus", price: 25000, credits: 0, bonus: 0, days: 30, role: "vip-max" },
 ];
 
 export interface CreditInfo {

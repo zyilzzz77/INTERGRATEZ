@@ -3,7 +3,7 @@ import { Instagram, Mail, MapPin, Phone } from "lucide-react";
 
 export default function Footer({ dict, lang }: { dict: any; lang: string }) {
     return (
-        <footer className="bg-white text-black py-12 border-t-[3px] border-black mt-20 relative before:absolute before:-top-1 before:left-0 before:w-full before:h-1 before:bg-white z-10">
+        <footer className="bg-[#e8e6d7] text-black py-12 border-t-[3px] border-black mt-20 w-full relative overflow-hidden rounded-[36px] md:rounded-[56px] before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-[#e8e6d7] z-10">
             <div className="container mx-auto px-4 max-w-7xl relative z-20">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
                     {/* Column 1: Brand Info */}
@@ -58,12 +58,12 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
                     <div className="space-y-4">
                         <h3 className="text-black font-black text-xl tracking-wide mb-6">{dict.products || "Products"}</h3>
                         <ul className="space-y-3 font-bold text-gray-700">
-                            <li><Link href={`/${lang}/search/tiktok`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">TikTok Downloader</Link></li>
-                            <li><Link href={`/${lang}/search/instagram`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">IG Downloader</Link></li>
-                            <li><Link href={`/${lang}/search/youtube`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">YT Downloader</Link></li>
-                            <li><Link href={`/${lang}/dramabox`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">DramaBox Streaming</Link></li>
-                            <li><Link href={`/${lang}/melolo`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">Melolo Streaming</Link></li>
-                            <li><Link href={`/${lang}/netshort`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">Netshort Streaming</Link></li>
+                            <li><Link href={`/${lang}/search/tiktok`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">TikTok Downloader</Link></li>
+                            <li><Link href={`/${lang}/search/instagram`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">IG Downloader</Link></li>
+                            <li><Link href={`/${lang}/search/youtube`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">YT Downloader</Link></li>
+                            <li><Link href={`/${lang}/dramabox`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">DramaBox Streaming</Link></li>
+                            <li><Link href={`/${lang}/melolo`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">Melolo Streaming</Link></li>
+                            <li><Link href={`/${lang}/netshort`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">Netshort Streaming</Link></li>
                         </ul>
                     </div>
 
@@ -71,10 +71,10 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
                     <div className="space-y-4">
                         <h3 className="text-black font-black text-xl tracking-wide mb-6">{dict.company || "Company"}</h3>
                         <ul className="space-y-3 font-bold text-gray-700">
-                            <li><Link href={`/${lang}/about`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.aboutUs || "About Us"}</Link></li>
-                            <li><Link href={`/${lang}/blog`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.blog || "Blog & Update"}</Link></li>
-                            <li><Link href={`/${lang}/topup`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.pricing || "Harga & Paket"}</Link></li>
-                            <li><Link href={`/${lang}/docs`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.apiDocs || "API Documentation"}</Link></li>
+                            <li><Link href={`/${lang}/about`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.aboutUs || "About Us"}</Link></li>
+                            <li><Link href={`/${lang}/blog`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.blog || "Blog & Update"}</Link></li>
+                            <li><Link href={`/${lang}/topup`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.pricing || "Harga & Paket"}</Link></li>
+                            <li><Link href={`/${lang}/docs`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.apiDocs || "API Documentation"}</Link></li>
                         </ul>
                     </div>
 
@@ -82,10 +82,10 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
                     <div className="space-y-4">
                         <h3 className="text-black font-black text-xl tracking-wide mb-6">{dict.others || "Others"}</h3>
                         <ul className="space-y-3 font-bold text-gray-700">
-                            <li><Link href={`/${lang}/bantuan`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.faq || "Bantuan FAQ"}</Link></li>
-                            <li><Link href={`/${lang}/privasi`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.privacy || "Pemberitahuan Privasi"}</Link></li>
-                            <li><Link href={`/${lang}/syarat`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.terms || "Syarat & Ketentuan"}</Link></li>
-                            <li><Link href={`/${lang}/disclaimer`} className="hover:text-primary hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.disclaimer || "Disclaimer DMCA"}</Link></li>
+                            <li><Link href={`/${lang}/bantuan`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.faq || "Bantuan FAQ"}</Link></li>
+                            <li><Link href={`/${lang}/privasi`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.privacy || "Pemberitahuan Privasi"}</Link></li>
+                            <li><Link href={`/${lang}/syarat`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.terms || "Syarat & Ketentuan"}</Link></li>
+                            <li><Link href={`/${lang}/disclaimer`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.disclaimer || "Disclaimer DMCA"}</Link></li>
                         </ul>
 
                         <div className="pt-6">

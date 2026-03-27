@@ -126,13 +126,13 @@ export default function DramaBoxVipPage() {
             `}</style>
             <div className="mx-auto max-w-6xl px-4 py-10">
                 <div className="mb-10 text-center">
-                    <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-pink-600 to-purple-600 shadow-lg ring-1 ring-white/20 overflow-hidden">
+                    <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-white border-[3px] border-black shadow-neo overflow-hidden">
                         <Image src="/logo-dramabox.png" alt="DramaBox Logo" width={80} height={80} className="h-full w-full object-cover" />
                     </div>
-                    <h1 className="text-3xl font-black text-white sm:text-4xl">
-                        DramaBox <span className="text-red-500">VIP</span>
+                    <h1 className="text-3xl font-black text-black sm:text-4xl">
+                        DramaBox <span className="px-2 rounded-lg border-[3px] border-black bg-gradient-to-r from-[#ffec99] to-[#ffb3c6]">VIP</span>
                     </h1>
-                    <p className="mt-3 text-sm text-neutral-400 sm:text-base">
+                    <p className="mt-3 text-sm font-bold text-black/70 sm:text-base">
                         Premium drama collection for VIP users
                     </p>
                 </div>
@@ -149,42 +149,42 @@ export default function DramaBoxVipPage() {
                             <Link
                                 href={`/dramabox/detail?id=${item.bookId}`}
                                 key={item.bookId}
-                                className="group relative flex flex-col overflow-hidden rounded-xl border border-white/5 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-pink-500/30 hover:shadow-lg hover:shadow-pink-500/10 cursor-pointer"
+                                className="group relative flex flex-col overflow-hidden rounded-2xl border-[3px] border-black bg-white transition-all duration-300 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo"
                             >
-                                <div className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-800">
+                                <div className="relative aspect-[2/3] w-full overflow-hidden bg-[#f3f3f3]">
                                     <DramaImage src={item.coverWap.trim()} alt={item.bookName} priority={idx < 6} />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-80 z-20 pointer-events-none" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-70 transition-opacity group-hover:opacity-90 z-20 pointer-events-none" />
                                     {item.corner && (
                                         <div
-                                            className="absolute top-2 left-2 z-20 rounded-md px-2 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm"
-                                            style={{ backgroundColor: item.corner.color || "#F54E96" }}
+                                            className="absolute top-2 left-2 z-20 rounded-md px-2 py-0.5 text-[10px] font-black text-black bg-white border-[2px] border-black shadow-neo-sm"
+                                            style={{ backgroundColor: item.corner.color || "#ffec99" }}
                                         >
                                             {item.corner.name}
                                         </div>
                                     )}
                                 </div>
                                 <div className="flex flex-1 flex-col p-3">
-                                    <h3 className="line-clamp-2 text-sm font-bold text-white group-hover:text-pink-400 leading-tight">
+                                    <h3 className="line-clamp-2 text-sm font-black text-black group-hover:text-primary leading-tight">
                                         {item.bookName}
                                     </h3>
                                     <div className="mt-2 flex flex-wrap gap-1">
                                         {item.tags?.slice(0, 2).map((tag, i) => (
                                             <span
                                                 key={i}
-                                                className="text-[10px] rounded-full bg-white/5 px-2 py-0.5 text-neutral-400 border border-white/5"
+                                                className="text-[10px] rounded-full bg-[#ffec99] px-2 py-0.5 text-black font-bold border-[2px] border-black"
                                             >
                                                 {tag}
                                             </span>
                                         ))}
                                     </div>
-                                    <div className="flex items-center gap-2 text-[10px] font-medium text-white/90 mt-2">
+                                    <div className="flex items-center gap-2 text-[10px] font-black text-white mt-2">
                                         {item.playCount && (
-                                            <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                                            <span className="flex items-center gap-1 bg-black/60 px-1.5 py-0.5 rounded-full">
                                                 🔥 {item.playCount}
                                             </span>
                                         )}
                                         {item.chapterCount && (
-                                            <span className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                                            <span className="flex items-center gap-1 bg-black/60 px-1.5 py-0.5 rounded-full">
                                                 📑 {item.chapterCount} Eps
                                             </span>
                                         )}
