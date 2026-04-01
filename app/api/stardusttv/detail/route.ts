@@ -20,7 +20,9 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Missing slug or id" }, { status: 400, headers: CORS });
         }
 
-        const url = `https://stardusttv.dramabos.my.id/v1/detail/${encodeURIComponent(slug)}/${encodeURIComponent(id)}?lang=id&code=0B758C07EB07771BACB70777A0F4147A`;
+        const STARDUSTTV_BASE = process.env.STARDUSTTV_API_BASE_URL || "https://stardusttv.dramabos.my.id";
+        const DRAMABOS_CODE = process.env.DRAMABOS_CODE || "0B758C07EB07771BACB70777A0F4147A";
+        const url = `${STARDUSTTV_BASE}/v1/detail/${encodeURIComponent(slug)}/${encodeURIComponent(id)}?lang=id&code=${DRAMABOS_CODE}`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

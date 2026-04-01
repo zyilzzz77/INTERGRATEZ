@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { TOPUP_PACKAGES, VIP_PACKAGES } from "@/lib/credits";
 
-const SAWERIA_API_URL = "https://api.neoxr.eu/api/saweria-create";
+const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+const SAWERIA_API_URL = `${NEOXR_BASE}/api/saweria-create`;
 const SAWERIA_USER_ID = process.env.SAWERIA_USER_ID;
 const SAWERIA_API_KEY = process.env.TAKO_API_KEY;
 

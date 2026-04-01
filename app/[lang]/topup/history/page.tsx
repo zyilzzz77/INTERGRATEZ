@@ -12,7 +12,10 @@ import {
     CreditCard,
     Hash,
     History,
+    Instagram,
     Loader2,
+    Mail,
+    MessageCircle,
     X,
     XCircle,
     Zap,
@@ -287,10 +290,10 @@ export default function HistoryPage() {
                                     <div className="flex items-center gap-4 min-w-0">
                                         <div
                                             className={`w-12 h-12 rounded-xl border-[3px] border-black flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:-rotate-3 ${isPaid
-                                                    ? "bg-[#dcfce7]"
-                                                    : isFailed
-                                                        ? "bg-[#fee2e2]"
-                                                        : "bg-[#fff7ed]"
+                                                ? "bg-[#dcfce7]"
+                                                : isFailed
+                                                    ? "bg-[#fee2e2]"
+                                                    : "bg-[#fff7ed]"
                                                 }`}
                                         >
                                             {isPaid ? (
@@ -309,10 +312,10 @@ export default function HistoryPage() {
                                                 </span>
                                                 <Badge
                                                     className={`text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-md border-[3px] border-black ${isPaid
-                                                            ? "bg-[#22c55e] text-white"
-                                                            : isFailed
-                                                                ? "bg-[#ef4444] text-white"
-                                                                : "bg-[#f97316] text-white"
+                                                        ? "bg-[#22c55e] text-white"
+                                                        : isFailed
+                                                            ? "bg-[#ef4444] text-white"
+                                                            : "bg-[#f97316] text-white"
                                                         } shadow-[4px_4px_0_#0f172a]`}
                                                 >
                                                     {isPaid ? "Berhasil" : isFailed ? "Gagal" : "Pending"}
@@ -336,6 +339,59 @@ export default function HistoryPage() {
                     </div>
                 )}
 
+
+                {!loading && transactions.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="mt-8 rounded-[28px] border-[3px] border-black bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0] p-6 sm:p-8 shadow-[12px_12px_0_#0f172a] mb-8"
+                    >
+                        <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+                            <div className="text-center md:text-left">
+                                <h3 className="text-xl sm:text-2xl font-black text-black mb-2 tracking-tight">
+                                    Kendala Topup?
+                                </h3>
+                                <p className="text-sm font-semibold text-slate-700 max-w-lg">
+                                    Jangan khawatir! Tim support kami siap membantu menyelesaikan masalah transaksi kamu. Hubungi kami melalui salah satu jalur di bawah.
+                                </p>
+                            </div>
+                            <div className="flex flex-wrap justify-center md:justify-end gap-3 shrink-0">
+                                <a
+                                    href="https://wa.me/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center px-4 py-3 rounded-xl border-[3px] border-black bg-[#25D366] text-white font-black text-sm shadow-[4px_4px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
+                                    title="Hubungi via WhatsApp"
+                                >
+                                    <MessageCircle className="w-4 h-4 mr-2" />
+                                    WhatsApp
+                                </a>
+                                <a
+                                    href="https://instagram.com/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center px-4 py-3 rounded-xl border-[3px] border-black bg-[#E1306C] text-white font-black text-sm shadow-[4px_4px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
+                                    title="Hubungi via Instagram"
+                                >
+                                    <Instagram className="w-4 h-4 mr-2" />
+                                    Instagram
+                                </a>
+                                <a
+                                    href="mailto:support@domainanda.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center px-4 py-3 rounded-xl border-[3px] border-black bg-black text-white font-black text-sm shadow-[4px_4px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
+                                    title="Hubungi via Email"
+                                >
+                                    <Mail className="w-4 h-4 mr-2" />
+                                    Email
+                                </a>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
                 <AnimatePresence>
                     {selectedTx && (
                         <motion.div
@@ -354,13 +410,13 @@ export default function HistoryPage() {
                                     stiffness: 350,
                                     damping: 30,
                                 }}
-                                className="w-full max-w-md overflow-hidden rounded-[26px] border-[3px] border-black bg-white shadow-[16px_16px_0_#0f172a]"
+                                className="w-full max-w-md sm:max-w-2xl flex flex-col max-h-[85vh] rounded-[26px] border-[3px] border-black bg-white shadow-[16px_16px_0_#0f172a] overflow-hidden"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <div className="relative p-6 pb-5 bg-gradient-to-br from-[#ecfeff] via-white to-[#fef9c3] border-b-[3px] border-black">
+                                <div className="relative p-4 sm:p-5 sm:pb-4 bg-gradient-to-br from-[#ecfeff] via-white to-[#fef9c3] border-b-[3px] border-black shrink-0">
                                     <button
                                         onClick={() => setSelectedTx(null)}
-                                        className="absolute top-4 right-4 w-9 h-9 rounded-full border-[3px] border-black bg-white text-black flex items-center justify-center shadow-[4px_4px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
+                                        className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-9 sm:h-9 rounded-full border-[3px] border-black bg-white text-black flex items-center justify-center shadow-[4px_4px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
                                     >
                                         <X className="w-4 h-4 text-black" />
                                     </button>
@@ -375,28 +431,28 @@ export default function HistoryPage() {
                                                 damping: 20,
                                                 delay: 0.1,
                                             }}
-                                            className={`w-16 h-16 rounded-2xl border-[3px] border-black flex items-center justify-center mb-4 shadow-[6px_6px_0_#0f172a] ${selectedTx.status === "paid"
-                                                    ? "bg-[#dcfce7]"
-                                                    : selectedTx.status === "failed"
-                                                        ? "bg-[#fee2e2]"
-                                                        : "bg-[#fff7ed]"
+                                            className={`w-12 h-12 rounded-2xl border-[3px] border-black flex items-center justify-center mb-3 shadow-[6px_6px_0_#0f172a] ${selectedTx.status === "paid"
+                                                ? "bg-[#dcfce7]"
+                                                : selectedTx.status === "failed"
+                                                    ? "bg-[#fee2e2]"
+                                                    : "bg-[#fff7ed]"
                                                 }`}
                                         >
                                             {selectedTx.status === "paid" ? (
-                                                <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                                                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
                                             ) : selectedTx.status === "failed" ? (
-                                                <XCircle className="w-8 h-8 text-rose-600" />
+                                                <XCircle className="w-6 h-6 text-rose-600" />
                                             ) : (
-                                                <Clock className="w-8 h-8 text-amber-600" />
+                                                <Clock className="w-6 h-6 text-amber-600" />
                                             )}
                                         </motion.div>
 
                                         <Badge
-                                            className={`text-[11px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg border-[3px] border-black mb-3 shadow-[4px_4px_0_#0f172a] ${selectedTx.status === "paid"
-                                                    ? "bg-[#22c55e] text-white"
-                                                    : selectedTx.status === "failed"
-                                                        ? "bg-[#ef4444] text-white"
-                                                        : "bg-[#f97316] text-white"
+                                            className={`text-[11px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg border-[3px] border-black mb-2 shadow-[4px_4px_0_#0f172a] ${selectedTx.status === "paid"
+                                                ? "bg-[#22c55e] text-white"
+                                                : selectedTx.status === "failed"
+                                                    ? "bg-[#ef4444] text-white"
+                                                    : "bg-[#f97316] text-white"
                                                 }`}
                                         >
                                             {selectedTx.status === "paid"
@@ -406,7 +462,7 @@ export default function HistoryPage() {
                                                     : "Menunggu Pembayaran"}
                                         </Badge>
 
-                                        <p className="text-3xl font-black text-black tracking-tight">
+                                        <p className="text-2xl sm:text-3xl font-black text-black tracking-tight">
                                             {formatIDR(selectedTx.amount)}
                                         </p>
                                         {selectedTx.status === "pending" && remainingMs > 0 && (
@@ -417,77 +473,81 @@ export default function HistoryPage() {
                                     </div>
                                 </div>
 
-                                <div className="px-6 pb-6 space-y-4">
+                                <div className="p-6 flex flex-col sm:flex-row gap-6 max-h-[60vh] overflow-y-auto">
                                     {selectedTx.status === "pending" && selectedTx.qrImage && (
-                                        <div className="rounded-2xl border-[3px] border-black bg-white p-4 shadow-[8px_8px_0_#0f172a] text-center">
-                                            <p className="text-sm font-black text-slate-700 mb-3">Scan QR untuk membayar</p>
-                                            <div className="mx-auto w-40 h-40 rounded-xl border-[3px] border-black overflow-hidden bg-white shadow-[6px_6px_0_#0f172a]">
-                                                <img src={selectedTx.qrImage} alt="QR Pembayaran" className="w-full h-full object-contain" />
+                                        <div className="shrink-0 sm:w-[280px]">
+                                            <div className="rounded-2xl border-[3px] border-black bg-white p-4 shadow-[8px_8px_0_#0f172a] text-center sticky top-0">
+                                                <p className="text-sm font-black text-slate-700 mb-3">Scan QR untuk membayar</p>
+                                                <div className="mx-auto w-36 h-36 sm:w-48 sm:h-48 rounded-xl border-[3px] border-black overflow-hidden bg-white shadow-[4px_4px_0_#0f172a]">
+                                                    <img src={selectedTx.qrImage} alt="QR Pembayaran" className="w-full h-full object-contain" />
+                                                </div>
+                                                {selectedTx.payUrl && (
+                                                    <a
+                                                        href={selectedTx.payUrl}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="flex items-center justify-center mt-4 px-3 py-2.5 rounded-xl border-[3px] border-black bg-black text-white text-[13px] font-black shadow-[4px_4px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
+                                                    >
+                                                        Buka Link Pembayaran
+                                                    </a>
+                                                )}
+                                                <p className="mt-3 text-xs text-slate-700 font-semibold">{checkMessage}</p>
                                             </div>
-                                            {selectedTx.payUrl && (
-                                                <a
-                                                    href={selectedTx.payUrl}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="inline-flex items-center justify-center mt-3 px-4 py-2 rounded-xl border-[3px] border-black bg-black text-white font-black shadow-[6px_6px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
-                                                >
-                                                    Buka Link Pembayaran
-                                                </a>
-                                            )}
-                                            <p className="mt-3 text-xs text-slate-700 font-semibold">{checkMessage}</p>
                                         </div>
                                     )}
 
-                                    <div className="bg-white rounded-2xl border-[3px] border-black divide-y-[3px] divide-black overflow-hidden shadow-[8px_8px_0_#0f172a]">
-                                        <div className="flex items-center gap-4 px-4 py-3.5">
-                                            <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
-                                                <Coins className="w-4 h-4 text-black" />
+                                    <div className="flex-1 flex flex-col min-w-0">
+                                        <div className="bg-white rounded-2xl border-[3px] border-black divide-y-[3px] divide-black overflow-hidden shadow-[8px_8px_0_#0f172a]">
+                                            <div className="flex items-center gap-4 px-4 py-3.5">
+                                                <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
+                                                    <Coins className="w-4 h-4 text-black" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs text-slate-600 font-semibold">Jumlah Kredit</p>
+                                                    <p className="font-black text-black">
+                                                        +{selectedTx.credits.toLocaleString("id-ID")} Kredit
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs text-slate-600 font-semibold">Jumlah Kredit</p>
-                                                <p className="font-black text-black">
-                                                    +{selectedTx.credits.toLocaleString("id-ID")} Kredit
-                                                </p>
+
+                                            <div className="flex items-center gap-4 px-4 py-3.5">
+                                                <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
+                                                    <CreditCard className="w-4 h-4 text-black" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs text-slate-600 font-semibold">Nominal Pembayaran</p>
+                                                    <p className="font-black text-black">{formatIDR(selectedTx.amount)}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-4 px-4 py-3.5">
+                                                <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
+                                                    <Calendar className="w-4 h-4 text-black" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs text-slate-600 font-semibold">Tanggal Transaksi</p>
+                                                    <p className="font-black text-black text-sm">{formatFullDate(selectedTx.createdAt)}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-4 px-4 py-3.5">
+                                                <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
+                                                    <Hash className="w-4 h-4 text-black" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs text-slate-600 font-semibold">ID Transaksi</p>
+                                                    <p className="font-black text-black text-xs font-mono truncate">{selectedTx.paymentId}</p>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-4 px-4 py-3.5">
-                                            <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
-                                                <CreditCard className="w-4 h-4 text-black" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs text-slate-600 font-semibold">Nominal Pembayaran</p>
-                                                <p className="font-black text-black">{formatIDR(selectedTx.amount)}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-4 px-4 py-3.5">
-                                            <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
-                                                <Calendar className="w-4 h-4 text-black" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs text-slate-600 font-semibold">Tanggal Transaksi</p>
-                                                <p className="font-black text-black text-sm">{formatFullDate(selectedTx.createdAt)}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-4 px-4 py-3.5">
-                                            <div className="w-10 h-10 rounded-lg border-[3px] border-black bg-white flex items-center justify-center shrink-0 shadow-[4px_4px_0_#0f172a]">
-                                                <Hash className="w-4 h-4 text-black" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs text-slate-600 font-semibold">ID Transaksi</p>
-                                                <p className="font-black text-black text-xs font-mono truncate">{selectedTx.paymentId}</p>
-                                            </div>
-                                        </div>
+                                        <Button
+                                            onClick={() => setSelectedTx(null)}
+                                            className="w-full mt-6 h-12 rounded-xl border-[3px] border-black bg-black text-white font-black shadow-[8px_8px_0_#0f172a] hover:-translate-y-0.5 transition-transform shrink-0"
+                                        >
+                                            Tutup
+                                        </Button>
                                     </div>
-
-                                    <Button
-                                        onClick={() => setSelectedTx(null)}
-                                        className="w-full mt-4 h-12 rounded-xl border-[3px] border-black bg-black text-white font-black shadow-[8px_8px_0_#0f172a] hover:-translate-y-0.5 transition-transform"
-                                    >
-                                        Tutup
-                                    </Button>
                                 </div>
                             </motion.div>
                         </motion.div>

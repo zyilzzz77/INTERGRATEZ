@@ -23,7 +23,8 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Kredit tidak mencukupi" }, { status: 403, headers: CORS });
         }
 
-        const url = `https://api.neoxr.eu/api/dracin?q=${encodeURIComponent(q)}&apikey=${process.env.NEOXR_API_KEY}`;
+        const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+        const url = `${NEOXR_BASE}/api/dracin?q=${encodeURIComponent(q)}&apikey=${process.env.NEOXR_API_KEY}`;
         const res = await fetch(url, {
             cache: "no-store",
             headers: {

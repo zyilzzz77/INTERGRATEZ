@@ -34,7 +34,8 @@ export async function GET(req: NextRequest) {
 
         // Call neoxr AI Anime API
         const apiKey = process.env.NEOXR_API_KEY;
-        const apiUrl = `https://api.neoxr.eu/api/ai-anime?q=${encodeURIComponent(query.trim())}&apikey=${apiKey}`;
+        const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+        const apiUrl = `${NEOXR_BASE}/api/ai-anime?q=${encodeURIComponent(query.trim())}&apikey=${apiKey}`;
 
         console.log("[teks2animate] Calling API with query:", query);
         const apiRes = await fetch(apiUrl, { cache: "no-store" });

@@ -27,7 +27,9 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Kredit tidak mencukupi" }, { status: 403, headers: CORS });
         }
 
-        const url = `https://dramawave.dramabos.my.id/api/episode/${id}/${chapter}?lang=in&code=0B758C07EB07771BACB70777A0F4147A`;
+        const DRAMAWAVE_BASE = process.env.DRAMAWAVE_API_BASE_URL || "https://dramawave.dramabos.my.id";
+        const DRAMABOS_CODE = process.env.DRAMABOS_CODE || "0B758C07EB07771BACB70777A0F4147A";
+        const url = `${DRAMAWAVE_BASE}/api/episode/${id}/${chapter}?lang=in&code=${DRAMABOS_CODE}`;
 
         const res = await axios.get(url, {
             headers: { "User-Agent": "Mozilla/5.0" },

@@ -13,7 +13,8 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest) {
     try {
-        const url = `https://dramawave.dramabos.my.id/api/home?lang=in`;
+        const DRAMAWAVE_BASE = process.env.DRAMAWAVE_API_BASE_URL || "https://dramawave.dramabos.my.id";
+        const url = `${DRAMAWAVE_BASE}/api/home?lang=in`;
 
         // Retry logic for timeout/network errors
         const MAX_RETRIES = 2;

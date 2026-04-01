@@ -350,8 +350,8 @@ function DetailContent() {
                     {/* ===== HERO SECTION ===== */}
                     <div className="relative overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10">
                         <div className="absolute inset-0 z-0">
-                            <img src={detail.cover} alt="" className="h-full w-full object-cover blur-3xl opacity-20 scale-110" crossOrigin="anonymous" />
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
+                            <img src={detail.cover} alt="" className="h-full w-full object-cover blur-3xl opacity-80 scale-110" crossOrigin="anonymous" />
+                            <div className="absolute inset-0 bg-black/40" />
                         </div>
 
                         <div className="relative z-10 flex flex-col gap-6 p-6 sm:flex-row sm:gap-8 sm:p-8">

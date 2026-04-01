@@ -5,9 +5,9 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
     return (
         <footer className="bg-[#e8e6d7] text-black py-12 border-t-[3px] border-black mt-20 w-full relative overflow-hidden rounded-[36px] md:rounded-[56px] before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-[#e8e6d7] z-10">
             <div className="container mx-auto px-4 max-w-7xl relative z-20">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8 mb-12">
                     {/* Column 1: Brand Info */}
-                    <div className="lg:col-span-2 space-y-4">
+                    <div className="col-span-2 md:col-span-4 lg:col-span-2 space-y-4">
                         <Link href={`/${lang}`} className="inline-block">
                             <span className="text-3xl font-black text-black tracking-tighter hover:text-primary transition-colors">{dict.brandColumnBrand || "inversave.co"}</span>
                         </Link>
@@ -55,9 +55,9 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
                     </div>
 
                     {/* Column 2: Produk */}
-                    <div className="space-y-4">
-                        <h3 className="text-black font-black text-xl tracking-wide mb-6">{dict.products || "Products"}</h3>
-                        <ul className="space-y-3 font-bold text-gray-700">
+                    <div className="col-span-1 space-y-4">
+                        <h3 className="text-black font-black text-lg md:text-xl tracking-wide mb-4 md:mb-6">{dict.products || "Products"}</h3>
+                        <ul className="space-y-3 font-bold text-gray-700 text-sm md:text-base">
                             <li><Link href={`/${lang}/search/tiktok`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">TikTok Downloader</Link></li>
                             <li><Link href={`/${lang}/search/instagram`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">IG Downloader</Link></li>
                             <li><Link href={`/${lang}/search/youtube`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">YT Downloader</Link></li>
@@ -68,9 +68,9 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
                     </div>
 
                     {/* Column 3: Perusahaan */}
-                    <div className="space-y-4">
-                        <h3 className="text-black font-black text-xl tracking-wide mb-6">{dict.company || "Company"}</h3>
-                        <ul className="space-y-3 font-bold text-gray-700">
+                    <div className="col-span-1 space-y-4">
+                        <h3 className="text-black font-black text-lg md:text-xl tracking-wide mb-4 md:mb-6">{dict.company || "Company"}</h3>
+                        <ul className="space-y-3 font-bold text-gray-700 text-sm md:text-base">
                             <li><Link href={`/${lang}/about`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.aboutUs || "About Us"}</Link></li>
                             <li><Link href={`/${lang}/blog`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.blog || "Blog & Update"}</Link></li>
                             <li><Link href={`/${lang}/topup`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.pricing || "Harga & Paket"}</Link></li>
@@ -78,25 +78,26 @@ export default function Footer({ dict, lang }: { dict: any; lang: string }) {
                         </ul>
                     </div>
 
-                    {/* Column 4: Lainnya & Hubungi Kami */}
-                    <div className="space-y-4">
-                        <h3 className="text-black font-black text-xl tracking-wide mb-6">{dict.others || "Others"}</h3>
-                        <ul className="space-y-3 font-bold text-gray-700">
+                    {/* Column 4: Lainnya */}
+                    <div className="col-span-1 space-y-4">
+                        <h3 className="text-black font-black text-lg md:text-xl tracking-wide mb-4 md:mb-6">{dict.others || "Others"}</h3>
+                        <ul className="space-y-3 font-bold text-gray-700 text-sm md:text-base">
                             <li><Link href={`/${lang}/bantuan`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.faq || "Bantuan FAQ"}</Link></li>
                             <li><Link href={`/${lang}/privasi`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.privacy || "Pemberitahuan Privasi"}</Link></li>
                             <li><Link href={`/${lang}/syarat`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.terms || "Syarat & Ketentuan"}</Link></li>
                             <li><Link href={`/${lang}/disclaimer`} className="hover:text-white focus:text-white active:text-white visited:text-black hover:underline hover:-translate-y-0.5 inline-block transition-transform">{dict.disclaimer || "Disclaimer DMCA"}</Link></li>
                         </ul>
+                    </div>
 
-                        <div className="pt-6">
-                            <h3 className="text-black font-black text-xl tracking-wide mb-4">{dict.contactUs || "Contact Us"}</h3>
-                            <div className="flex gap-2 text-sm font-bold text-gray-700">
-                                <MapPin className="w-5 h-5 shrink-0 text-black mt-1" />
-                                <span className="leading-snug">
-                                    Jakarta, Indonesia<br />
-                                    Kode Pos 12160
-                                </span>
-                            </div>
+                    {/* Column 5: Hubungi Kami */}
+                    <div className="col-span-1 space-y-4">
+                        <h3 className="text-black font-black text-lg md:text-xl tracking-wide mb-4 md:mb-6">{dict.contactUs || "Contact Us"}</h3>
+                        <div className="flex gap-2 text-sm md:text-base font-bold text-gray-700">
+                            <MapPin className="w-5 h-5 shrink-0 text-black mt-1" />
+                            <span className="leading-snug">
+                                Jakarta, Indonesia<br />
+                                Kode Pos 12160
+                            </span>
                         </div>
                     </div>
                 </div>

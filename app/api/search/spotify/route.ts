@@ -23,8 +23,10 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Kredit tidak mencukupi" }, { status: 403, headers: CORS });
         }
 
-        const url = `https://api.nexray.web.id/search/spotify?q=${encodeURIComponent(q)}`;
-        // Use a proper User-Agent to avoid potential blocks, though NexRay seems public
+        const NEOXR_API_KEY = process.env.NEOXR_API_KEY || "OXlJB9";
+        const url = `https://api.neoxr.eu/api/spotify-search?q=${encodeURIComponent(q)}&apikey=${NEOXR_API_KEY}`;
+
+        // Use a proper User-Agent to avoid potential blocks
         const res = await fetch(url, {
             cache: "no-store",
             headers: {
@@ -36,21 +38,34 @@ export async function GET(req: NextRequest) {
 
         const data = await res.json();
 
-        // NexRay format: { status: true, result: [...] }
-        const items = data.status && Array.isArray(data.result) ? data.result : [];
+        // Neoxr format: { status: true, data: [...] }
+        const items = data.status && Array.isArray(data.data) ? data.data : [];
 
         /* eslint-disable @typescript-eslint/no-explicit-any */
-        const results = items.map((item: any) => ({
-            title: item.title || "Unknown",
-            artist: item.artist || "Unknown Artist",
-            cover: item.thumbnail || "",
-            thumbnail: item.thumbnail || "",
-            duration: item.duration || "-",
-            url: item.url || "",
-            album: item.album || "",
-            release_date: item.release_date || "",
-            popularity: item.popularity || 0,
-        }));
+        const results = items.map((item: any) => {
+            // Neoxr sometimes returns title as "Artist - Title"
+            const fullTitle = item.title || "";
+            let artistStr = "Unknown Artist";
+            let titleStr = fullTitle;
+
+            if (fullTitle.includes(" - ")) {
+                const parts = fullTitle.split(" - ");
+                artistStr = parts[0].trim();
+                titleStr = parts.slice(1).join(" - ").trim();
+            }
+
+            return {
+                title: titleStr || "Unknown",
+                artist: artistStr,
+                cover: item.thumbnail || "",
+                thumbnail: item.thumbnail || "",
+                duration: item.duration || "-",
+                url: item.url || "",
+                album: "",
+                release_date: "",
+                popularity: item.popularity || 0,
+            };
+        });
 
         return NextResponse.json({ items: results }, { headers: CORS });
     } catch (err: unknown) {

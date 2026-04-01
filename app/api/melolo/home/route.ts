@@ -14,7 +14,8 @@ export async function OPTIONS() {
 export async function GET(req: NextRequest) {
     try {
         const offset = req.nextUrl.searchParams.get("offset") || "0";
-        const url = `https://melolo.dramabos.my.id/api/home?lang=id&offset=${offset}`;
+        const MELOLO_BASE = process.env.MELOLO_API_BASE_URL || "https://melolo.dramabos.my.id";
+        const url = `${MELOLO_BASE}/api/home?lang=id&offset=${offset}`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

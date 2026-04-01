@@ -28,7 +28,8 @@ export async function OPTIONS() {
 export async function GET(req: NextRequest) {
     try {
         const page = req.nextUrl.searchParams.get("page") || "1";
-        const url = `https://netshort.dramabos.my.id/api/home/${page}?lang=in`;
+        const NETSHORT_BASE = process.env.NETSHORT_API_BASE_URL || "https://netshort.dramabos.my.id";
+        const url = `${NETSHORT_BASE}/api/home/${page}?lang=in`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

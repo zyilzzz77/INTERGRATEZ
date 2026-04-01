@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ status: true, data: [], count: 0 }, { headers: CORS });
         }
 
-        const url = `https://melolo.dramabos.my.id/api/search?lang=id&q=${encodeURIComponent(query)}`;
+        const MELOLO_BASE = process.env.MELOLO_API_BASE_URL || "https://melolo.dramabos.my.id";
+        const url = `${MELOLO_BASE}/api/search?lang=id&q=${encodeURIComponent(query)}`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

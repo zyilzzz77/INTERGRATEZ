@@ -62,7 +62,8 @@ export async function POST(req: NextRequest) {
         catboxForm.append("fileToUpload", blob, file.name || "image.jpg");
 
         console.log("[remove-bg] Uploading to catbox.moe...");
-        const uploadRes = await fetch("https://catbox.moe/user/api.php", {
+        const CATBOX_BASE = process.env.CATBOX_API_BASE_URL || "https://catbox.moe";
+        const uploadRes = await fetch(`${CATBOX_BASE}/user/api.php`, {
             method: "POST",
             body: catboxForm,
         });
@@ -78,7 +79,8 @@ export async function POST(req: NextRequest) {
 
         // 4. Call neoxr Remove BG API
         const apiKey = process.env.NEOXR_API_KEY;
-        const apiUrl = `https://api.neoxr.eu/api/nobg?image=${encodeURIComponent(imageUrl)}&apikey=${apiKey}`;
+        const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+        const apiUrl = `${NEOXR_BASE}/api/nobg?image=${encodeURIComponent(imageUrl)}&apikey=${apiKey}`;
 
         console.log("[remove-bg] Calling remove-bg API...");
         const apiRes = await fetch(apiUrl, { cache: "no-store" });

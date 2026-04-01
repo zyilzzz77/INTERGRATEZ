@@ -8,12 +8,13 @@ export async function GET(request: Request) {
     const page = searchParams.get('page') || '1';
 
     try {
-        const url = `https://flickreels.dramabos.my.id/api/home?lang=6&page=${page}`;
+        const FLICKREELS_BASE = process.env.FLICKREELS_API_BASE_URL || "https://flickreels.dramabos.my.id";
+        const url = `${FLICKREELS_BASE}/api/home?lang=6&page=${page}`;
         
         const response = await fetch(url, {
             headers: {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Referer": "https://flickreels.dramabos.my.id/"
+                "Referer": `${FLICKREELS_BASE}/`
             },
             next: { revalidate: 3600 }
         });

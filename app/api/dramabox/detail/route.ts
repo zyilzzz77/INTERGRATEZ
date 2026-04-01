@@ -7,7 +7,7 @@ const CORS = {
     "Access-Control-Allow-Headers": "Content-Type",
 };
 
-const CODE = "0B758C07EB07771BACB70777A0F4147A";
+const CODE = process.env.DRAMABOS_CODE || "0B758C07EB07771BACB70777A0F4147A";
 
 export async function OPTIONS() {
     return NextResponse.json({}, { headers: CORS });
@@ -21,7 +21,8 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const url = `https://dramabox.dramabos.my.id/api/v1/detail?bookId=${bookId}&lang=in&code=${CODE}`;
+        const DRAMABOX_BASE = process.env.DRAMABOX_API_BASE_URL || "https://dramabox.dramabos.my.id";
+        const url = `${DRAMABOX_BASE}/api/v1/detail?bookId=${bookId}&lang=in&code=${CODE}`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

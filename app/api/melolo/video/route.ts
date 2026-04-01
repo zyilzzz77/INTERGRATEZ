@@ -7,7 +7,7 @@ const CORS = {
     "Access-Control-Allow-Headers": "Content-Type",
 };
 
-const VIDEO_CODE = "0B758C07EB07771BACB70777A0F4147A";
+const VIDEO_CODE = process.env.DRAMABOS_CODE || "0B758C07EB07771BACB70777A0F4147A";
 
 export async function OPTIONS() {
     return NextResponse.json({}, { headers: CORS });
@@ -20,7 +20,8 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ status: false, error: "Missing vid parameter" }, { status: 400, headers: CORS });
         }
 
-        const url = `https://melolo.dramabos.my.id/api/video/${vid}?lang=id&code=${VIDEO_CODE}`;
+        const MELOLO_BASE = process.env.MELOLO_API_BASE_URL || "https://melolo.dramabos.my.id";
+        const url = `${MELOLO_BASE}/api/video/${vid}?lang=id&code=${VIDEO_CODE}`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

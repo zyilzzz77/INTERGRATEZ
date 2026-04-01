@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Missing query" }, { status: 400, headers: CORS });
         }
 
-        const url = `https://stardusttv.dramabos.my.id/v1/find?q=${encodeURIComponent(q)}&lang=id`;
+        const STARDUSTTV_BASE = process.env.STARDUSTTV_API_BASE_URL || "https://stardusttv.dramabos.my.id";
+        const url = `${STARDUSTTV_BASE}/v1/find?q=${encodeURIComponent(q)}&lang=id`;
 
         const res = await axios.get(url, {
             headers: { "User-Agent": "Mozilla/5.0" },

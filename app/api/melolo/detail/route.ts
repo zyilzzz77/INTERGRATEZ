@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ status: false, error: "Missing id parameter" }, { status: 400, headers: CORS });
         }
 
-        const url = `https://melolo.dramabos.my.id/api/detail/${id}?lang=id`;
+        const MELOLO_BASE = process.env.MELOLO_API_BASE_URL || "https://melolo.dramabos.my.id";
+        const url = `${MELOLO_BASE}/api/detail/${id}?lang=id`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

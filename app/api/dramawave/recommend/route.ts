@@ -13,7 +13,8 @@ export async function OPTIONS() {
 
 export async function GET() {
     try {
-        const url = "https://dramawave.dramabos.my.id/api/recommend?lang=cn&next=1";
+        const DRAMAWAVE_BASE = process.env.DRAMAWAVE_API_BASE_URL || "https://dramawave.dramabos.my.id";
+        const url = `${DRAMAWAVE_BASE}/api/recommend?lang=cn&next=1`;
 
         const res = await axios.get(url, {
             headers: {

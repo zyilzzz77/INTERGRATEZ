@@ -14,8 +14,9 @@ export async function GET(req: NextRequest) {
 
     try {
         const clean = username.replace(/^@/, "");
+        const VREDEN_BASE = process.env.VREDEN_API_BASE_URL || "https://api.vreden.my.id";
         const apiUrl =
-            "https://api.vreden.my.id/api/v1/stalker/instagram?username=" +
+            `${VREDEN_BASE}/api/v1/stalker/instagram?username=` +
             encodeURIComponent(clean);
 
         const res = await fetch(apiUrl, {

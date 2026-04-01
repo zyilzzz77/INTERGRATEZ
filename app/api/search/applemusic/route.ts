@@ -17,7 +17,8 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Missing query" }, { status: 400, headers: CORS });
         }
 
-        const url = `https://api.nexray.web.id/search/applemusic?q=${encodeURIComponent(q)}`;
+        const NEXRAY_BASE = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
+        const url = `${NEXRAY_BASE}/search/applemusic?q=${encodeURIComponent(q)}`;
         const res = await fetch(url, {
             cache: "no-store",
             headers: {

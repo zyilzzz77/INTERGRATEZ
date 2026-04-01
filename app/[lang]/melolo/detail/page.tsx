@@ -363,8 +363,15 @@ function DetailContent() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="mx-auto max-w-5xl px-4 py-6 sm:py-10"
+                    className="relative mx-auto max-w-5xl px-4 py-6 sm:py-10"
                 >
+                    {detail?.cover && (
+                        <div className="absolute inset-0 -z-10">
+                            <img src={detail.cover} alt="" className="h-full w-full object-cover blur-3xl opacity-80 scale-110" crossOrigin="anonymous" />
+                            <div className="absolute inset-0 bg-black/40" />
+                        </div>
+                    )}
+
                     {/* Breadcrumb */}
                     <div className="mb-6 flex items-center gap-2 text-sm text-neutral-400">
                         <Link href="/melolo" className="hover:text-rose-400 transition-colors">Melolo Drama</Link>
@@ -376,8 +383,8 @@ function DetailContent() {
                     <div className="relative overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10">
                         {/* Background Blur */}
                         <div className="absolute inset-0 z-0">
-                            <img src={detail.cover} alt="" className="h-full w-full object-cover blur-3xl opacity-20 scale-110" crossOrigin="anonymous" />
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
+                            <img src={detail.cover} alt="" className="h-full w-full object-cover blur-3xl opacity-80 scale-110" crossOrigin="anonymous" />
+                            <div className="absolute inset-0 bg-black/40" />
                         </div>
 
                         <div className="relative z-10 flex flex-col gap-6 p-6 sm:flex-row sm:gap-8 sm:p-8">
@@ -479,9 +486,15 @@ function DetailContent() {
                                             {/* Video */}
                                             <div
                                                 ref={playerContainerRef}
-                                                className="relative aspect-video w-full bg-black"
+                                                className="relative aspect-video w-full overflow-hidden rounded-b-2xl bg-black/80"
                                                 onContextMenu={(e) => e.preventDefault()}
                                             >
+                                                {detail.cover && (
+                                                    <div className="absolute inset-0 -z-10">
+                                                        <img src={detail.cover} alt="" className="h-full w-full object-cover blur-3xl opacity-80 scale-110" crossOrigin="anonymous" />
+                                                        <div className="absolute inset-0 bg-black/50" />
+                                                    </div>
+                                                )}
                                                 <video
                                                     ref={videoRef}
                                                     className="h-full w-full object-contain"

@@ -13,7 +13,8 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest) {
     try {
-        const url = `https://stardusttv.dramabos.my.id/v1/list?lang=id`;
+        const STARDUSTTV_BASE = process.env.STARDUSTTV_API_BASE_URL || "https://stardusttv.dramabos.my.id";
+        const url = `${STARDUSTTV_BASE}/v1/list?lang=id`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

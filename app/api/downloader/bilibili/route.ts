@@ -13,8 +13,9 @@ export async function GET(req: NextRequest) {
     }
 
     try {
+        const NEXRAY_BASE = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
         const apiUrl =
-            "https://api.nexray.web.id/downloader/bilibili?url=" +
+            `${NEXRAY_BASE}/downloader/bilibili?url=` +
             encodeURIComponent(url);
 
         const res = await fetch(apiUrl, {

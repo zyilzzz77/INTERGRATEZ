@@ -29,7 +29,8 @@ export async function GET(req: NextRequest) {
         }
 
         const apiKey = process.env.NEOXR_API_KEY;
-        const apiUrl = `https://api.neoxr.eu/api/spotify?url=${encodeURIComponent(url)}&apikey=${apiKey}`;
+        const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+        const apiUrl = `${NEOXR_BASE}/api/spotify?url=${encodeURIComponent(url)}&apikey=${apiKey}`;
 
         const res = await fetch(apiUrl, { cache: "no-store" });
 

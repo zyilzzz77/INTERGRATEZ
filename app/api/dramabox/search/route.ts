@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const url = `https://dramabox.dramabos.my.id/api/v1/search?query=${encodeURIComponent(query)}&lang=in`;
+        const DRAMABOX_BASE = process.env.DRAMABOX_API_BASE_URL || "https://dramabox.dramabos.my.id";
+        const url = `${DRAMABOX_BASE}/api/v1/search?query=${encodeURIComponent(query)}&lang=in`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

@@ -26,7 +26,8 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ status: false, error: "Missing id" }, { status: 400, headers: CORS });
         }
 
-        const url = `https://netshort.dramabos.my.id/api/drama/${id}?lang=in`;
+        const NETSHORT_BASE = process.env.NETSHORT_API_BASE_URL || "https://netshort.dramabos.my.id";
+        const url = `${NETSHORT_BASE}/api/drama/${id}?lang=in`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

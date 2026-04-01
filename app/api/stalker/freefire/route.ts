@@ -13,8 +13,9 @@ export async function GET(req: NextRequest) {
     }
 
     try {
+        const NEXRAY_BASE = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
         const apiUrl =
-            "https://api.nexray.web.id/stalker/freefire?uid=" +
+            `${NEXRAY_BASE}/stalker/freefire?uid=` +
             encodeURIComponent(uid.trim());
 
         const res = await fetch(apiUrl, {
@@ -75,7 +76,7 @@ export async function GET(req: NextRequest) {
             } : null,
             // Banner
             bannerImage: r.banner_image
-                ? obfuscate(`https://api.nexray.web.id${r.banner_image}`)
+                ? obfuscate(`${NEXRAY_BASE}${r.banner_image}`)
                 : "",
         });
     } catch (err) {

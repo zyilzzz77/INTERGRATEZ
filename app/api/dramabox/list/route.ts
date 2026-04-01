@@ -15,14 +15,15 @@ export async function GET(req: NextRequest) {
     try {
         const apikey = process.env.TAKO_API_KEY;
         const q = req.nextUrl.searchParams.get("q");
+        const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
 
         let url: string;
         if (q) {
             // Search
-            url = `https://api.neoxr.eu/api/dramabox?q=${encodeURIComponent(q)}&apikey=${apikey}`;
+            url = `${NEOXR_BASE}/api/dramabox?q=${encodeURIComponent(q)}&apikey=${apikey}`;
         } else {
             // Trending
-            url = `https://api.neoxr.eu/api/dramabox-trending?apikey=${apikey}`;
+            url = `${NEOXR_BASE}/api/dramabox-trending?apikey=${apikey}`;
         }
 
         // Retry logic for timeout/network errors

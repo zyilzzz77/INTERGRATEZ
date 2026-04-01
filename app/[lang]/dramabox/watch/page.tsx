@@ -19,6 +19,11 @@ interface Episode {
     videoUrl: string;
 }
 
+interface DramaDetail {
+    title: string;
+    cover: string;
+}
+
 function LoadingState() {
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center">
@@ -55,6 +60,7 @@ function WatchContent() {
     const [isRefreshingToken, setIsRefreshingToken] = useState(false);
     const [tokenRetry, setTokenRetry] = useState(0);
     const [historyLoaded, setHistoryLoaded] = useState(false);
+    const [detail, setDetail] = useState<DramaDetail | null>(null);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const playerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -99,6 +105,23 @@ function WatchContent() {
         const interval = setInterval(fetchEpisodes, 15 * 60 * 1000);
         return () => clearInterval(interval);
     }, [bookId, fetchEpisodes]);
+
+    // Fetch drama detail for background/metadata
+    useEffect(() => {
+        if (!bookId) return;
+        let mounted = true;
+        (async () => {
+            try {
+                const res = await fetch(`/api/dramabox/detail?bookId=${bookId}`);
+                const json = await res.json();
+                if (!mounted) return;
+                if (json.status && json.data) setDetail(json.data);
+            } catch (error) {
+                console.error("Failed to fetch dramabox detail:", error);
+            }
+        })();
+        return () => { mounted = false; };
+    }, [bookId]);
 
     // Load watch history on mount (only if no explicit ep param)
     useEffect(() => {
@@ -257,8 +280,15 @@ function WatchContent() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="mx-auto max-w-7xl px-4 py-6 sm:py-10"
+                    className="relative mx-auto max-w-7xl px-4 py-6 sm:py-10"
                 >
+                    {detail?.cover && (
+                        <div className="absolute inset-0 -z-10">
+                            <img src={detail.cover} alt="" className="h-full w-full object-cover blur-3xl opacity-40 scale-110" crossOrigin="anonymous" />
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black" />
+                        </div>
+                    )}
+
                     {/* Breadcrumb */}
                     <div className="mb-6 flex items-center gap-2 text-sm text-neutral-400">
                         <Link href="/dramabox" className="hover:text-red-400 transition-colors">DramaBox</Link>
@@ -273,11 +303,17 @@ function WatchContent() {
                         <div className="w-full lg:w-[70%]">
                             <div
                                 ref={playerContainerRef}
-                                className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl ring-1 ring-white/10"
+                                className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black/80 shadow-2xl ring-1 ring-white/10"
                                 onContextMenu={(e) => e.preventDefault()}
                             >
+                                {detail?.cover && (
+                                    <div className="absolute inset-0 -z-10">
+                                        <img src={detail.cover} alt="" className="h-full w-full object-cover blur-3xl opacity-50 scale-110" crossOrigin="anonymous" />
+                                        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/85 to-black" />
+                                    </div>
+                                )}
                                 {currentEp ? (
-                                    <div className="relative h-full w-full bg-black flex items-center justify-center">
+                                    <div className="relative h-full w-full bg-black/60 flex items-center justify-center">
                                         <video
                                             ref={videoRef}
                                             className="h-full w-full max-h-[80vh] object-contain"

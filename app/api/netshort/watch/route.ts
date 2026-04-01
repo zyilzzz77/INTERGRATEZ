@@ -20,7 +20,9 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ status: false, error: "Missing id" }, { status: 400, headers: CORS });
         }
 
-        const url = `https://netshort.dramabos.my.id/api/watch/${id}/${ep}?lang=in&code=0B758C07EB07771BACB70777A0F4147A`;
+        const NETSHORT_BASE = process.env.NETSHORT_API_BASE_URL || "https://netshort.dramabos.my.id";
+        const DRAMABOS_CODE = process.env.DRAMABOS_CODE || "0B758C07EB07771BACB70777A0F4147A";
+        const url = `${NETSHORT_BASE}/api/watch/${id}/${ep}?lang=in&code=${DRAMABOS_CODE}`;
 
         const MAX_RETRIES = 2;
         let lastError: any = null;

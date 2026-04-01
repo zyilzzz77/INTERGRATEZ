@@ -70,7 +70,7 @@ async function handleSearch(req: NextRequest) {
             let videoJson: any = null;
             try {
                 const videoRes = await fetch(
-                    `https://api.neoxr.eu/api/pinterest-v2?q=${encodeURIComponent(query)}&show=50&type=video&apikey=${apiKey}`,
+                    `${process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu"}/api/pinterest-v2?q=${encodeURIComponent(query)}&show=50&type=video&apikey=${apiKey}`,
                 );
 
                 const raw = await videoRes.text();

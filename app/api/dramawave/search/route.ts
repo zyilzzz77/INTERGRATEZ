@@ -20,7 +20,8 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Missing query" }, { status: 400, headers: CORS });
         }
 
-        const url = `https://dramawave.dramabos.my.id/api/search?q=${encodeURIComponent(query)}&lang=in&page=${page}`;
+        const DRAMAWAVE_BASE = process.env.DRAMAWAVE_API_BASE_URL || "https://dramawave.dramabos.my.id";
+        const url = `${DRAMAWAVE_BASE}/api/search?q=${encodeURIComponent(query)}&lang=in&page=${page}`;
 
         const res = await axios.get(url, {
             headers: {

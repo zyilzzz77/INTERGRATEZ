@@ -11,7 +11,8 @@ export async function GET(req: NextRequest) {
 
     try {
         const apiKey = process.env.FERDEV_API_KEY;
-        const apiUrl = `https://api.ferdev.my.id/search/tokopedia?query=${encodeURIComponent(q)}&apikey=${apiKey}`;
+        const FERDEV_BASE = process.env.FERDEV_API_BASE_URL || "https://api.ferdev.my.id";
+        const apiUrl = `${FERDEV_BASE}/search/tokopedia?query=${encodeURIComponent(q)}&apikey=${apiKey}`;
 
         const response = await fetch(apiUrl, {
             headers: {

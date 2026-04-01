@@ -1,0 +1,95 @@
+﻿C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|const res = await fetch(`https://twitsave.com/info?url=${encodeURIComponent(url)}`, {
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|const metaUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=video&quality=360p&apikey=${process.env.NEOXR_API_KEY}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|const tikRes = await fetch(`https://tikwm.com/api/?url=${encodeURIComponent(url)}`, {
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|const douyinRes = await fetch(`https://api.nexray.web.id/downloader/v1/douyin?url=${encodeURIComponent(url)}`, {
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|const nexRes = await fetch(`https://api.nexray.web.id/downloader/tiktok?url=${encodeURIComponent(url)}`, {
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|const igEndpoint = `https://api.neoxr.eu/api/ig?url=${encodeURIComponent(url)}&apikey=${IG_API_KEY}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|"https://api.vreden.my.id/api/v1/download/facebook?url=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|"https://api.nexray.web.id/downloader/threads?url=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|`https://api.nexray.web.id/downloader/v1/spotify?url=${encodeURIComponent(
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|"https://api.nexray.web.id/downloader/bilibili?url=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|"https://api.nexray.web.id/downloader/snackvideo?url=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|`https://api.neoxr.eu/api/terabox?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|"https://api.nexray.web.id/downloader/scribd?url=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|"https://api.nexray.web.id/downloader/mediafire?url=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|const vredenUrl = `https://api.vreden.my.id/api/v1/download/applemusic?url=${encodeURIComponent(url)}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|const apiUrl = `https://api.apocalypse.web.id/download/applemusic?url=${url}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|const scUrl = `https://api.ferdev.my.id/downloader/soundcloud?link=${encodeURIComponent(url)}&apikey=${process.env.FERDEV_API_KEY}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|`https://api.neoxr.eu/api/snapchat?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\download\route.ts|`https://api.neoxr.eu/api/videy?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\downloader\bilibili\route.ts|"https://api.nexray.web.id/downloader/bilibili?url=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\detail\route.ts|const url = `https://dramabox.dramabos.my.id/api/v1/detail?bookId=${bookId}&lang=in&code=${CODE}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\dubbed\route.ts|const url = `https://dramabox.dramabos.my.id/api/v1/dubbed?classify=${encodeURIComponent(classify)}&page=${page}&lang=in`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\episodes\route.ts|const url = `https://dramabox.dramabos.my.id/api/v1/allepisode?bookId=${bookId}&code=${CODE}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\foryou\route.ts|const url = `https://dramabox.dramabos.my.id/api/v1/foryou?lang=in`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\home\route.ts|const url = `https://dramabox.dramabos.my.id/api/v1/homepage?page=${page}&lang=in`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\list\route.ts|url = `https://api.neoxr.eu/api/dramabox?q=${encodeURIComponent(q)}&apikey=${apikey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\list\route.ts|url = `https://api.neoxr.eu/api/dramabox-trending?apikey=${apikey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\search\route.ts|const url = `https://dramabox.dramabos.my.id/api/v1/search?query=${encodeURIComponent(query)}&lang=in`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\trending\route.ts|const url = `https://dramabox.dramabos.my.id/api/v1/trending?lang=in`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramabox\route.ts|const url = `https://api.neoxr.eu/api/dramabox-get-v2?id=${encodeURIComponent(id)}&uri=${encodeURIComponent(uri)}&apikey=${apikey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramawave\episode\route.ts|const url = `https://dramawave.dramabos.my.id/api/episode/${id}/${chapter}?lang=in&code=0B758C07EB07771BACB70777A0F4147A`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramawave\home\route.ts|const url = `https://dramawave.dramabos.my.id/api/home?lang=in`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramawave\recommend\route.ts|const url = "https://dramawave.dramabos.my.id/api/recommend?lang=cn&next=1";
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\dramawave\search\route.ts|const url = `https://dramawave.dramabos.my.id/api/search?q=${encodeURIComponent(query)}&lang=in&page=${page}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\flickreels\detail\route.ts|const apiUrl = `https://flickreels.dramabos.my.id/batchload/${id}?lang=6&code=0B758C07EB07771BACB70777A0F4147A`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\flickreels\home\route.ts|const url = `https://flickreels.dramabos.my.id/api/home?lang=6&page=${page}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\flickreels\home\route.ts|"Referer": "https://flickreels.dramabos.my.id/"
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\flickreels\search\route.ts|const url = `https://flickreels.dramabos.my.id/search?q=${encodeURIComponent(query)}&lang=6`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\flickreels\search\route.ts|"Referer": "https://flickreels.dramabos.my.id/"
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\hls-proxy\route.ts|origin = "https://www.pinterest.com";
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\ip\route.ts|const externalRes = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\melolo\detail\route.ts|const url = `https://melolo.dramabos.my.id/api/detail/${id}?lang=id`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\melolo\home\route.ts|const url = `https://melolo.dramabos.my.id/api/home?lang=id&offset=${offset}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\melolo\search\route.ts|const url = `https://melolo.dramabos.my.id/api/search?lang=id&q=${encodeURIComponent(query)}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\melolo\video\route.ts|const url = `https://melolo.dramabos.my.id/api/video/${vid}?lang=id&code=${VIDEO_CODE}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\netshort\detail\route.ts|const url = `https://netshort.dramabos.my.id/api/drama/${id}?lang=in`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\netshort\home\route.ts|const url = `https://netshort.dramabos.my.id/api/home/${page}?lang=in`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\netshort\search\route.ts|const url = `https://netshort.dramabos.my.id/api/search?lang=in&q=${encodeURIComponent(q)}&page=${page}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\netshort\watch\route.ts|const url = `https://netshort.dramabos.my.id/api/watch/${id}/${ep}?lang=in&code=0B758C07EB07771BACB70777A0F4147A`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\payment\check\route.ts|const SAWERIA_CHECK_URL = "https://api.neoxr.eu/api/saweria-check";
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\payment\create\route.ts|const SAWERIA_API_URL = "https://api.neoxr.eu/api/saweria-create";
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\proxy-download\route.ts|Referer: "https://www.bilibili.tv/",
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\proxy-download\route.ts|Origin: "https://www.bilibili.tv",
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\proxy-download\route.ts|Referer: isTiktok ? "https://www.tiktok.com/" : "https://www.douyin.com/",
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\proxy-image\route.ts|* Usage: /api/proxy-image?url=https://example.com/image.jpg
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\proxy-image\route.ts|? "https://www.pinterest.com/"
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\proxy-image\route.ts|? "https://www.bilibili.tv/"
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\proxy-image\route.ts|? "https://netshort.com/"
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\resolve-audio\route.ts|const apiUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=audio&quality=128kbps&apikey=${process.env.NEOXR_API_KEY}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\resolve-youtube\route.ts|const apiUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=video&quality=${quality}p&apikey=${process.env.NEOXR_API_KEY}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\applemusic\route.ts|const url = `https://api.nexray.web.id/search/applemusic?q=${encodeURIComponent(q)}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\bilibili\route.ts|"https://api.nexray.web.id/search/bilibili?q=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\bilibili\route.ts|// Fix doubled domain: "https://www.bilibili.tv//www.bilibili.tv/id/..."
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\bilibili\route.ts|// → "https://www.bilibili.tv/id/..."
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\dracin\route.ts|const url = `https://api.neoxr.eu/api/dracin?q=${encodeURIComponent(q)}&apikey=${process.env.NEOXR_API_KEY}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\dracin-get\route.ts|const apiUrl = `https://api.neoxr.eu/api/dracin-get?url=${encodeURIComponent(dramaUrl)}&apikey=${process.env.NEOXR_API_KEY}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\github\route.ts|`https://api.ferdev.my.id/stalker/github?username=${username}&apikey=${process.env.FERDEV_API_KEY}`
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\pinterest\route.ts|`https://api.neoxr.eu/api/pinterest-v2?q=${encodeURIComponent(query)}&show=50&type=video&apikey=${apiKey}`,
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\soundcloud\route.ts|const url = `https://api.nexray.web.id/search/soundcloud?q=${encodeURIComponent(q)}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\spotify\route.ts|const url = `https://api.nexray.web.id/search/spotify?q=${encodeURIComponent(q)}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\spotify-new\route.ts|const url = `https://api.neoxr.eu/api/spotify-new?limit=${encodeURIComponent(limit)}&apikey=${process.env.NEOXR_API_KEY}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\tiktok\route.ts|"https://api.nexray.web.id/search/tiktok?q=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\tiktokphoto\route.ts|"https://api.nexray.web.id/search/tiktokphoto?q=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\tokopedia\route.ts|const apiUrl = `https://api.ferdev.my.id/search/tokopedia?query=${encodeURIComponent(q)}&apikey=${apiKey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\youtube\route.ts|const url = "https://api.nexray.web.id/search/youtube?q=" + encodeURIComponent(q);
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\youtube\route.ts|url: item.url || `https://www.youtube.com/watch?v=${item.id}`,
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\search\youtube-playlist\route.ts|const apiUrl = `https://api.neoxr.eu/api/yt-playlist?url=${encodeURIComponent(playlistUrl)}&apikey=${process.env.NEOXR_API_KEY}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\spotify\playlist\route.ts|const apiUrl = `https://api.neoxr.eu/api/spotify?url=${encodeURIComponent(url)}&apikey=${apiKey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\stalker\freefire\route.ts|"https://api.nexray.web.id/stalker/freefire?uid=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\stalker\freefire\route.ts|? obfuscate(`https://api.nexray.web.id${r.banner_image}`)
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\stalker\instagram\route.ts|"https://api.vreden.my.id/api/v1/stalker/instagram?username=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\stalker\tiktok\route.ts|"https://api.nexray.web.id/stalker/tiktok?username=" +
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\stardusttv\detail\route.ts|const url = `https://stardusttv.dramabos.my.id/v1/detail/${encodeURIComponent(slug)}/${encodeURIComponent(id)}?lang=id&code=0B758C07EB07771BACB70777A0F4147A`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\stardusttv\episode\route.ts|const url = `https://stardusttv.dramabos.my.id/v1/detail/${encodeURIComponent(slug)}/${encodeURIComponent(id)}/episode/${encodeURIComponent(episode)}?lang=id&code=0B758C07EB07771BACB70777A0F4147A`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\stardusttv\home\route.ts|const url = `https://stardusttv.dramabos.my.id/v1/list?lang=id`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\stardusttv\search\route.ts|const url = `https://stardusttv.dramabos.my.id/v1/find?q=${encodeURIComponent(q)}&lang=id`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\tools\remini\route.ts|const uploadRes = await fetch("https://catbox.moe/user/api.php", {
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\tools\remini\route.ts|const apiUrl = `https://api.neoxr.eu/api/remini?image=${encodeURIComponent(imageUrl)}&apikey=${apiKey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\tools\remove-bg\route.ts|const uploadRes = await fetch("https://catbox.moe/user/api.php", {
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\tools\remove-bg\route.ts|const apiUrl = `https://api.neoxr.eu/api/nobg?image=${encodeURIComponent(imageUrl)}&apikey=${apiKey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\tools\shortener\route.ts|const apiUrl = `https://api.neoxr.eu/api/shorten?url=${encodeURIComponent(url.trim())}&apikey=${apiKey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\tools\teks2animate\route.ts|const apiUrl = `https://api.neoxr.eu/api/ai-anime?q=${encodeURIComponent(query.trim())}&apikey=${apiKey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\tools\tekstoimages\route.ts|const apiUrl = `https://api.neoxr.eu/api/imgf?q=${encodeURIComponent(query.trim())}&apikey=${apiKey}`;
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\topup\check\route.ts|const SAWERIA_CHECK_URL = "https://api.neoxr.eu/api/saweria-check";
+C:\Users\USER\Documents\My Project\app-downloader next\app\api\topup\create\route.ts|const SAWERIA_API_URL = "https://api.neoxr.eu/api/saweria-create";

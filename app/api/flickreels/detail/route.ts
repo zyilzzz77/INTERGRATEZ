@@ -16,7 +16,9 @@ export async function GET(request: Request) {
       );
     }
 
-    const apiUrl = `https://flickreels.dramabos.my.id/batchload/${id}?lang=6&code=0B758C07EB07771BACB70777A0F4147A`;
+    const FLICKREELS_BASE = process.env.FLICKREELS_API_BASE_URL || "https://flickreels.dramabos.my.id";
+    const DRAMABOS_CODE = process.env.DRAMABOS_CODE || "0B758C07EB07771BACB70777A0F4147A";
+    const apiUrl = `${FLICKREELS_BASE}/batchload/${id}?lang=6&code=${DRAMABOS_CODE}`;
     
     const response = await fetch(apiUrl, {
       method: 'GET',

@@ -14,7 +14,8 @@ export async function OPTIONS() {
 export async function GET(req: NextRequest) {
     try {
         const page = req.nextUrl.searchParams.get("page") || "1";
-        const url = `https://dramabox.dramabos.my.id/api/v1/homepage?page=${page}&lang=in`;
+        const DRAMABOX_BASE = process.env.DRAMABOX_API_BASE_URL || "https://dramabox.dramabos.my.id";
+        const url = `${DRAMABOX_BASE}/api/v1/homepage?page=${page}&lang=in`;
 
         // Retry logic for timeout/network errors
         const MAX_RETRIES = 2;

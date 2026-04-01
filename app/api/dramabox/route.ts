@@ -31,7 +31,8 @@ export async function GET(req: NextRequest) {
         }
 
         const apikey = process.env.TAKO_API_KEY;
-        const url = `https://api.neoxr.eu/api/dramabox-get-v2?id=${encodeURIComponent(id)}&uri=${encodeURIComponent(uri)}&apikey=${apikey}`;
+        const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+        const url = `${NEOXR_BASE}/api/dramabox-get-v2?id=${encodeURIComponent(id)}&uri=${encodeURIComponent(uri)}&apikey=${apikey}`;
 
         // Retry logic for timeout/network errors
         const MAX_RETRIES = 2;

@@ -385,7 +385,8 @@ function normalisePinterest(data: any): DownloadResult {
 
 /* ── Twitter via twitsave.com HTML scraping ─────────── */
 async function fetchTwitter(url: string): Promise<DownloadResult> {
-    const res = await fetch(`https://twitsave.com/info?url=${encodeURIComponent(url)}`, {
+    const TWITSAVE_BASE = process.env.TWITSAVE_API_BASE_URL || "https://twitsave.com";
+    const res = await fetch(`${TWITSAVE_BASE}/info?url=${encodeURIComponent(url)}`, {
         headers: { "User-Agent": "Mozilla/5.0" },
         cache: "no-store",
     });
@@ -442,7 +443,8 @@ export async function GET(req: NextRequest) {
 
                 // Fetch metadata from neoxr API (using 360p just for metadata)
                 try {
-                    const metaUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=video&quality=360p&apikey=${process.env.NEOXR_API_KEY}`;
+                    const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+                    const metaUrl = `${NEOXR_BASE}/api/youtube?url=${encodeURIComponent(url)}&type=video&quality=360p&apikey=${process.env.NEOXR_API_KEY}`;
                     const res = await fetch(metaUrl, {
                         headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
                         cache: "no-store",
@@ -497,7 +499,8 @@ export async function GET(req: NextRequest) {
                 // 1. Try TikWM (Official Public API) for TikTok (skip for Douyin)
                 if (platform === "tiktok") {
                     try {
-                        const tikRes = await fetch(`https://tikwm.com/api/?url=${encodeURIComponent(url)}`, {
+                        const TIKWM_BASE = process.env.TIKWM_API_BASE_URL || "https://tikwm.com";
+                        const tikRes = await fetch(`${TIKWM_BASE}/api/?url=${encodeURIComponent(url)}`, {
                             headers: { "User-Agent": "Mozilla/5.0" },
                         });
                         if (tikRes.ok) {
@@ -537,7 +540,8 @@ export async function GET(req: NextRequest) {
                 // 2. Try NexRay Douyin
                 if (platform === "douyin") {
                     try {
-                        const douyinRes = await fetch(`https://api.nexray.web.id/downloader/v1/douyin?url=${encodeURIComponent(url)}`, {
+                        const NEXRAY_BASE = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
+                        const douyinRes = await fetch(`${NEXRAY_BASE}/downloader/v1/douyin?url=${encodeURIComponent(url)}`, {
                             headers: { "User-Agent": "Mozilla/5.0" },
                         });
                         if (douyinRes.ok) {
@@ -570,7 +574,8 @@ export async function GET(req: NextRequest) {
 
                 // 3. Try NexRay TikTok
                 try {
-                    const nexRes = await fetch(`https://api.nexray.web.id/downloader/tiktok?url=${encodeURIComponent(url)}`, {
+                    const NEXRAY_BASE2 = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
+                    const nexRes = await fetch(`${NEXRAY_BASE2}/downloader/tiktok?url=${encodeURIComponent(url)}`, {
                         headers: { "User-Agent": "Mozilla/5.0" },
                     });
                     if (nexRes.ok) {
@@ -597,7 +602,8 @@ export async function GET(req: NextRequest) {
             }
             case "instagram": {
                 const IG_API_KEY = process.env.NEOXR_API_KEY || "OXlJB9";
-                const igEndpoint = `https://api.neoxr.eu/api/ig?url=${encodeURIComponent(url)}&apikey=${IG_API_KEY}`;
+                const NEOXR_BASE_IG = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+                const igEndpoint = `${NEOXR_BASE_IG}/api/ig?url=${encodeURIComponent(url)}&apikey=${IG_API_KEY}`;
 
                 const igRes = await fetch(igEndpoint, { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" });
                 if (!igRes.ok) throw new Error("Instagram API " + igRes.status);
@@ -631,8 +637,9 @@ export async function GET(req: NextRequest) {
                 break;
             }
             case "facebook": {
+                const VREDEN_BASE = process.env.VREDEN_API_BASE_URL || "https://api.vreden.my.id";
                 const fbRes = await fetch(
-                    "https://api.vreden.my.id/api/v1/download/facebook?url=" +
+                    `${VREDEN_BASE}/api/v1/download/facebook?url=` +
                     encodeURIComponent(url),
                     { headers: { "User-Agent": "Mozilla/5.0" } }
                 );
@@ -676,8 +683,9 @@ export async function GET(req: NextRequest) {
                 break;
             }
             case "threads": {
+                const NEXRAY_BASE3 = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
                 const threadsRes = await fetch(
-                    "https://api.nexray.web.id/downloader/threads?url=" +
+                    `${NEXRAY_BASE3}/downloader/threads?url=` +
                     encodeURIComponent(url),
                     { headers: { "User-Agent": "Mozilla/5.0" } }
                 );
@@ -731,8 +739,9 @@ export async function GET(req: NextRequest) {
                 break;
             }
             case "spotify": {
+                const NEXRAY_BASE4 = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
                 const res = await fetch(
-                    `https://api.nexray.web.id/downloader/v1/spotify?url=${encodeURIComponent(
+                    `${NEXRAY_BASE4}/downloader/v1/spotify?url=${encodeURIComponent(
                         url
                     )}`,
                     { headers: { "User-Agent": "Mozilla/5.0" } }
@@ -748,8 +757,9 @@ export async function GET(req: NextRequest) {
                 break;
             }
             case "bilibili": {
+                const NEXRAY_BASE5 = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
                 const biliRes = await fetch(
-                    "https://api.nexray.web.id/downloader/bilibili?url=" +
+                    `${NEXRAY_BASE5}/downloader/bilibili?url=` +
                     encodeURIComponent(url),
                     { headers: { "User-Agent": "Mozilla/5.0" } }
                 );
@@ -800,8 +810,9 @@ export async function GET(req: NextRequest) {
                 break;
             }
             case "snackvideo": {
+                const NEXRAY_BASE6 = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
                 const svRes = await fetch(
-                    "https://api.nexray.web.id/downloader/snackvideo?url=" +
+                    `${NEXRAY_BASE6}/downloader/snackvideo?url=` +
                     encodeURIComponent(url),
                     { headers: { "User-Agent": "Mozilla/5.0" } }
                 );
@@ -846,8 +857,9 @@ export async function GET(req: NextRequest) {
             }
             case "terabox": {
                 const NEOXR_KEY = process.env.NEOXR_API_KEY;
+                const NEOXR_BASE_TB = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
                 const tbRes = await fetch(
-                    `https://api.neoxr.eu/api/terabox?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
+                    `${NEOXR_BASE_TB}/api/terabox?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
                     { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
                 );
                 if (!tbRes.ok) throw new Error("Terabox API " + tbRes.status);
@@ -895,8 +907,9 @@ export async function GET(req: NextRequest) {
                 break;
             }
             case "scribd": {
+                const NEXRAY_BASE7 = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
                 const scRes = await fetch(
-                    "https://api.nexray.web.id/downloader/scribd?url=" +
+                    `${NEXRAY_BASE7}/downloader/scribd?url=` +
                     encodeURIComponent(url),
                     { headers: { "User-Agent": "Mozilla/5.0" } }
                 );
@@ -929,8 +942,9 @@ export async function GET(req: NextRequest) {
                 break;
             }
             case "mediafire": {
+                const NEXRAY_BASE8 = process.env.NEXRAY_API_BASE_URL || "https://api.nexray.web.id";
                 const mfRes = await fetch(
-                    "https://api.nexray.web.id/downloader/mediafire?url=" +
+                    `${NEXRAY_BASE8}/downloader/mediafire?url=` +
                     encodeURIComponent(url),
                     { headers: { "User-Agent": "Mozilla/5.0" } }
                 );
@@ -990,7 +1004,8 @@ export async function GET(req: NextRequest) {
             case "applemusic": {
                 // 1. Try Vreden API (Primary - usually more stable)
                 try {
-                    const vredenUrl = `https://api.vreden.my.id/api/v1/download/applemusic?url=${encodeURIComponent(url)}`;
+                    const VREDEN_BASE_AM = process.env.VREDEN_API_BASE_URL || "https://api.vreden.my.id";
+                    const vredenUrl = `${VREDEN_BASE_AM}/api/v1/download/applemusic?url=${encodeURIComponent(url)}`;
                     const vRes = await fetch(vredenUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
 
                     if (vRes.ok) {
@@ -1019,7 +1034,8 @@ export async function GET(req: NextRequest) {
 
                 // 2. Try Apocalypse (Fallback)
                 try {
-                    const apiUrl = `https://api.apocalypse.web.id/download/applemusic?url=${url}`;
+                    const APOCALYPSE_BASE = process.env.APOCALYPSE_API_BASE_URL || "https://api.apocalypse.web.id";
+                    const apiUrl = `${APOCALYPSE_BASE}/download/applemusic?url=${url}`;
                     const apiRes = await fetch(apiUrl, {
                         headers: { "User-Agent": "Mozilla/5.0" },
                     });
@@ -1052,7 +1068,8 @@ export async function GET(req: NextRequest) {
             }
             // ─── SOUNDCLOUD ───
             case "soundcloud": {
-                const scUrl = `https://api.ferdev.my.id/downloader/soundcloud?link=${encodeURIComponent(url)}&apikey=${process.env.FERDEV_API_KEY}`;
+                const FERDEV_BASE = process.env.FERDEV_API_BASE_URL || "https://api.ferdev.my.id";
+                const scUrl = `${FERDEV_BASE}/downloader/soundcloud?link=${encodeURIComponent(url)}&apikey=${process.env.FERDEV_API_KEY}`;
                 const scRes = await fetch(scUrl, {
                     headers: { "User-Agent": "Mozilla/5.0" },
                 });
@@ -1080,8 +1097,9 @@ export async function GET(req: NextRequest) {
             // ─── SNAPCHAT ───
             case "snapchat": {
                 const NEOXR_KEY = process.env.NEOXR_API_KEY;
+                const NEOXR_BASE_SNAP = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
                 const snapRes = await fetch(
-                    `https://api.neoxr.eu/api/snapchat?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
+                    `${NEOXR_BASE_SNAP}/api/snapchat?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
                     { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
                 );
                 if (!snapRes.ok) throw new Error("Snapchat API " + snapRes.status);
@@ -1105,8 +1123,9 @@ export async function GET(req: NextRequest) {
             // ─── VIDEY (secret) ───
             case "videy": {
                 const NEOXR_KEY = process.env.NEOXR_API_KEY;
+                const NEOXR_BASE_VIDEY = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
                 const videyRes = await fetch(
-                    `https://api.neoxr.eu/api/videy?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
+                    `${NEOXR_BASE_VIDEY}/api/videy?url=${encodeURIComponent(url)}&apikey=${NEOXR_KEY}`,
                     { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
                 );
                 if (!videyRes.ok) throw new Error("Videy API " + videyRes.status);

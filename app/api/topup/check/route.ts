@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { sendTopupSuccessEmail } from "@/lib/mail";
 import { TOPUP_PACKAGES, VIP_PACKAGES } from "@/lib/credits";
 
-const SAWERIA_CHECK_URL = "https://api.neoxr.eu/api/saweria-check";
+const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+const SAWERIA_CHECK_URL = `${NEOXR_BASE}/api/saweria-check`;
 const SAWERIA_USER_ID = process.env.SAWERIA_USER_ID;
 const SAWERIA_API_KEY = process.env.TAKO_API_KEY;
 

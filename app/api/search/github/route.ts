@@ -14,8 +14,9 @@ export async function GET(req: NextRequest) {
     }
 
     try {
+        const FERDEV_BASE = process.env.FERDEV_API_BASE_URL || "https://api.ferdev.my.id";
         const res = await fetch(
-            `https://api.ferdev.my.id/stalker/github?username=${username}&apikey=${process.env.FERDEV_API_KEY}`
+            `${FERDEV_BASE}/stalker/github?username=${username}&apikey=${process.env.FERDEV_API_KEY}`
         );
         const data = await res.json();
 

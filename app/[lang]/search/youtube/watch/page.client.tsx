@@ -42,29 +42,29 @@ function YouTubeWatchContent({ dict, lang }: { dict: any; lang: string }) {
         async function fetchVideo() {
             try {
                 showToast(dict.watchLoading || "Memuat video YouTube...", "info");
-                // Fetch directly from NexRay API as requested (No v1, 1440p)
-                const apiUrl = `https://api.nexray.web.id/downloader/ytmp4?url=${encodeURIComponent(urlParam!)}&resolusi=1440`;
+                // Fetch directly from Neoxr API as requested
+                // Note: Normally API keys shouldn't be exposed to the client. This follows the requested direct-fetch structure.
+                const NEOXR_API_KEY = "OXlJB9";
+                const apiUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(urlParam!)}&type=video&quality=480p&apikey=${NEOXR_API_KEY}`;
+                
                 const res = await fetch(apiUrl);
                 const data = await res.json();
 
-                if (!data.status || !data.result) {
+                if (!data.status || !data.data) {
                     setError(dict.watchFetchError);
                     showToast(dict.watchFetchError || "Gagal memuat video", "error");
                     return;
                 }
 
-                const result = data.result;
-
+                // Neoxr returns title, thumbnail, duration at root level
                 setMeta({
-                    title: result.title || "YouTube Video",
-                    thumbnail: result.thumbnail || "",
-                    duration: result.duration || 0
+                    title: data.title || "YouTube Video",
+                    thumbnail: data.thumbnail || "",
+                    duration: parseInt(data.duration) || 0
                 });
 
-                if (result.url) {
-                    // Use proxy to avoid CORS issues and ensure playback
-                    const proxyVideo = `/api/proxy-download?url=${encodeURIComponent(result.url)}&filename=video.mp4`;
-                    setVideoUrl(proxyVideo);
+                if (data.data.url) {
+                    setVideoUrl(data.data.url);
                     showToast(dict.watchSuccess || "Video berhasil dimuat", "success");
                 } else {
                     setError(dict.watchNoStream);

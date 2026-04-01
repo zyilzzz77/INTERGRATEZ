@@ -60,7 +60,32 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                     <span>{credits ?? 100}</span>
                 </div>
                 <button
-                    onClick={() => signIn("google")}
+                    onClick={async (e) => {
+                        e.preventDefault();
+                        if (window.innerWidth >= 768) {
+                            const width = 500;
+                            const height = 650;
+                            const left = window.screen.width / 2 - width / 2;
+                            const top = window.screen.height / 2 - height / 2;
+                            const popup = window.open("", "GoogleLogin", `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`);
+                            
+                            const res = await signIn("google", { redirect: false, callbackUrl: `/${lang}/login-success` });
+                            if (res?.url && popup) {
+                                popup.location.href = res.url;
+                                
+                                const timer = setInterval(() => {
+                                    if (popup.closed) {
+                                        clearInterval(timer);
+                                        window.location.reload();
+                                    }
+                                }, 500);
+                            } else if (popup) {
+                                popup.close();
+                            }
+                        } else {
+                            signIn("google");
+                        }
+                    }}
                     className="flex items-center gap-1.5 rounded-xl bg-white border-[3px] border-black px-3 py-1.5 text-xs font-black text-black shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-all sm:px-4 sm:py-2 sm:text-sm"
                 >
                     <svg className="h-4 w-4" viewBox="0 0 24 24">

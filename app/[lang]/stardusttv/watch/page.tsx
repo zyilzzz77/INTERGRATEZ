@@ -285,8 +285,14 @@ function WatchContent() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="mx-auto max-w-7xl px-4 py-6 sm:py-10"
+                    className="relative mx-auto max-w-7xl px-4 py-6 sm:py-10"
                 >
+                    {(detailData.poster || cover) && (
+                        <div className="absolute inset-0 -z-10">
+                            <img src={detailData.poster || cover} alt="" className="h-full w-full object-cover blur-3xl opacity-80 scale-110" />
+                            <div className="absolute inset-0 bg-black/40" />
+                        </div>
+                    )}
                     {/* Breadcrumb */}
                     <div className="mb-6 flex items-center gap-2 text-sm text-neutral-400">
                         <Link href="/stardusttv" className="hover:text-cyan-400 transition-colors">StardustTV</Link>
@@ -303,7 +309,13 @@ function WatchContent() {
                                 className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl ring-1 ring-white/10"
                                 onContextMenu={(e) => e.preventDefault()}
                             >
-                                <div className="relative h-full w-full bg-black flex items-center justify-center">
+                                {(detailData.poster || cover) && (
+                                    <div className="absolute inset-0 -z-10">
+                                        <img src={detailData.poster || cover} alt="" className="h-full w-full object-cover blur-3xl opacity-80 scale-110" />
+                                        <div className="absolute inset-0 bg-black/50" />
+                                    </div>
+                                )}
+                                <div className="relative h-full w-full bg-black/60 flex items-center justify-center">
                                     <video
                                         ref={videoRef}
                                         className="h-full w-full max-h-[80vh] object-contain"

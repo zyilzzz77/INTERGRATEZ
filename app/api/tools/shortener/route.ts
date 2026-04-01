@@ -44,7 +44,8 @@ export async function GET(req: NextRequest) {
 
         // Call neoxr Shorten API
         const apiKey = process.env.NEOXR_API_KEY;
-        const apiUrl = `https://api.neoxr.eu/api/shorten?url=${encodeURIComponent(url.trim())}&apikey=${apiKey}`;
+        const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+        const apiUrl = `${NEOXR_BASE}/api/shorten?url=${encodeURIComponent(url.trim())}&apikey=${apiKey}`;
 
         console.log("[shortener] Calling API with url:", url);
         const apiRes = await fetch(apiUrl, { cache: "no-store" });

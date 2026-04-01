@@ -12,7 +12,8 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const apiUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=video&quality=${quality}p&apikey=${process.env.NEOXR_API_KEY}`;
+        const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
+        const apiUrl = `${NEOXR_BASE}/api/youtube?url=${encodeURIComponent(url)}&type=video&quality=${quality}p&apikey=${process.env.NEOXR_API_KEY}`;
 
         const res = await fetch(apiUrl, {
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
