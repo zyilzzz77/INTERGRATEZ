@@ -359,6 +359,21 @@ func pollPayment(c tele.Context, qrisMsg *tele.Message, paymentID string, amount
 	deadline := time.Now().Add(5 * time.Minute)
 
 	for range ticker.C {
+		if time.Now().After(deadline) {
+			selector := &tele.ReplyMarkup{}
+			btnRetry := selector.Data("🔁 Coba Lagi", "donate_open", "0")
+			selector.Inline(selector.Row(btnRetry))
+			_, _ = c.Bot().Edit(qrisMsg,
+				"⌛ *QR sudah kedaluwarsa.*\n\nTekan tombol di bawah untuk membuat QRIS baru.",
+				selector, tele.ModeMarkdown)
+			// Proactively tell the user the donation failed due to timeout.
+			_, _ = c.Bot().Send(c.Chat(),
+				fmt.Sprintf("❌ Pembayaran belum diterima dalam 5 menit. Donasi Rp %s dibatalkan. Buat QR baru jika masih ingin melanjutkan.",
+					formatRupiah(amount)),
+				tele.ModeMarkdown)
+			return
+		}
+
 		paid, err := checkSaweriaPayment(paymentID)
 		if err != nil {
 			log.Printf("[donate] pollPayment check error: %v", err)
@@ -367,15 +382,6 @@ func pollPayment(c tele.Context, qrisMsg *tele.Message, paymentID string, amount
 		if paid {
 			_ = c.Bot().Delete(qrisMsg)
 			sendDonateThankYou(c, amount)
-			return
-		}
-		if time.Now().After(deadline) {
-			selector := &tele.ReplyMarkup{}
-			btnRetry := selector.Data("🔁 Coba Lagi", "donate_open", "0")
-			selector.Inline(selector.Row(btnRetry))
-			_, _ = c.Bot().Edit(qrisMsg,
-				"⌛ *QR sudah kedaluwarsa.*\n\nTekan tombol di bawah untuk membuat QRIS baru.",
-				selector, tele.ModeMarkdown)
 			return
 		}
 	}
