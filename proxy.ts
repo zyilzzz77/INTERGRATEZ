@@ -13,7 +13,7 @@ function getLocale(request: NextRequest): string {
     return "en";
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     // 1. IP & Fingerprint Logic (from original middleware)
     const requestHeaders = new Headers(request.headers);
 
@@ -55,15 +55,15 @@ export function middleware(request: NextRequest) {
 
     // Security headers applied to all responses
     const securityHeaders: Record<string, string> = {
-        'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
-        'X-Content-Type-Options': 'nosniff',
+        "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
     };
 
     // 2. i18n Locale Routing Logic
     const { pathname } = request.nextUrl;
 
     // Skip locale routing for API and static files if they accidentally bypass matcher
-    if (pathname.startsWith('/api/') || pathname.startsWith('/_next/') || pathname.includes('.')) {
+    if (pathname.startsWith("/api/") || pathname.startsWith("/_next/") || pathname.includes(".")) {
         const response = NextResponse.next({
             request: {
                 headers: requestHeaders,
@@ -74,12 +74,12 @@ export function middleware(request: NextRequest) {
     }
 
     const pathnameHasLocale = i18n.locales.some(
-        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
     );
 
     if (!pathnameHasLocale) {
         const locale = getLocale(request);
-        const newUrl = new URL(`/${locale}${pathname === '/' ? '' : pathname}`, request.url);
+        const newUrl = new URL(`/${locale}${pathname === "/" ? "" : pathname}`, request.url);
         // Preserve search params
         newUrl.search = request.nextUrl.search;
         const response = NextResponse.redirect(newUrl);
@@ -98,5 +98,5 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     // Match all page routes and api routes, except internal next stuff
-    matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+    matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
