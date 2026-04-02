@@ -1,5 +1,6 @@
 import BotTeleMiniApp from "@/components/BotTeleMiniApp";
 import { constructMetadata } from "@/lib/seo";
+import { Suspense } from "react";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -27,7 +28,9 @@ export default async function BotTelePage({ params }: { params: Promise<{ lang: 
           </p>
         </div>
 
-        <BotTeleMiniApp lang={lang} />
+        <Suspense fallback={<div className="rounded-2xl border-[3px] border-black bg-white p-4 shadow-neo-sm">Loading mini app...</div>}>
+          <BotTeleMiniApp lang={lang} />
+        </Suspense>
       </div>
     </div>
   );
