@@ -57,6 +57,8 @@ async function getOrCreateGuestCredit(ip: string, fingerprint: string) {
 
     if (record) return record;
 
+    let creditsToAssign = GUEST_DEFAULT;
+
     // Check if there's a record with the same IP (different browser/fingerprint)
     // This prevents gaming via different browsers on same device
     if (ip !== "unknown") {
@@ -66,34 +68,41 @@ async function getOrCreateGuestCredit(ip: string, fingerprint: string) {
         });
 
         if (existingByIp) {
-            // Create new record but sync credits with existing IP record
-            record = await prisma.guestCredit.create({
-                data: { ip, fingerprint, credits: existingByIp.credits },
-            });
-            return record;
+            creditsToAssign = existingByIp.credits;
         }
     }
 
     // Check if there's a record with the same fingerprint (different network/IP)
     // This handles users who changed WiFi / mobile data
-    if (fingerprint !== "unknown") {
+    if (creditsToAssign === GUEST_DEFAULT && fingerprint !== "unknown") {
         const existingByFp = await prisma.guestCredit.findFirst({
             where: { fingerprint },
             orderBy: { createdAt: "asc" },
         });
 
         if (existingByFp) {
-            record = await prisma.guestCredit.create({
-                data: { ip, fingerprint, credits: existingByFp.credits },
-            });
-            return record;
+            creditsToAssign = existingByFp.credits;
         }
     }
 
-    // Brand new device — give default credits
-    record = await prisma.guestCredit.create({
-        data: { ip, fingerprint, credits: GUEST_DEFAULT },
-    });
+    try {
+        // Use upsert to handle concurrent creation attempts cleanly
+        record = await prisma.guestCredit.upsert({
+            where: { ip_fingerprint: { ip, fingerprint } },
+            update: {}, // do not modify if it was just created by another request
+            create: { ip, fingerprint, credits: creditsToAssign },
+        });
+    } catch (e) {
+        // Fallback in case of extreme race conditions or locking issues
+        record = await prisma.guestCredit.findUnique({
+            where: { ip_fingerprint: { ip, fingerprint } },
+        });
+        
+        if (!record) {
+            throw e; // Reraise if still not found
+        }
+    }
+
     return record;
 }
 
