@@ -21,6 +21,7 @@ import {
     Zap,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -70,7 +71,6 @@ export default function HistoryPage() {
     const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTx, setSelectedTx] = useState<TransactionRecord | null>(null);
-    const [checking, setChecking] = useState(false);
     const [checkMessage, setCheckMessage] = useState("Menunggu pembayaran...");
     const [remainingMs, setRemainingMs] = useState(0);
 
@@ -103,7 +103,6 @@ export default function HistoryPage() {
 
     useEffect(() => {
         if (!selectedTx || selectedTx.status !== "pending") {
-            setChecking(false);
             setCheckMessage("Menunggu pembayaran...");
             setRemainingMs(0);
             return;
@@ -121,7 +120,6 @@ export default function HistoryPage() {
 
         const checkStatus = async () => {
             try {
-                setChecking(true);
                 const res = await fetch("/api/topup/check", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -131,11 +129,9 @@ export default function HistoryPage() {
                 const data = await res.json();
                 if (data.status === "paid") {
                     updateTransactionStatus(selectedTx.id, "paid");
-                    setChecking(false);
                     setCheckMessage("Pembayaran terkonfirmasi!");
                 } else if (data.status === "failed") {
                     updateTransactionStatus(selectedTx.id, "failed");
-                    setChecking(false);
                     setCheckMessage(
                         data.message || "Waktu pembayaran habis, silakan buat transaksi baru."
                     );
@@ -151,7 +147,6 @@ export default function HistoryPage() {
         const interval = setInterval(() => {
             if (Date.now() > expiresAt) {
                 updateTransactionStatus(selectedTx.id, "failed");
-                setChecking(false);
                 setCheckMessage("Waktu pembayaran habis, silakan buat transaksi baru.");
                 return;
             }
@@ -190,10 +185,10 @@ export default function HistoryPage() {
                                     Quick History
                                 </div>
                                 <h1 className="mt-3 text-3xl sm:text-4xl font-black text-black leading-tight">
-                                    Riwayat Pembelian Kredits
+                                    Riwayat Pembelian VIP
                                 </h1>
                                 <p className="text-sm sm:text-base text-slate-700 max-w-2xl">
-                                    Pantau semua transaksi top up kamu dengan tampilan neo-brutalist yang tebal dan jelas.
+                                    Pantau semua transaksi pembelian paket VIP kamu dengan tampilan neo-brutalist yang tebal dan jelas.
                                 </p>
                             </div>
                         </div>
@@ -275,8 +270,11 @@ export default function HistoryPage() {
                     <div className="space-y-4">
                         {transactions.map((tx, i) => {
                             const isPaid = tx.status === "paid";
-                            const isPending = tx.status === "pending";
                             const isFailed = tx.status === "failed";
+                            const txMainLabel = tx.credits > 0
+                                ? `+${tx.credits.toLocaleString("id-ID")} Kredit`
+                                : "Paket VIP Unlimited";
+                            const txSubLabel = tx.credits > 0 ? "Kredit" : "VIP";
 
                             return (
                                 <motion.div
@@ -307,8 +305,8 @@ export default function HistoryPage() {
                                         <div className="min-w-0">
                                             <div className="flex items-center gap-2 flex-wrap">
                                                 <span className="font-black text-black">
-                                                    +{tx.credits.toLocaleString("id-ID")} {" "}
-                                                    <span className="text-slate-600 font-semibold">Kredit</span>
+                                                    {txMainLabel} {" "}
+                                                    <span className="text-slate-600 font-semibold">{txSubLabel}</span>
                                                 </span>
                                                 <Badge
                                                     className={`text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-md border-[3px] border-black ${isPaid
@@ -479,7 +477,14 @@ export default function HistoryPage() {
                                             <div className="rounded-2xl border-[3px] border-black bg-white p-4 shadow-[8px_8px_0_#0f172a] text-center sticky top-0">
                                                 <p className="text-sm font-black text-slate-700 mb-3">Scan QR untuk membayar</p>
                                                 <div className="mx-auto w-36 h-36 sm:w-48 sm:h-48 rounded-xl border-[3px] border-black overflow-hidden bg-white shadow-[4px_4px_0_#0f172a]">
-                                                    <img src={selectedTx.qrImage} alt="QR Pembayaran" className="w-full h-full object-contain" />
+                                                    <Image
+                                                        src={selectedTx.qrImage}
+                                                        alt="QR Pembayaran"
+                                                        width={192}
+                                                        height={192}
+                                                        className="w-full h-full object-contain"
+                                                        unoptimized
+                                                    />
                                                 </div>
                                                 {selectedTx.payUrl && (
                                                     <a
@@ -503,9 +508,11 @@ export default function HistoryPage() {
                                                     <Coins className="w-4 h-4 text-black" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-xs text-slate-600 font-semibold">Jumlah Kredit</p>
+                                                    <p className="text-xs text-slate-600 font-semibold">Detail Paket</p>
                                                     <p className="font-black text-black">
-                                                        +{selectedTx.credits.toLocaleString("id-ID")} Kredit
+                                                        {selectedTx.credits > 0
+                                                            ? `+${selectedTx.credits.toLocaleString("id-ID")} Kredit`
+                                                            : "Paket VIP Unlimited"}
                                                     </p>
                                                 </div>
                                             </div>

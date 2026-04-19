@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
-const SAWERIA_CHECK_URL = `${NEOXR_BASE}/api/saweria-check`;
-const SAWERIA_USER_ID = process.env.SAWERIA_USER_ID;
-const SAWERIA_API_KEY = process.env.TAKO_API_KEY;
+import { prisma } from "@/lib/prisma";
+import { getFlazpayConfig, isTransactionExpired } from "@/lib/flazpay";
 
 export async function GET(req: NextRequest) {
     try {
@@ -16,34 +13,48 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        const url = `${SAWERIA_CHECK_URL}?userid=${SAWERIA_USER_ID}&id=${encodeURIComponent(id)}&apikey=${SAWERIA_API_KEY}`;
-        const response = await fetch(url);
-
-        // Safety: check response is OK and JSON
-        if (!response.ok) {
-            console.error(`Saweria check API returned status ${response.status}`);
-            return NextResponse.json(
-                { status: false, msg: "Gagal mengecek status pembayaran." },
-                { status: 502 }
-            );
-        }
-
-        const contentType = response.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) {
-            const text = await response.text();
-            console.error("Saweria check API returned non-JSON:", text.substring(0, 200));
-            return NextResponse.json(
-                { status: false, msg: "Layanan pengecekan tidak tersedia." },
-                { status: 502 }
-            );
-        }
-
-        const data = await response.json();
-
-        return NextResponse.json({
-            status: data.status,
-            msg: data.msg || (data.status ? "Pembayaran berhasil!" : "Belum dibayar."),
+        const transaction = await prisma.transaction.findUnique({
+            where: { paymentId: id },
+            select: {
+                id: true,
+                status: true,
+                createdAt: true,
+            },
         });
+
+        if (!transaction) {
+            return NextResponse.json(
+                { status: false, msg: "Transaksi tidak ditemukan." },
+                { status: 404 }
+            );
+        }
+
+        if (transaction.status === "paid") {
+            return NextResponse.json(
+                { status: true, msg: "Pembayaran berhasil!" }
+            );
+        }
+
+        if (transaction.status === "failed") {
+            return NextResponse.json(
+                { status: false, msg: "Pembayaran gagal atau kedaluwarsa." }
+            );
+        }
+
+        const flazpayConfig = getFlazpayConfig();
+        if (isTransactionExpired(transaction.createdAt, flazpayConfig.expireMinutes)) {
+            await prisma.transaction.update({
+                where: { id: transaction.id },
+                data: { status: "failed" },
+            });
+
+            return NextResponse.json({
+                status: false,
+                msg: "Waktu pembayaran habis. Silakan buat transaksi baru.",
+            });
+        }
+
+        return NextResponse.json({ status: false, msg: "Menunggu pembayaran." });
     } catch (error) {
         console.error("Payment check error:", error);
         return NextResponse.json(

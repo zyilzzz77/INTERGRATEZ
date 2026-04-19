@@ -5,6 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Coins, LogOut, CreditCard, User, ChevronDown, BookOpen, Headphones } from "lucide-react";
+import { showToast } from "@/components/Toast";
+
+const DEMO_QUICK_EMAIL = process.env.NEXT_PUBLIC_DEMO_LOGIN_EMAIL || "reviewer-demo@inversave.local";
+const DEMO_QUICK_PASSWORD = process.env.NEXT_PUBLIC_DEMO_LOGIN_PASSWORD || "InversaveDemo123!";
+const DEMO_LOGIN_TOAST_KEY = "inversave:demo-login-success";
 
 export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
     const { data: session, status } = useSession();
@@ -12,6 +17,22 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
     const [credits, setCredits] = useState<number | null>(null);
     const [isGuest, setIsGuest] = useState(true);
     const ref = useRef<HTMLDivElement>(null);
+
+    const getAuthProviders = async () => {
+        try {
+            const res = await fetch("/api/auth/providers", { cache: "no-store" });
+            if (!res.ok) {
+                return { google: false, credentials: false };
+            }
+            const providers = await res.json() as Record<string, unknown>;
+            return {
+                google: Boolean(providers.google),
+                credentials: Boolean(providers.credentials),
+            };
+        } catch {
+            return { google: false, credentials: false };
+        }
+    };
 
     // Fetch credits with real-time polling
     useEffect(() => {
@@ -44,6 +65,16 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
         return () => document.removeEventListener("mousedown", handleClick);
     }, []);
 
+    useEffect(() => {
+        if (status !== "authenticated" || !session?.user) return;
+
+        const shouldShowDemoToast = sessionStorage.getItem(DEMO_LOGIN_TOAST_KEY) === "1";
+        if (!shouldShowDemoToast) return;
+
+        sessionStorage.removeItem(DEMO_LOGIN_TOAST_KEY);
+        showToast("Berhasil login ke akun demo.", "success");
+    }, [status, session]);
+
     if (status === "loading") {
         return (
             <div className="h-9 w-9 animate-pulse rounded-xl bg-gray-200 border-[3px] border-black sm:h-10 sm:w-10" />
@@ -62,6 +93,13 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                 <button
                     onClick={async (e) => {
                         e.preventDefault();
+
+                        const providers = await getAuthProviders();
+                        if (!providers.google) {
+                            window.alert("Login Google belum aktif. Isi AUTH_GOOGLE_ID dan AUTH_GOOGLE_SECRET di .env.local, lalu restart server.");
+                            return;
+                        }
+
                         if (window.innerWidth >= 768) {
                             const width = 500;
                             const height = 650;
@@ -70,6 +108,12 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                             const popup = window.open("", "GoogleLogin", `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`);
                             
                             const res = await signIn("google", { redirect: false, callbackUrl: `/${lang}/login-success` });
+                            if (res?.error) {
+                                if (popup) popup.close();
+                                window.alert(`Login Google gagal: ${res.error}`);
+                                return;
+                            }
+
                             if (res?.url && popup) {
                                 popup.location.href = res.url;
                                 
@@ -83,7 +127,7 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                                 popup.close();
                             }
                         } else {
-                            signIn("google");
+                            signIn("google", { callbackUrl: `/${lang}/login-success` });
                         }
                     }}
                     className="flex items-center gap-1.5 rounded-xl bg-white border-[3px] border-black px-3 py-1.5 text-xs font-black text-black shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-all sm:px-4 sm:py-2 sm:text-sm"
@@ -95,6 +139,41 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
                     {dict.login || "Login"}
+                </button>
+                <button
+                    onClick={async (e) => {
+                        e.preventDefault();
+
+                        const providers = await getAuthProviders();
+                        if (!providers.credentials) {
+                            window.alert("Akun demo belum aktif. Isi DEMO_LOGIN_* di .env.local, lalu restart server.");
+                            return;
+                        }
+
+                        const result = await signIn("credentials", {
+                            redirect: false,
+                            email: DEMO_QUICK_EMAIL,
+                            password: DEMO_QUICK_PASSWORD,
+                            callbackUrl: `/${lang}/profile`,
+                        });
+
+                        if (result?.error) {
+                            window.alert("Login akun demo gagal. Cek konfigurasi DEMO_LOGIN di server.");
+                            return;
+                        }
+
+                        sessionStorage.setItem(DEMO_LOGIN_TOAST_KEY, "1");
+
+                        if (result?.url) {
+                            window.location.href = result.url;
+                            return;
+                        }
+
+                        window.location.href = `/${lang}/profile`;
+                    }}
+                    className="rounded-xl bg-[#ffeb3b] border-[3px] border-black px-3 py-1.5 text-xs font-black text-black shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-all sm:px-3.5 sm:py-2 sm:text-sm"
+                >
+                    Akun Demo
                 </button>
             </div>
         );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Coins, Clock, ChevronRight, QrCode, ExternalLink, Loader2, X, Copy, Check, CheckCircle2, RefreshCw, History, Gem } from "lucide-react";
+import { Zap, Coins, Clock, ChevronRight, QrCode, ExternalLink, Loader2, X, Copy, Check, History, Gem } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,13 @@ import Link from "next/link";
 import RealtimeCredits from "@/components/RealtimeCredits";
 import RealtimeBonus from "@/components/RealtimeBonus";
 import UnlimitedBadge from "@/components/UnlimitedBadge";
+import {
+    FLAZPAY_PAYMENT_CHANNELS,
+    getFlazpayChannelById,
+    validateAmountByChannel,
+} from "@/lib/flazpayChannels";
 
-const ADMIN_FEE_PERCENT = 7.5;
+const ADMIN_FEE_PERCENT = 2.5;
 const calcAdminFee = (amount: number) => Math.ceil(amount * ADMIN_FEE_PERCENT / 100);
 const calcTotal = (amount: number) => amount + calcAdminFee(amount);
 const calculateCreditsFromAmount = (amount: number) => {
@@ -29,45 +34,46 @@ interface PaymentData {
     expired_at: string;
     url: string;
     qr_image: string;
+    va_number?: string;
+    service_name?: string;
+    base_amount?: number;
+    app_fee?: number;
 }
 
 /* ─── Pricing Data ───────────────────────────────────── */
-const packages = [
-    {
-        id: "starter",
-        name: "Starter",
-        price: 5000,
-        credits: 7500,
-        period: "30 Hari",
-        popular: false,
-    },
-    {
-        id: "basic",
-        name: "Basic",
-        price: 10000,
-        credits: 14500,
-        period: "30 Hari",
-        popular: true,
-    },
-    {
-        id: "pro",
-        name: "Pro",
-        price: 20000,
-        credits: 45000,
-        period: "30 Hari",
-        popular: false,
-    },
-];
+const packages: Array<{ id: string; name: string; price: number; credits: number; period: string; popular: boolean }> = [];
 
 const vipPackages = [
     {
-        id: "vip-plus",
-        name: "VIP Plus",
+        id: "vip-7",
+        name: "VIP 7 Hari",
+        price: 7500,
+        creditsDesc: "Unlimited Kredit Download & Tools",
+        period: "7 Hari",
+        popular: false,
+        benefits: ["Unlimited Request Semua Fitur"],
+        gradient: "from-amber-400 via-orange-400 to-amber-600",
+        shadow: "shadow-orange-500/20"
+    },
+    {
+        id: "vip-14",
+        name: "VIP 14 Hari",
+        price: 14000,
+        creditsDesc: "Unlimited Kredit Download & Tools",
+        period: "14 Hari",
+        popular: true,
+        benefits: ["Unlimited Request Semua Fitur"],
+        gradient: "from-amber-400 via-orange-400 to-amber-600",
+        shadow: "shadow-orange-500/20"
+    },
+    {
+        id: "vip-30",
+        name: "VIP 30 Hari",
         price: 25000,
         creditsDesc: "Unlimited Kredit Download & Tools",
         period: "30 Hari",
-        popular: true,
-        benefits: ["Unlock Unlimited Streaming All Aplikasi Drama China"],
+        popular: false,
+        benefits: ["Unlimited Request Semua Fitur"],
         gradient: "from-amber-400 via-orange-400 to-amber-600",
         shadow: "shadow-orange-500/20"
     }
@@ -77,13 +83,14 @@ const vipPackages = [
 export default function TopUpPage() {
     const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
     const [customNominal, setCustomNominal] = useState<number | "">("");
+    const [selectedServiceId, setSelectedServiceId] = useState<string>("14");
     const [isLoading, setIsLoading] = useState(false);
     const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
     const [paymentError, setPaymentError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [paymentSuccess, setPaymentSuccess] = useState(false);
-    const [checkingStatus, setCheckingStatus] = useState(false);
     const pollingRef = useRef<NodeJS.Timeout | null>(null);
+    const channelListRef = useRef<HTMLDivElement | null>(null);
     const [creditInfo, setCreditInfo] = useState<{ credits: number; role: string; bonusCredits?: number }>({ credits: 0, role: "free", bonusCredits: 0 });
 
     // Fetch real credit info on mount and after successful payment
@@ -107,7 +114,6 @@ export default function TopUpPage() {
     useEffect(() => {
         if (paymentData && !paymentSuccess) {
             const checkPayment = async () => {
-                setCheckingStatus(true);
                 try {
                     const res = await fetch("/api/topup/check", {
                         method: "POST",
@@ -121,8 +127,6 @@ export default function TopUpPage() {
                     }
                 } catch {
                     // silently retry next interval
-                } finally {
-                    setCheckingStatus(false);
                 }
             };
 
@@ -134,6 +138,16 @@ export default function TopUpPage() {
             };
         }
     }, [paymentData, paymentSuccess]);
+
+    useEffect(() => {
+        const listElement = channelListRef.current;
+        if (!listElement) return;
+
+        const selectedElement = listElement.querySelector<HTMLButtonElement>(`[data-channel-id="${selectedServiceId}"]`);
+        if (!selectedElement) return;
+
+        selectedElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, [selectedServiceId]);
 
     const formatIDR = (value: number) => {
         return new Intl.NumberFormat("id-ID", {
@@ -160,17 +174,34 @@ export default function TopUpPage() {
     };
 
     const customCredits = typeof customNominal === "number" ? calculateCreditsFromAmount(customNominal) : 0;
+    const customTopupEnabled = false;
+    const selectedChannel = getFlazpayChannelById(selectedServiceId) || FLAZPAY_PAYMENT_CHANNELS[0];
+    const customTotalAmount = typeof customNominal === "number" ? calcTotal(customNominal) : 0;
+    const customChannelValidation =
+        typeof customNominal === "number"
+            ? validateAmountByChannel(customTotalAmount, selectedChannel)
+            : { ok: true };
+    const selectedVipPackage = vipPackages.find((pkg) => pkg.id === selectedPackage) || null;
+    const selectedVipTotalAmount = selectedVipPackage ? calcTotal(selectedVipPackage.price) : 0;
+    const selectedVipChannelValidation = selectedVipPackage
+        ? validateAmountByChannel(selectedVipTotalAmount, selectedChannel)
+        : { ok: false, message: "Pilih paket VIP dulu sebelum pilih channel pembayaran." };
 
     /* ─── Create Payment ───────────────────────────────── */
-    const createPayment = async (packageId?: string, customAmount?: number) => {
+    const createPayment = async (packageId?: string, customAmount?: number, serviceIdOverride?: string) => {
         setIsLoading(true);
         setPaymentError(null);
 
         try {
+            const serviceIdToUse = serviceIdOverride || selectedServiceId;
             const res = await fetch("/api/topup/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(packageId ? { packageId } : { customAmount: String(customAmount) }),
+                body: JSON.stringify(
+                    packageId
+                        ? { packageId, serviceId: serviceIdToUse }
+                        : { customAmount: String(customAmount), serviceId: serviceIdToUse }
+                ),
             });
 
             const data = await res.json();
@@ -186,6 +217,10 @@ export default function TopUpPage() {
                 expired_at: data.transaction.expiredAt || "",
                 url: data.transaction.payUrl || "",
                 qr_image: data.transaction.qrImage || "",
+                va_number: data.transaction.vaNumber || "",
+                service_name: data.transaction.serviceName || "",
+                base_amount: data.transaction.baseAmount || 0,
+                app_fee: data.transaction.appFee || 0,
             });
         } catch {
             setPaymentError("Terjadi kesalahan jaringan. Coba lagi.");
@@ -194,13 +229,47 @@ export default function TopUpPage() {
         }
     };
 
-    const handlePackagePayment = (pkgId: string) => {
+    const handlePackagePayment = (pkgId: string, serviceIdOverride?: string) => {
+        const serviceIdToUse = serviceIdOverride || selectedServiceId;
+        const channel = getFlazpayChannelById(serviceIdToUse) || selectedChannel;
+        const pkg = [...packages, ...vipPackages].find((item) => item.id === pkgId);
+        if (pkg) {
+            const channelValidation = validateAmountByChannel(calcTotal(pkg.price), channel);
+            if (!channelValidation.ok) {
+                setPaymentError(channelValidation.message || "Nominal tidak sesuai untuk channel pembayaran ini.");
+                return;
+            }
+        }
+
         setSelectedPackage(pkgId);
-        createPayment(pkgId);
+        createPayment(pkgId, undefined, serviceIdToUse);
+    };
+
+    const handleConfirmVipPayment = () => {
+        if (!selectedPackage) {
+            setPaymentError("Pilih paket VIP dulu sebelum konfirmasi pembayaran.");
+            return;
+        }
+
+        if (!selectedVipChannelValidation.ok) {
+            setPaymentError(selectedVipChannelValidation.message || "Nominal paket tidak sesuai untuk channel pembayaran ini.");
+            return;
+        }
+
+        handlePackagePayment(selectedPackage, selectedServiceId);
     };
 
     const handleCustomPayment = () => {
+        if (!customTopupEnabled) {
+            setPaymentError("Top up custom dinonaktifkan. Pilih paket VIP.");
+            return;
+        }
+
         if (typeof customNominal === "number" && customNominal >= 1000) {
+            if (!customChannelValidation.ok) {
+                setPaymentError(customChannelValidation.message || "Nominal tidak sesuai untuk channel pembayaran ini.");
+                return;
+            }
             createPayment(undefined, customNominal);
         }
     };
@@ -210,13 +279,14 @@ export default function TopUpPage() {
         setPaymentError(null);
         setCopied(false);
         setPaymentSuccess(false);
-        setCheckingStatus(false);
         if (pollingRef.current) clearInterval(pollingRef.current);
     };
 
     const copyLink = async () => {
         if (!paymentData) return;
-        await navigator.clipboard.writeText(paymentData.url);
+        const valueToCopy = paymentData.va_number || paymentData.url;
+        if (!valueToCopy) return;
+        await navigator.clipboard.writeText(valueToCopy);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -227,10 +297,10 @@ export default function TopUpPage() {
             <div className="mb-6 flex items-center justify-between">
                 <div>
                     <h1 className="text-4xl md:text-5xl font-black text-black tracking-tight uppercase">
-                        Top Up <span className="text-black inline-block -rotate-2 bg-primary px-2 border-[3px] border-black rounded-lg shadow-neo-sm">Kredit</span>
+                        Paket <span className="text-black inline-block -rotate-2 bg-primary px-2 border-[3px] border-black rounded-lg shadow-neo-sm">VIP</span>
                     </h1>
-                    <p className="mt-4 text-black/80 font-bold text-lg">Pilih paket yang sesuai dengan kebutuhan download-mu.</p>
-                    <p className="mt-1.5 text-sm text-black/60 font-semibold italic">* Harga yang tertera belum termasuk biaya admin payment gateway.</p>
+                    <p className="mt-4 text-black/80 font-bold text-lg">Pilih paket VIP dulu, lanjut pilih channel, lalu konfirmasi pembayaran.</p>
+                    <p className="mt-1.5 text-sm text-black/60 font-semibold italic">* Setiap transaksi kena fee aplikasi 2.5% untuk semua channel.</p>
                 </div>
                 <Link href="/topup/history">
                     <Button
@@ -302,6 +372,8 @@ export default function TopUpPage() {
                     {packages.map((pkg, index) => {
                         const bgColors = ["bg-[#a0d1d6]", "bg-[#ffb3c6]", "bg-[#c4b5fd]", "bg-[#ffeb3b]"];
                         const bgColor = bgColors[index % bgColors.length];
+                        const channelValidation = validateAmountByChannel(calcTotal(pkg.price), selectedChannel);
+                        const channelDisabled = !channelValidation.ok;
                         return (
                         <motion.div
                             key={pkg.id}
@@ -345,15 +417,21 @@ export default function TopUpPage() {
                                     {/* Price */}
                                     <div className="pt-2 pb-4">
                                         <p className="text-2xl sm:text-3xl font-black text-black tracking-tight">{formatIDR(pkg.price)}</p>
+                                        {!channelValidation.ok && (
+                                            <p className="text-xs font-black text-red-600 mt-2 uppercase tracking-wide">
+                                                {channelValidation.message}
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* Button */}
                                     <Button
                                         variant={selectedPackage === pkg.id ? "default" : "outline"}
-                                        disabled={isLoading}
+                                        disabled={isLoading || channelDisabled}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handlePackagePayment(pkg.id);
+                                            setSelectedPackage(pkg.id);
+                                            setPaymentError(null);
                                         }}
                                         className={`w-full h-12 text-base font-black rounded-xl transition-all duration-300 border-[3px] border-black ${selectedPackage === pkg.id
                                             ? "bg-white text-black hover:bg-black hover:text-white"
@@ -363,7 +441,7 @@ export default function TopUpPage() {
                                         {isLoading && selectedPackage === pkg.id ? (
                                             <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                                         ) : (
-                                            "Pilih Paket"
+                                            selectedPackage === pkg.id ? "Paket Terpilih" : "Pilih Paket"
                                         )}
                                     </Button>
                                 </div>
@@ -437,7 +515,8 @@ export default function TopUpPage() {
                                         disabled={isLoading}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handlePackagePayment(pkg.id);
+                                            setSelectedPackage(pkg.id);
+                                            setPaymentError(null);
                                         }}
                                         className={`w-full h-12 text-sm font-black rounded-xl transition-all duration-300 border-[3px] border-black ${selectedPackage === pkg.id
                                             ? "bg-black text-white"
@@ -446,7 +525,7 @@ export default function TopUpPage() {
                                         {isLoading && selectedPackage === pkg.id ? (
                                             <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                                         ) : (
-                                            "Pilih VIP"
+                                            selectedPackage === pkg.id ? "Paket Terpilih" : "Pilih VIP"
                                         )}
                                     </Button>
                                 </div>
@@ -455,7 +534,92 @@ export default function TopUpPage() {
                     ))}
                 </div>
 
-                {/* 3. Custom Nominal Section */}
+                {/* 3. Payment Channel Selector */}
+                <div className="mb-12 bg-white border-[3px] border-black rounded-3xl p-5 md:p-6 shadow-neo overflow-hidden">
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+                            <div>
+                                <p className="text-sm font-black uppercase tracking-[0.16em] text-black/70">Langkah 2: Channel Pembayaran</p>
+                                <h2 className="text-2xl font-black text-black mt-1">Pilih Metode Pembayaran</h2>
+                                <p className="text-xs font-bold text-black/70 mt-2">
+                                    Card payment bisa di-scroll. Setelah pilih channel, klik tombol konfirmasi di bawah.
+                                </p>
+                            </div>
+                            <Badge className="w-fit border-[3px] border-black bg-[#ffeb3b] text-black rounded-xl px-3 py-1 font-black uppercase text-[11px] tracking-wide">
+                                Aktif: {selectedChannel.name}
+                            </Badge>
+                        </div>
+
+                        {selectedVipPackage ? (
+                            <div className="bg-[#f8fafc] border-[3px] border-black rounded-2xl p-4 space-y-1">
+                                <p className="text-xs font-black uppercase tracking-wider text-black/70">Paket Terpilih</p>
+                                <p className="text-lg font-black text-black">{selectedVipPackage.name}</p>
+                                <p className="text-sm font-bold text-black/80">Total Bayar: {formatIDR(selectedVipTotalAmount)}</p>
+                            </div>
+                        ) : (
+                            <p className="text-sm font-black text-red-600 bg-red-50 border-2 border-red-600 rounded-xl px-4 py-3">
+                                Pilih paket VIP dulu, baru pilih channel pembayaran.
+                            </p>
+                        )}
+
+                        <div
+                            ref={channelListRef}
+                            className="payment-channel-scrollbar min-h-[320px] max-h-[62dvh] sm:max-h-[520px] overflow-y-auto overscroll-y-contain touch-pan-y pr-1 pb-2 space-y-2 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]"
+                        >
+                            {FLAZPAY_PAYMENT_CHANNELS.map((channel) => (
+                                <button
+                                    key={channel.id}
+                                    type="button"
+                                    data-channel-id={channel.id}
+                                    onClick={() => {
+                                        setSelectedServiceId(channel.id);
+                                        setPaymentError(null);
+                                    }}
+                                    className={`w-full text-left rounded-2xl border-[3px] p-3 md:p-4 transition-all ${selectedServiceId === channel.id
+                                        ? "border-black bg-[#c4b5fd] shadow-neo-sm"
+                                        : "border-black/70 bg-white hover:bg-[#f8fafc] hover:-translate-y-0.5"
+                                        }`}
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p className="font-black text-black text-sm sm:text-base leading-tight">
+                                                ID {channel.id} • {channel.name}
+                                            </p>
+                                            <p className="text-xs sm:text-sm font-bold text-black/75 mt-2">
+                                                Fee Channel {channel.feeLabel} • Fee Aplikasi 2.5%
+                                            </p>
+                                        </div>
+                                        <div className={`w-5 h-5 rounded-full border-[3px] ${selectedServiceId === channel.id ? "bg-black border-black" : "bg-white border-black/60"}`} />
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+
+                        {selectedVipPackage && !selectedVipChannelValidation.ok && (
+                            <p className="text-sm font-black text-red-600 bg-red-50 border-2 border-red-600 rounded-xl px-4 py-3">
+                                {selectedVipChannelValidation.message}
+                            </p>
+                        )}
+
+                        <Button
+                            onClick={handleConfirmVipPayment}
+                            disabled={isLoading || !selectedVipPackage || !selectedVipChannelValidation.ok}
+                            className="w-full h-12 text-sm md:text-base font-black rounded-xl border-[3px] border-black bg-black text-white hover:bg-black/90"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 w-5 h-5 animate-spin" />
+                                    Memproses...
+                                </>
+                            ) : (
+                                "Konfirmasi Pembayaran"
+                            )}
+                        </Button>
+                    </div>
+                </div>
+
+                {/* 4. Custom Nominal Section */}
+                {customTopupEnabled && (
                 <div className="bg-[#a0d1d6] border-[3px] border-black rounded-3xl p-6 md:p-10 shadow-neo relative overflow-hidden group">
                     <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                         <div>
@@ -526,12 +690,17 @@ export default function TopUpPage() {
                                         <span>Total Bayar</span>
                                         <span>{formatIDR(calcTotal(customNominal))}</span>
                                     </div>
+                                    {!customChannelValidation.ok && (
+                                        <p className="text-xs font-black text-red-600 pt-2 uppercase tracking-wide">
+                                            {customChannelValidation.message}
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
                             <Button
                                 className="w-full bg-primary text-black border-[3px] border-black hover:bg-primary/90 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo h-14 font-black text-lg rounded-xl shadow-neo-sm transition-all duration-300"
-                                disabled={!customNominal || customNominal < 1000 || isLoading}
+                                disabled={!customNominal || customNominal < 1000 || isLoading || !customChannelValidation.ok}
                                 onClick={handleCustomPayment}
                             >
                                 {isLoading && !selectedPackage ? (
@@ -549,6 +718,7 @@ export default function TopUpPage() {
                         </div>
                     </div>
                 </div>
+                )}
             </div>
 
             {/* 4. Footer Notes */}
@@ -559,8 +729,8 @@ export default function TopUpPage() {
                             <Zap className="w-6 h-6 text-black" strokeWidth={3} />
                         </div>
                         <div>
-                            <p className="font-black text-black mb-1 uppercase tracking-wide">Penggunaan Kredit</p>
-                            <p className="font-bold text-black/80 leading-relaxed">1 Kredit = 1x Download ringan. Fitur premium (kualitas tinggi/fitur khusus) mungkin memerlukan lebih banyak kredit.</p>
+                            <p className="font-black text-black mb-1 uppercase tracking-wide">Paket VIP</p>
+                            <p className="font-bold text-black/80 leading-relaxed">Semua paket VIP aktifkan unlimited request selama masa aktif paket.</p>
                         </div>
                     </div>
                     <div className="flex items-start gap-4 p-5 rounded-2xl bg-[#c4b5fd] border-[3px] border-black shadow-neo-sm">
@@ -653,7 +823,7 @@ export default function TopUpPage() {
                                         </motion.div>
                                         <div>
                                             <h4 className="text-2xl font-black text-black mb-2 uppercase tracking-wide">Pembayaran Berhasil!</h4>
-                                            <p className="text-black/80 font-bold text-base">Kredit kamu telah ditambahkan.</p>
+                                            <p className="text-black/80 font-bold text-base">Paket VIP kamu sudah aktif.</p>
                                         </div>
                                         <div className="bg-white border-[3px] border-black shadow-neo-sm rounded-2xl p-5 relative overflow-hidden">
                                             <div className="absolute top-0 right-0 w-2 h-full bg-[#ffb3c6] border-l-[3px] border-black"></div>
@@ -677,23 +847,55 @@ export default function TopUpPage() {
                                             </div>
                                         </div>
 
-                                        {/* QR Code */}
-                                        <div className="flex justify-center">
-                                            <div className="bg-white border-[3px] border-black rounded-2xl p-4 shadow-neo-sm rotate-1">
-                                                <Image
-                                                    src={paymentData.qr_image}
-                                                    alt="QR Code Pembayaran"
-                                                    width={180}
-                                                    height={180}
-                                                    className="rounded-lg"
-                                                    unoptimized
-                                                />
+                                        {!!paymentData.base_amount && !!paymentData.app_fee && (
+                                            <div className="space-y-2 text-sm bg-gray-50 rounded-xl p-4 border-2 border-black font-bold">
+                                                <div className="flex justify-between text-black/80">
+                                                    <span>Harga Paket</span>
+                                                    <span>{formatIDR(paymentData.base_amount)}</span>
+                                                </div>
+                                                <div className="flex justify-between text-black/80">
+                                                    <span>Fee Aplikasi (2.5%)</span>
+                                                    <span>{formatIDR(paymentData.app_fee)}</span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
 
-                                        <p className="text-center text-sm font-bold text-black bg-[#ffeb3b] p-3 border-2 border-black rounded-xl shadow-neo-sm mx-4">
-                                            Scan QR di atas menggunakan aplikasi e-wallet kamu
-                                        </p>
+                                        {!!paymentData.va_number && (
+                                            <div className="bg-white border-[3px] border-black rounded-2xl p-5 shadow-neo-sm">
+                                                <p className="text-xs font-black uppercase tracking-widest text-black/70">Nomor Virtual Account</p>
+                                                <p className="text-2xl font-black text-black mt-2 break-all">{paymentData.va_number}</p>
+                                                <p className="text-xs font-bold text-black/70 mt-2">
+                                                    Salin nomor VA lalu bayar dari m-banking / ATM.
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {!!paymentData.qr_image && (
+                                            <>
+                                                <div className="flex justify-center">
+                                                    <div className="bg-white border-[3px] border-black rounded-2xl p-4 shadow-neo-sm rotate-1">
+                                                        <Image
+                                                            src={paymentData.qr_image}
+                                                            alt="QR Code Pembayaran"
+                                                            width={180}
+                                                            height={180}
+                                                            className="rounded-lg"
+                                                            unoptimized
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-center text-sm font-bold text-black bg-[#ffeb3b] p-3 border-2 border-black rounded-xl shadow-neo-sm mx-4">
+                                                    Scan QR di atas menggunakan aplikasi e-wallet kamu
+                                                </p>
+                                            </>
+                                        )}
+
+                                        {!paymentData.qr_image && !paymentData.va_number && (
+                                            <p className="text-center text-sm font-bold text-black bg-[#ffeb3b] p-3 border-2 border-black rounded-xl shadow-neo-sm mx-4">
+                                                Gunakan tombol link pembayaran untuk melanjutkan transaksi.
+                                            </p>
+                                        )}
 
                                         {/* Status Check Indicator */}
                                         <div className="bg-white border-[3px] border-black shadow-neo-sm rounded-xl p-5 flex flex-col items-center gap-4 relative overflow-hidden">
@@ -719,6 +921,7 @@ export default function TopUpPage() {
                                             <Button
                                                 onClick={copyLink}
                                                 variant="outline"
+                                                disabled={!paymentData.url && !paymentData.va_number}
                                                 className="flex-1 border-2 border-border text-foreground hover:bg-secondary font-bold rounded-xl h-12"
                                             >
                                                 {copied ? (
@@ -729,19 +932,28 @@ export default function TopUpPage() {
                                                 ) : (
                                                     <>
                                                         <Copy className="mr-2 w-4 h-4" />
-                                                        Salin Link
+                                                        {paymentData.va_number ? "Salin No. VA" : "Salin Link"}
                                                     </>
                                                 )}
                                             </Button>
-                                            <Button
-                                                asChild
-                                                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl h-12"
-                                            >
-                                                <a href={paymentData.url} target="_blank" rel="noopener noreferrer">
-                                                    <ExternalLink className="mr-2 w-4 h-4" />
-                                                    Buka Link
-                                                </a>
-                                            </Button>
+                                            {paymentData.url ? (
+                                                <Button
+                                                    asChild
+                                                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl h-12"
+                                                >
+                                                    <a href={paymentData.url} target="_blank" rel="noopener noreferrer">
+                                                        <ExternalLink className="mr-2 w-4 h-4" />
+                                                        Buka Link
+                                                    </a>
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    disabled
+                                                    className="flex-1 font-bold rounded-xl h-12"
+                                                >
+                                                    Link Tidak Ada
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
                                 ) : null}

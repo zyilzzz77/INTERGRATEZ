@@ -227,6 +227,31 @@
     box-shadow: 2px 2px 0px 0px var(--color-black-real);
     transform: translate(4px, 4px);
   }
+
+  .payment-channel-scrollbar {
+    scrollbar-width: auto;
+    scrollbar-color: #000000 #d1d5db;
+  }
+
+  .payment-channel-scrollbar::-webkit-scrollbar {
+    width: 14px;
+  }
+
+  .payment-channel-scrollbar::-webkit-scrollbar-track {
+    background: #d1d5db;
+    border: 2px solid #000000;
+    border-radius: 9999px;
+  }
+
+  .payment-channel-scrollbar::-webkit-scrollbar-thumb {
+    background: #000000;
+    border: 2px solid #d1d5db;
+    border-radius: 9999px;
+  }
+
+  .payment-channel-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #111827;
+  }
 }
 
 /* ───── Base ───── */

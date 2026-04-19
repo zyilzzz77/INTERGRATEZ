@@ -5,15 +5,13 @@ import { headers } from "next/headers";
 const GUEST_DEFAULT = 100;
 
 // Top-up packages
-export const TOPUP_PACKAGES = [
-    { id: "starter", name: "Starter", price: 5000, credits: 7500, days: 30, role: "premium" },
-    { id: "basic", name: "Basic", price: 10000, credits: 14500, days: 30, role: "premium" },
-    { id: "pro", name: "Pro", price: 20000, credits: 45000, days: 30, role: "premium" },
-];
+export const TOPUP_PACKAGES: Array<{ id: string; name: string; price: number; credits: number; days: number; role: string }> = [];
 
 // VIP packages
 export const VIP_PACKAGES = [
-    { id: "vip-plus", name: "VIP Plus", price: 25000, credits: 0, bonus: 0, days: 30, role: "vip-max" },
+    { id: "vip-7", name: "VIP 7 Hari", price: 7500, credits: 0, bonus: 0, days: 7, role: "vip-max" },
+    { id: "vip-14", name: "VIP 14 Hari", price: 14000, credits: 0, bonus: 0, days: 14, role: "vip-max" },
+    { id: "vip-30", name: "VIP 30 Hari", price: 25000, credits: 0, bonus: 0, days: 30, role: "vip-max" },
 ];
 
 export interface CreditInfo {
@@ -50,60 +48,65 @@ async function getOrCreateGuestCredit(ip: string, fingerprint: string) {
         return { credits: 0 };
     }
 
-    // Try to find by exact IP + fingerprint combo
-    let record = await prisma.guestCredit.findUnique({
-        where: { ip_fingerprint: { ip, fingerprint } },
-    });
-
-    if (record) return record;
-
-    let creditsToAssign = GUEST_DEFAULT;
-
-    // Check if there's a record with the same IP (different browser/fingerprint)
-    // This prevents gaming via different browsers on same device
-    if (ip !== "unknown") {
-        const existingByIp = await prisma.guestCredit.findFirst({
-            where: { ip },
-            orderBy: { createdAt: "asc" }, // Get the oldest/first record
-        });
-
-        if (existingByIp) {
-            creditsToAssign = existingByIp.credits;
-        }
-    }
-
-    // Check if there's a record with the same fingerprint (different network/IP)
-    // This handles users who changed WiFi / mobile data
-    if (creditsToAssign === GUEST_DEFAULT && fingerprint !== "unknown") {
-        const existingByFp = await prisma.guestCredit.findFirst({
-            where: { fingerprint },
-            orderBy: { createdAt: "asc" },
-        });
-
-        if (existingByFp) {
-            creditsToAssign = existingByFp.credits;
-        }
-    }
-
     try {
-        // Use upsert to handle concurrent creation attempts cleanly
-        record = await prisma.guestCredit.upsert({
-            where: { ip_fingerprint: { ip, fingerprint } },
-            update: {}, // do not modify if it was just created by another request
-            create: { ip, fingerprint, credits: creditsToAssign },
-        });
-    } catch (e) {
-        // Fallback in case of extreme race conditions or locking issues
-        record = await prisma.guestCredit.findUnique({
+        // Try to find by exact IP + fingerprint combo
+        let record = await prisma.guestCredit.findUnique({
             where: { ip_fingerprint: { ip, fingerprint } },
         });
-        
-        if (!record) {
-            throw e; // Reraise if still not found
-        }
-    }
 
-    return record;
+        if (record) return record;
+
+        let creditsToAssign = GUEST_DEFAULT;
+
+        // Check if there's a record with the same IP (different browser/fingerprint)
+        // This prevents gaming via different browsers on same device
+        if (ip !== "unknown") {
+            const existingByIp = await prisma.guestCredit.findFirst({
+                where: { ip },
+                orderBy: { createdAt: "asc" }, // Get the oldest/first record
+            });
+
+            if (existingByIp) {
+                creditsToAssign = existingByIp.credits;
+            }
+        }
+
+        // Check if there's a record with the same fingerprint (different network/IP)
+        // This handles users who changed WiFi / mobile data
+        if (creditsToAssign === GUEST_DEFAULT && fingerprint !== "unknown") {
+            const existingByFp = await prisma.guestCredit.findFirst({
+                where: { fingerprint },
+                orderBy: { createdAt: "asc" },
+            });
+
+            if (existingByFp) {
+                creditsToAssign = existingByFp.credits;
+            }
+        }
+
+        try {
+            // Use upsert to handle concurrent creation attempts cleanly
+            record = await prisma.guestCredit.upsert({
+                where: { ip_fingerprint: { ip, fingerprint } },
+                update: {}, // do not modify if it was just created by another request
+                create: { ip, fingerprint, credits: creditsToAssign },
+            });
+        } catch (e) {
+            // Fallback in case of extreme race conditions or locking issues
+            record = await prisma.guestCredit.findUnique({
+                where: { ip_fingerprint: { ip, fingerprint } },
+            });
+
+            if (!record) {
+                throw e; // Reraise if still not found
+            }
+        }
+
+        return record;
+    } catch (error) {
+        console.error("[Credits] Guest credit fallback activated:", error);
+        return { credits: GUEST_DEFAULT };
+    }
 }
 
 /**

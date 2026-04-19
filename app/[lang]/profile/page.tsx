@@ -41,11 +41,13 @@ import RealtimeCredits from "@/components/RealtimeCredits";
 import RealtimeBonus from "@/components/RealtimeBonus";
 import UnlimitedBadge from "@/components/UnlimitedBadge";
 
-export default async function ProfilePage() {
+export default async function ProfilePage({ params }: { params: Promise<{ lang: string }> }) {
+    const { lang } = await params;
+    const callbackUrl = `/${lang}/profile`;
     const session = await auth();
 
     if (!session?.user?.id) {
-        redirect("/api/auth/signin");
+        redirect(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
     }
 
     const dbUser = await prisma.user.findUnique({
@@ -53,7 +55,7 @@ export default async function ProfilePage() {
     });
 
     if (!dbUser) {
-        redirect("/api/auth/signin");
+        redirect(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
     }
 
     const joinedDate = new Date(dbUser.createdAt).toLocaleDateString('en-GB', {

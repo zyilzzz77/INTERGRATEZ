@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { TOPUP_PACKAGES, VIP_PACKAGES } from "@/lib/credits";
+import { VIP_PACKAGES } from "@/lib/credits";
+import {
+    createFlazpayNewSignature,
+    createMerchantUniqueCode,
+    getFlazpayConfig,
+    getMissingFlazpayEnv,
+    mapFlazpayCreateErrorMessage,
+} from "@/lib/flazpay";
+import { getFlazpayChannelById, validateAmountByChannel } from "@/lib/flazpayChannels";
 
-const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";
-const SAWERIA_API_URL = `${NEOXR_BASE}/api/saweria-create`;
-const SAWERIA_USER_ID = process.env.SAWERIA_USER_ID;
-const SAWERIA_API_KEY = process.env.TAKO_API_KEY;
-
-const calcCreditsFromCustomAmount = (amount: number) => {
-    if (amount >= 20000) return Math.floor(amount * 2.25);
-    if (amount >= 10000) return Math.floor(amount * 1.45);
-    return Math.floor(amount * 1.5);
-};
+function buildReturnUrl(req: NextRequest, configuredUrl: string): string {
+    if (configuredUrl) return configuredUrl;
+    return `${req.nextUrl.origin}/topup`;
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -25,90 +27,215 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { packageId, customAmount } = body;
+        const { packageId, phoneNumber, serviceId } = body;
 
-        let amount: number;
-        let creditsToGive: number;
-        let bonusToGive: number;
-        let activeDays: number;
-        let packageName: string;
-
-        if (customAmount) {
-            const amountNum = parseInt(customAmount, 10);
-            if (isNaN(amountNum) || amountNum < 1000) {
-                return NextResponse.json({ error: "Minimal top up custom adalah Rp 1.000" }, { status: 400 });
-            }
-            if (amountNum % 1000 !== 0) {
-                return NextResponse.json({ error: "Nominal top up harus kelipatan Rp 1.000" }, { status: 400 });
-            }
-            amount = amountNum;
-            creditsToGive = calcCreditsFromCustomAmount(amountNum);
-            bonusToGive = 0;
-            activeDays = 30;
-            packageName = `Custom Nominal (Rp ${amount})`;
-        } else if (packageId) {
-            const pkg = [...TOPUP_PACKAGES, ...VIP_PACKAGES].find(p => p.id === packageId) as { id: string, name: string, price: number, credits: number, bonus?: number, days: number, role: string } | undefined;
-            if (!pkg) {
-                return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 });
-            }
-            amount = pkg.price;
-            creditsToGive = pkg.credits;
-            bonusToGive = pkg.bonus ?? 0;
-            activeDays = pkg.days;
-            packageName = pkg.name;
-        } else {
-            return NextResponse.json({ error: "Silakan pilih paket atau masukkan nominal custom" }, { status: 400 });
+        if (!packageId || typeof packageId !== "string") {
+            return NextResponse.json({ error: "Silakan pilih paket VIP terlebih dahulu." }, { status: 400 });
         }
-        // Add 7.5% admin fee to the amount
-        const ADMIN_FEE_PERCENT = 7.5;
-        const adminFee = Math.ceil(amount * ADMIN_FEE_PERCENT / 100);
-        const totalAmount = amount + adminFee;
 
-        // Call Saweria API to create payment (with fee included)
-        const message = encodeURIComponent(`Top Up ${packageName} - ${creditsToGive} Credits`);
-        const saweriaUrl = `${SAWERIA_API_URL}?userid=${SAWERIA_USER_ID}&amount=${totalAmount}&message=${message}&apikey=${SAWERIA_API_KEY}`;
+        const pkg = VIP_PACKAGES.find((item) => item.id === packageId);
+        if (!pkg) {
+            return NextResponse.json({ error: "Paket VIP tidak valid." }, { status: 400 });
+        }
 
-        const response = await fetch(saweriaUrl);
+        const baseAmount = pkg.price;
+        const creditsToGive = pkg.credits;
+        const bonusToGive = pkg.bonus ?? 0;
+        const activeDays = pkg.days;
+        const packageName = pkg.name;
 
-        if (!response.ok) {
-            console.error(`Saweria API returned status ${response.status}`);
+        // Add app fee 2.5% for every payment channel
+        const APP_FEE_PERCENT = 2.5;
+        const appFee = Math.ceil(baseAmount * APP_FEE_PERCENT / 100);
+        const totalAmount = baseAmount + appFee;
+
+        const flazpayConfig = getFlazpayConfig();
+        const missingEnv = getMissingFlazpayEnv(flazpayConfig);
+        if (missingEnv.length > 0) {
             return NextResponse.json(
-                { error: `Layanan pembayaran sedang gangguan (HTTP ${response.status}). Coba lagi nanti.` },
+                { error: `Konfigurasi Flazpay belum lengkap: ${missingEnv.join(", ")}` },
+                { status: 500 }
+            );
+        }
+
+        const incomingServiceId =
+            typeof serviceId === "number"
+                ? String(serviceId)
+                : typeof serviceId === "string"
+                    ? serviceId.trim()
+                    : "";
+        const selectedService = incomingServiceId || flazpayConfig.service;
+
+        const selectedChannel = getFlazpayChannelById(selectedService);
+        if (!selectedChannel) {
+            return NextResponse.json({ error: "Channel pembayaran tidak valid." }, { status: 400 });
+        }
+
+        const channelAmountValidation = validateAmountByChannel(totalAmount, selectedChannel);
+        if (!channelAmountValidation.ok) {
+            return NextResponse.json({ error: channelAmountValidation.message }, { status: 400 });
+        }
+
+        const merchantUniqueCode = createMerchantUniqueCode("INV");
+        const note = `${packageName} - Unlimited Request`;
+
+        type FlazpayCreateApiResponse = {
+            status?: boolean;
+            msg?: string;
+            message?: string;
+            data?: unknown;
+        };
+
+        const signatureParams = {
+            mid: flazpayConfig.mid,
+            clientId: flazpayConfig.clientId,
+            clientSecret: flazpayConfig.clientSecret,
+            uniqueCode: merchantUniqueCode,
+            service: selectedService,
+            amount: totalAmount,
+        };
+
+        const primarySignature = createFlazpayNewSignature(signatureParams, "client-first");
+        const fallbackSignature = createFlazpayNewSignature(signatureParams, "mid-first");
+
+        const sendCreateRequest = async (signature: string) => {
+            const payload = new URLSearchParams({
+                mid: flazpayConfig.mid,
+                client_id: flazpayConfig.clientId,
+                client_secret: flazpayConfig.clientSecret,
+                action: "new",
+                unique_code: merchantUniqueCode,
+                service: selectedService,
+                type_fee: flazpayConfig.typeFee,
+                amount: String(totalAmount),
+                note,
+                return_url: buildReturnUrl(req, flazpayConfig.returnUrl),
+                signature,
+            });
+
+            if (phoneNumber && typeof phoneNumber === "string") {
+                payload.set("phone_number", phoneNumber.trim());
+            }
+
+            const response = await fetch(flazpayConfig.createEndpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: payload.toString(),
+                cache: "no-store",
+            });
+
+            if (!response.ok) {
+                return {
+                    kind: "http-error" as const,
+                    status: response.status,
+                };
+            }
+
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                const text = await response.text();
+                return {
+                    kind: "non-json" as const,
+                    text,
+                };
+            }
+
+            const data = (await response.json()) as FlazpayCreateApiResponse;
+            return {
+                kind: "json" as const,
+                data,
+            };
+        };
+
+        let requestResult = await sendCreateRequest(primarySignature);
+
+        if (requestResult.kind === "json") {
+            const responseMessage = String(
+                requestResult.data.msg || requestResult.data.message || ""
+            ).toLowerCase();
+            const shouldRetryWithFallback =
+                (!requestResult.data.status || !requestResult.data.data) &&
+                (responseMessage.includes("autentikasi") || responseMessage.includes("signature"));
+
+            if (shouldRetryWithFallback && fallbackSignature !== primarySignature) {
+                requestResult = await sendCreateRequest(fallbackSignature);
+            }
+        }
+
+        if (requestResult.kind === "http-error") {
+            console.error(`Flazpay API returned status ${requestResult.status}`);
+            return NextResponse.json(
+                { error: `Layanan pembayaran sedang gangguan (HTTP ${requestResult.status}). Coba lagi nanti.` },
                 { status: 502 }
             );
         }
 
-        const contentType = response.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) {
-            const text = await response.text();
-            console.error("Saweria API returned non-JSON:", text.substring(0, 200));
+        if (requestResult.kind === "non-json") {
+            console.error("Flazpay API returned non-JSON:", requestResult.text.substring(0, 200));
             return NextResponse.json(
                 { error: "Layanan pembayaran sedang tidak tersedia. Coba lagi nanti." },
                 { status: 502 }
             );
         }
 
-        const data = await response.json();
+        const data = requestResult.data;
 
         if (!data.status || !data.data) {
+            const gatewayMessage = String(data.msg || data.message || "");
             return NextResponse.json(
-                { error: "Gagal membuat pembayaran. Coba lagi." },
+                { error: mapFlazpayCreateErrorMessage(gatewayMessage) },
                 { status: 500 }
             );
         }
+
+        const gatewayData = data.data as {
+            pay_id?: string;
+            unique_code?: string;
+            amount?: number | string;
+            redirect_url?: string;
+            checkout_url?: string;
+            qrcode_url?: string;
+            qr_content?: string;
+            va_number?: string;
+            virtual_account?: string;
+            payment_no?: string;
+            pay_no?: string;
+            expired_at?: string;
+        };
+
+        const paymentId = String(
+            gatewayData.unique_code || gatewayData.pay_id || merchantUniqueCode
+        );
+        const amountFromGateway = Number(gatewayData.amount);
+        const finalAmount = Number.isFinite(amountFromGateway) ? amountFromGateway : totalAmount;
+        const payUrl = gatewayData.redirect_url || gatewayData.checkout_url || "";
+        const qrImage =
+            gatewayData.qrcode_url ||
+            (gatewayData.qr_content
+                ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(gatewayData.qr_content)}`
+                : "");
+        const vaNumber = String(
+            gatewayData.va_number ||
+            gatewayData.virtual_account ||
+            gatewayData.payment_no ||
+            gatewayData.pay_no ||
+            ""
+        );
 
         // Save transaction to DB
         const transaction = await prisma.transaction.create({
             data: {
                 userId: session.user.id,
-                paymentId: data.data.id,
-                amount: totalAmount,
+                paymentId,
+                amount: finalAmount,
                 credits: creditsToGive,
                 bonusCredits: bonusToGive,
                 days: activeDays,
                 status: "pending",
-                payUrl: data.data.url || data.data.receipt,
-                qrImage: data.data.qr_image,
+                payUrl: payUrl || null,
+                qrImage: qrImage || null,
             },
         });
 
@@ -116,13 +243,18 @@ export async function POST(req: NextRequest) {
             success: true,
             transaction: {
                 id: transaction.id,
-                paymentId: data.data.id,
-                amount: totalAmount,
+                paymentId,
+                amount: finalAmount,
+                serviceId: selectedService,
+                serviceName: selectedChannel.name,
+                baseAmount,
+                appFee,
                 credits: creditsToGive,
                 days: activeDays,
-                qrImage: data.data.qr_image,
-                payUrl: data.data.url || data.data.receipt,
-                expiredAt: data.data.expired_at,
+                qrImage,
+                vaNumber,
+                payUrl,
+                expiredAt: gatewayData.expired_at || "",
             },
         });
     } catch (error) {
