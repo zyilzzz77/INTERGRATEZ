@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -9,7 +9,7 @@ const DEMO_DEFAULT_EMAIL = process.env.NEXT_PUBLIC_DEMO_LOGIN_EMAIL || "reviewer
 const DEMO_DEFAULT_PASSWORD = process.env.NEXT_PUBLIC_DEMO_LOGIN_PASSWORD || "InversaveDemo123!";
 const DEMO_LOGIN_TOAST_KEY = "inversave:demo-login-success";
 
-export default function LoginPage() {
+function LoginContent() {
     const params = useParams<{ lang?: string }>();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -245,5 +245,13 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense>
+            <LoginContent />
+        </Suspense>
     );
 }
