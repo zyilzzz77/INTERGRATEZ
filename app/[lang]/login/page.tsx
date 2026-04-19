@@ -130,26 +130,25 @@ function LoginContent() {
             return;
         }
 
-        const result = await signIn("credentials", {
-            redirect: false,
-            email,
-            password,
-            callbackUrl: demoCallbackUrl,
-        });
+        try {
+            const result = await signIn("credentials", {
+                redirect: false,
+                email,
+                password,
+            });
 
-        if (result?.error) {
-            setErrorText("Login demo gagal. Periksa email/password demo.");
-            return;
+            if (result?.error) {
+                setErrorText("Login demo gagal. Periksa email/password demo.");
+                return;
+            }
+
+            sessionStorage.setItem(DEMO_LOGIN_TOAST_KEY, "1");
+
+            // Force full page reload to profile so JWT session is picked up
+            window.location.href = `/${lang}/profile`;
+        } catch {
+            setErrorText("Terjadi kesalahan saat login demo.");
         }
-
-        sessionStorage.setItem(DEMO_LOGIN_TOAST_KEY, "1");
-
-        if (result?.url) {
-            window.location.href = result.url;
-            return;
-        }
-
-        window.location.href = demoCallbackUrl;
     };
 
     const handleQuickDemoLogin = async () => {

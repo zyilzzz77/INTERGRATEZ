@@ -37,17 +37,11 @@ const demoLoginPassword = (process.env.DEMO_LOGIN_PASSWORD || "").trim();
 const demoLoginName = (process.env.DEMO_LOGIN_NAME || "Demo Reviewer").trim();
 const demoLoginImageRaw = (process.env.DEMO_LOGIN_IMAGE || process.env.APP_LOGO_URL || "").trim();
 const demoLoginImage = demoLoginImageRaw || "https://api.dicebear.com/9.x/initials/svg?seed=Reviewer%20Demo&backgroundColor=b6e3f4";
-const demoLoginRoleRaw = (process.env.DEMO_LOGIN_ROLE || "premium").trim().toLowerCase();
-const allowedDemoRoles = new Set(["free", "premium", "vip", "vip-max", "admin"]);
-const demoLoginRole = allowedDemoRoles.has(demoLoginRoleRaw) ? demoLoginRoleRaw : "premium";
-const demoLoginCreditsRaw = Number(process.env.DEMO_LOGIN_CREDITS || "300");
-const demoLoginCredits = Number.isFinite(demoLoginCreditsRaw) && demoLoginCreditsRaw > 0
-    ? Math.floor(demoLoginCreditsRaw)
-    : 300;
-const demoLoginExpiryDaysRaw = Number(process.env.DEMO_LOGIN_EXPIRE_DAYS || "30");
-const demoLoginExpiryDays = Number.isFinite(demoLoginExpiryDaysRaw) && demoLoginExpiryDaysRaw > 0
-    ? Math.floor(demoLoginExpiryDaysRaw)
-    : 30;
+
+// Demo login: VIP 24 hour trial
+const DEMO_VIP_HOURS = 24;
+const DEMO_VIP_CREDITS = 300;
+
 const isDemoProviderReady = demoLoginEnabled && !!demoLoginEmail && !!demoLoginPassword;
 
 const providers: Provider[] = [];
@@ -85,16 +79,18 @@ if (isDemoProviderReady) {
 
                 let user = await prisma.user.findUnique({ where: { email: demoLoginEmail } });
                 const now = new Date();
-                const defaultExpiryDate = new Date(now);
-                defaultExpiryDate.setDate(defaultExpiryDate.getDate() + demoLoginExpiryDays);
 
                 if (!user) {
+                    // First time demo login: create user with VIP 24h trial
                     let accountId = generateAccountId();
                     let exists = await prisma.user.findUnique({ where: { accountId } });
                     while (exists) {
                         accountId = generateAccountId();
                         exists = await prisma.user.findUnique({ where: { accountId } });
                     }
+
+                    const expiryDate = new Date(now);
+                    expiryDate.setHours(expiryDate.getHours() + DEMO_VIP_HOURS);
 
                     user = await prisma.user.create({
                         data: {
@@ -103,13 +99,16 @@ if (isDemoProviderReady) {
                             image: demoLoginImage,
                             emailVerified: now,
                             accountId,
-                            role: demoLoginRole,
-                            credits: demoLoginCredits,
+                            role: "vip",
+                            credits: DEMO_VIP_CREDITS,
                             bonusCredits: 0,
-                            creditsExpiry: defaultExpiryDate,
+                            creditsExpiry: expiryDate,
                         },
                     });
+
+                    console.log(`[Demo] New demo user created with VIP 24h trial, expires: ${expiryDate.toISOString()}`);
                 } else {
+                    // Returning demo user
                     let accountId = user.accountId;
                     if (!accountId) {
                         accountId = generateAccountId();
@@ -120,29 +119,39 @@ if (isDemoProviderReady) {
                         }
                     }
 
-                    const normalizedCredits = Math.max(0, Math.min(user.credits, demoLoginCredits));
-                    const normalizedExpiry = user.creditsExpiry && user.creditsExpiry > now
-                        ? user.creditsExpiry
-                        : defaultExpiryDate;
+                    const isExpired = !user.creditsExpiry || user.creditsExpiry <= now;
 
-                    user = await prisma.user.update({
-                        where: { id: user.id },
-                        data: {
-                            accountId,
-                            name: demoLoginName,
-                            image: demoLoginImage,
-                            emailVerified: user.emailVerified ?? now,
-                            role: demoLoginRole,
-                            credits: normalizedCredits,
-                            creditsExpiry: normalizedExpiry,
-                        },
-                    });
+                    if (isExpired) {
+                        // VIP trial expired → downgrade to free
+                        user = await prisma.user.update({
+                            where: { id: user.id },
+                            data: {
+                                accountId,
+                                role: "free",
+                                credits: 0,
+                                creditsExpiry: user.creditsExpiry,
+                            },
+                        });
+                        console.log(`[Demo] Demo user VIP expired, downgraded to free`);
+                    } else {
+                        // Still within VIP trial period, keep VIP
+                        user = await prisma.user.update({
+                            where: { id: user.id },
+                            data: {
+                                accountId,
+                                name: demoLoginName,
+                                image: demoLoginImage,
+                            },
+                        });
+                        console.log(`[Demo] Demo user still has VIP trial until: ${user.creditsExpiry?.toISOString()}`);
+                    }
                 }
 
                 return {
                     id: user.id,
                     name: user.name || demoLoginName,
                     email: user.email,
+                    image: user.image,
                 };
             },
         })
@@ -164,6 +173,9 @@ if (process.env.NODE_ENV === "development" && providers.length === 0) {
 export const { handlers, signIn, signOut, auth } = NextAuth({
     secret: authSecret,
     adapter: PrismaAdapter(prisma),
+    session: {
+        strategy: "jwt",
+    },
     providers,
     pages: {
         signIn: "/login",
@@ -202,8 +214,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
     },
     callbacks: {
-        async session({ session, user }) {
-            if (session.user) {
+        async jwt({ token, user }) {
+            // On initial sign-in, user object is available
+            if (user) {
+                token.id = user.id;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user && token.id) {
                 const sessionUser = session.user as typeof session.user & {
                     id: string;
                     credits?: number;
@@ -211,10 +230,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     role?: string;
                 };
 
-                sessionUser.id = user.id;
-                // Fetch credits from DB
+                sessionUser.id = token.id as string;
+
+                // Fetch fresh data from DB
                 const dbUser = await prisma.user.findUnique({
-                    where: { id: user.id },
+                    where: { id: token.id as string },
                     select: { credits: true, creditsExpiry: true, role: true },
                 });
                 if (dbUser) {
