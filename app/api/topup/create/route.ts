@@ -11,6 +11,31 @@ import {
 } from "@/lib/flazpay";
 import { getFlazpayChannelById, validateAmountByChannel } from "@/lib/flazpayChannels";
 
+/**
+ * Scrape QR image URL dari halaman redirect Flazpay.
+ * Dipakai untuk channel QRIS Realtime (id:14) yang tidak return qr_content di JSON.
+ * Pattern HTML: <img src="https://flazpay.id/assets/upload/qr/....png" class="qr-code">
+ */
+async function scrapeQrFromRedirectUrl(redirectUrl: string): Promise<string> {
+    try {
+        const res = await fetch(redirectUrl, {
+            headers: { "User-Agent": "Mozilla/5.0" },
+            cache: "no-store",
+            signal: AbortSignal.timeout(8000),
+        });
+        if (!res.ok) return "";
+        const html = await res.text();
+        // Cari img dengan class qr-code
+        const match = html.match(/class=["']qr-code["'][^>]*src=["']([^"']+)["']/) ||
+                      html.match(/src=["']([^"']+)["'][^>]*class=["'][^"']*qr-code[^"']*["']/);
+        if (match?.[1]) return match[1];
+        // Fallback: cari URL gambar upload/qr secara langsung
+        const fallback = html.match(/https:\/\/flazpay\.id\/assets\/upload\/qr\/[^"'\s]+/);
+        return fallback?.[0] || "";
+    } catch {
+        return "";
+    }
+}
 function buildReturnUrl(req: NextRequest, configuredUrl: string): string {
     if (configuredUrl) return configuredUrl;
     return `${req.nextUrl.origin}/topup`;
@@ -214,12 +239,21 @@ export async function POST(req: NextRequest) {
 
         // Build QR image based on channel capability (verified from live API test)
         let qrImage = "";
-        if (selectedChannel.hasQr) {
-            qrImage =
-                gatewayData.qrcode_url ||
-                (gatewayData.qr_content
-                    ? `https://api.qrserver.com/v1/create-qr-code/?size=480x480&data=${encodeURIComponent(gatewayData.qr_content)}`
-                    : "");
+        if (selectedChannel.category === "qris") {
+            // Priority 1: direct qrcode_url from API
+            if (gatewayData.qrcode_url) {
+                qrImage = gatewayData.qrcode_url;
+            }
+            // Priority 2: generate from qr_content
+            else if (gatewayData.qr_content) {
+                qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=480x480&data=${encodeURIComponent(gatewayData.qr_content)}`;
+            }
+            // Priority 3: scrape redirect_url page (channel 14 - QRIS Realtime)
+            else if (gatewayData.redirect_url) {
+                console.log(`[Topup] QRIS channel ${selectedService}: no qr_content, scraping redirect_url...`);
+                qrImage = await scrapeQrFromRedirectUrl(gatewayData.redirect_url);
+                console.log(`[Topup] Scraped QR image: ${qrImage || "not found"}`);
+            }
         }
 
         // Build VA number based on channel capability

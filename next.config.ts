@@ -59,6 +59,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "larabert-qrgen.hf.space" },
       { protocol: "https", hostname: "api.qrserver.com" },
       { protocol: "https", hostname: "inversave.space" },
+      { protocol: "https", hostname: "flazpay.id" },
     ],
     localPatterns: [
       {
