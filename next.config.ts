@@ -58,6 +58,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "files.catbox.moe" },
       { protocol: "https", hostname: "larabert-qrgen.hf.space" },
       { protocol: "https", hostname: "api.qrserver.com" },
+      { protocol: "https", hostname: "inversave.space" },
     ],
     localPatterns: [
       {
