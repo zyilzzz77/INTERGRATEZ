@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Coins, Clock, ChevronRight, QrCode, ExternalLink, Loader2, X, Copy, Check, History, Gem } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Zap, Coins, Clock, ChevronRight, QrCode, Loader2, X, Check, History, Gem } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,18 +83,32 @@ const vipPackages = [
 ];
 
 /* ─── Component ──────────────────────────────────────── */
+const SESSION_KEY = "inversave_checkout_";
+
 export default function TopUpPage() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
     const [customNominal, setCustomNominal] = useState<number | "">("");
     const [selectedServiceId, setSelectedServiceId] = useState<string>("14");
     const [isLoading, setIsLoading] = useState(false);
-    const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
     const [paymentError, setPaymentError] = useState<string | null>(null);
-    const [copied, setCopied] = useState(false);
-    const [paymentSuccess, setPaymentSuccess] = useState(false);
+    const [paidSuccess, setPaidSuccess] = useState(false);
     const pollingRef = useRef<NodeJS.Timeout | null>(null);
     const channelListRef = useRef<HTMLDivElement | null>(null);
     const [creditInfo, setCreditInfo] = useState<{ credits: number; role: string; bonusCredits?: number }>({ credits: 0, role: "free", bonusCredits: 0 });
+
+    // Show success banner when returning from checkout with ?paid=1
+    useEffect(() => {
+        if (searchParams.get("paid") === "1") {
+            setPaidSuccess(true);
+            // Replace URL to remove query param without reload
+            window.history.replaceState({}, "", window.location.pathname);
+            // Auto dismiss after 6s
+            const t = setTimeout(() => setPaidSuccess(false), 6000);
+            return () => clearTimeout(t);
+        }
+    }, [searchParams]);
 
     // Fetch real credit info on mount and after successful payment
     useEffect(() => {
@@ -110,36 +125,7 @@ export default function TopUpPage() {
         fetchCredits();
         const interval = setInterval(fetchCredits, 5000);
         return () => clearInterval(interval);
-    }, [paymentSuccess]);
-
-    // Auto-poll payment status every 5 seconds
-    useEffect(() => {
-        if (paymentData && !paymentSuccess) {
-            const checkPayment = async () => {
-                try {
-                    const res = await fetch("/api/topup/check", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ paymentId: paymentData.id }),
-                    });
-                    const data = await res.json();
-                    if (data.status === "paid") {
-                        setPaymentSuccess(true);
-                        if (pollingRef.current) clearInterval(pollingRef.current);
-                    }
-                } catch {
-                    // silently retry next interval
-                }
-            };
-
-            checkPayment();
-            pollingRef.current = setInterval(checkPayment, 5000);
-
-            return () => {
-                if (pollingRef.current) clearInterval(pollingRef.current);
-            };
-        }
-    }, [paymentData, paymentSuccess]);
+    }, [paidSuccess]);
 
     useEffect(() => {
         const listElement = channelListRef.current;
@@ -195,6 +181,7 @@ export default function TopUpPage() {
         setPaymentError(null);
 
         try {
+            const lang = window.location.pathname.split("/")[1] || "id";
             const serviceIdToUse = serviceIdOverride || selectedServiceId;
             const res = await fetch("/api/topup/create", {
                 method: "POST",
@@ -213,19 +200,25 @@ export default function TopUpPage() {
                 return;
             }
 
-            setPaymentData({
-                id: data.transaction.paymentId,
-                amount: data.transaction.amount,
-                expired_at: data.transaction.expiredAt || "",
-                url: data.transaction.payUrl || data.transaction.checkoutUrl || "",
-                qr_image: data.transaction.qrImage || "",
-                va_number: data.transaction.vaNumber || "",
-                service_name: data.transaction.serviceName || "",
-                channel_category: data.transaction.channelCategory || "va",
-                checkout_url: data.transaction.checkoutUrl || "",
-                base_amount: data.transaction.baseAmount || 0,
-                app_fee: data.transaction.appFee || 0,
-            });
+            const tx = data.transaction;
+            // Store checkout data in sessionStorage so checkout page can read it
+            sessionStorage.setItem(SESSION_KEY + tx.paymentId, JSON.stringify({
+                paymentId: tx.paymentId,
+                amount: tx.amount,
+                serviceName: tx.serviceName,
+                channelCategory: tx.channelCategory || "va",
+                qrImage: tx.qrImage || "",
+                vaNumber: tx.vaNumber || "",
+                payUrl: tx.payUrl || "",
+                checkoutUrl: tx.checkoutUrl || "",
+                expiredAt: tx.expiredAt || "",
+                baseAmount: tx.baseAmount || 0,
+                appFee: tx.appFee || 0,
+                createdAt: Date.now(),
+            }));
+
+            // Redirect to dedicated checkout page
+            router.push(`/${lang}/checkout/${tx.paymentId}`);
         } catch {
             setPaymentError("Terjadi kesalahan jaringan. Coba lagi.");
         } finally {
@@ -278,25 +271,41 @@ export default function TopUpPage() {
         }
     };
 
-    const closePaymentModal = () => {
-        setPaymentData(null);
+    const closeErrorModal = () => {
         setPaymentError(null);
-        setCopied(false);
-        setPaymentSuccess(false);
-        if (pollingRef.current) clearInterval(pollingRef.current);
-    };
-
-    const copyLink = async () => {
-        if (!paymentData) return;
-        const valueToCopy = paymentData.va_number || paymentData.url;
-        if (!valueToCopy) return;
-        await navigator.clipboard.writeText(valueToCopy);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
     };
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl font-sans min-h-screen">
+
+            {/* ─── Success Banner (after checkout paid) ─── */}
+            <AnimatePresence>
+                {paidSuccess && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -60, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -60, scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 340, damping: 28 }}
+                        className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] w-full max-w-md px-4"
+                    >
+                        <div className="flex items-center gap-4 bg-[#a0d1d6] border-[3px] border-black rounded-2xl px-5 py-4 shadow-neo">
+                            <div className="w-10 h-10 bg-white border-[3px] border-black rounded-xl flex items-center justify-center shrink-0">
+                                <Check className="w-6 h-6 text-black" strokeWidth={3} />
+                            </div>
+                            <div className="flex-1">
+                                <p className="font-black text-black uppercase tracking-wide">Pembayaran Berhasil!</p>
+                                <p className="text-sm font-bold text-black/70">Paket VIP kamu sudah aktif 🎉</p>
+                            </div>
+                            <button
+                                onClick={() => setPaidSuccess(false)}
+                                className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-colors shrink-0"
+                            >
+                                <X className="w-4 h-4" strokeWidth={3} />
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             {/* Page Header */}
             <div className="mb-6 flex items-center justify-between">
                 <div>
@@ -757,237 +766,44 @@ export default function TopUpPage() {
             </div>
 
 
-            {/* ─── Payment Modal ────────────────────────────── */}
+            {/* ─── Error Modal ─────────────────────────────── */}
             <AnimatePresence>
-                {(paymentData || paymentError) && (
+                {paymentError && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-                        onClick={closePaymentModal}
+                        onClick={closeErrorModal}
                     >
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                            className="bg-white rounded-3xl shadow-neo border-[3px] border-black w-full max-w-md max-h-[90vh] overflow-y-auto"
+                            className="bg-white rounded-3xl shadow-neo border-[3px] border-black w-full max-w-sm"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            {/* Modal Header */}
-                            <div className="flex items-center justify-between p-5 border-b-[3px] border-black bg-[#ffeb3b] rounded-t-[1.3rem]">
-                                <h3 className="text-xl font-black text-black uppercase tracking-wide">
-                                    {paymentError ? "Pembayaran Gagal" : "Pembayaran"}
-                                </h3>
+                            <div className="flex items-center justify-between p-5 border-b-[3px] border-black bg-[#ffb3c6] rounded-t-[1.3rem]">
+                                <h3 className="text-xl font-black text-black uppercase tracking-wide">Pembayaran Gagal</h3>
                                 <button
-                                    onClick={closePaymentModal}
-                                    className="w-10 h-10 rounded-xl bg-white border-2 border-black hover:bg-black hover:text-white flex items-center justify-center transition-colors shadow-neo-sm"
+                                    onClick={closeErrorModal}
+                                    className="w-10 h-10 rounded-xl bg-white border-2 border-black hover:bg-black hover:text-white flex items-center justify-center transition-colors"
                                 >
                                     <X className="w-6 h-6" strokeWidth={3} />
                                 </button>
                             </div>
-
-                            {/* Modal Body */}
-                            <div className="p-6">
-                                {paymentError ? (
-                                    <div className="text-center py-6">
-                                        <div className="w-16 h-16 rounded-2xl border-4 border-black bg-[#ffb3c6] flex items-center justify-center mx-auto mb-4 -rotate-3 shadow-neo-sm">
-                                            <X className="w-10 h-10 text-black" strokeWidth={4} />
-                                        </div>
-                                        <p className="text-black font-bold text-lg mb-6 leading-relaxed">{paymentError}</p>
-                                        <Button
-                                            onClick={closePaymentModal}
-                                            className="bg-primary text-black hover:bg-primary/90 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo font-black text-lg px-8 py-3 rounded-xl border-[3px] border-black h-14 shadow-neo-sm transition-all duration-300 w-full uppercase"
-                                        >
-                                            Tutup
-                                        </Button>
-                                    </div>
-                                ) : paymentData && paymentSuccess ? (
-                                    /* ─── Success State ──────────────── */
-                                    <div className="text-center py-6 space-y-6">
-                                        <motion.div
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                                            className="w-20 h-20 rounded-2xl bg-[#a0d1d6] border-[4px] border-black flex items-center justify-center mx-auto rotate-3 shadow-neo-sm"
-                                        >
-                                            <svg className="w-12 h-12 text-black" viewBox="0 0 24 24" fill="none">
-                                                <motion.path
-                                                    d="M5 13l4 4L19 7"
-                                                    stroke="currentColor"
-                                                    strokeWidth="4"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    initial={{ pathLength: 0 }}
-                                                    animate={{ pathLength: 1 }}
-                                                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-                                                />
-                                            </svg>
-                                        </motion.div>
-                                        <div>
-                                            <h4 className="text-2xl font-black text-black mb-2 uppercase tracking-wide">Pembayaran Berhasil!</h4>
-                                            <p className="text-black/80 font-bold text-base">Paket VIP kamu sudah aktif.</p>
-                                        </div>
-                                        <div className="bg-white border-[3px] border-black shadow-neo-sm rounded-2xl p-5 relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 w-2 h-full bg-[#ffb3c6] border-l-[3px] border-black"></div>
-                                            <p className="text-sm font-black uppercase text-black/70 mb-2 tracking-widest">Total Dibayar</p>
-                                            <p className="text-3xl font-black text-black">{formatIDR(paymentData.amount)}</p>
-                                        </div>
-                                        <Button
-                                            onClick={closePaymentModal}
-                                            className="bg-primary text-black hover:bg-primary/90 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo font-black text-lg px-8 py-3 rounded-xl border-[3px] border-black h-14 shadow-neo-sm transition-all duration-300 w-full uppercase"
-                                        >
-                                            Selesai
-                                        </Button>
-                                    </div>
-                                ) : paymentData ? (
-                                    <div className="space-y-5">
-                                        {/* Amount */}
-                                        <div className="text-center">
-                                            <p className="text-sm text-black/70 font-black uppercase tracking-widest mb-2">Total Pembayaran</p>
-                                            <div className="inline-block bg-[#a0d1d6] px-4 py-2 border-[3px] border-black rounded-xl shadow-neo-sm -rotate-1">
-                                                <p className="text-4xl font-black text-black tracking-tight">{formatIDR(paymentData.amount)}</p>
-                                            </div>
-                                            {paymentData.service_name && (
-                                                <p className="text-xs font-black text-black/60 mt-2 uppercase tracking-widest">{paymentData.service_name}</p>
-                                            )}
-                                        </div>
-
-                                        {!!paymentData.base_amount && !!paymentData.app_fee && (
-                                            <div className="space-y-2 text-sm bg-gray-50 rounded-xl p-4 border-2 border-black font-bold">
-                                                <div className="flex justify-between text-black/80">
-                                                    <span>Harga Paket</span>
-                                                    <span>{formatIDR(paymentData.base_amount)}</span>
-                                                </div>
-                                                <div className="flex justify-between text-black/80">
-                                                    <span>Fee Aplikasi (2.5%)</span>
-                                                    <span>{formatIDR(paymentData.app_fee)}</span>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* ── QRIS: tampilkan QR besar + instruksi scan ── */}
-                                        {paymentData.channel_category === "qris" && !!paymentData.qr_image && (
-                                            <div className="space-y-4">
-                                                <div className="flex flex-col items-center gap-3">
-                                                    <div className="bg-white border-[4px] border-black rounded-2xl p-4 shadow-neo rotate-1">
-                                                        <Image
-                                                            src={paymentData.qr_image}
-                                                            alt="QR Code Pembayaran QRIS"
-                                                            width={240}
-                                                            height={240}
-                                                            className="rounded-xl"
-                                                            unoptimized
-                                                        />
-                                                    </div>
-                                                    <p className="text-xs font-black text-black/60 uppercase tracking-widest">Scan dengan kamera atau e-wallet</p>
-                                                </div>
-                                                <div className="bg-[#ffeb3b] border-[3px] border-black rounded-2xl p-4 text-sm font-bold text-black space-y-1.5">
-                                                    <p className="font-black uppercase tracking-wide mb-2">🧭 Cara Bayar QRIS:</p>
-                                                    <p>1. Screenshot QR di atas</p>
-                                                    <p>2. Buka DANA / GoPay / OVO / ShopeePay / LinkAja</p>
-                                                    <p>3. Pilih <strong>Scan QR</strong> → pilih dari galeri foto</p>
-                                                    <p>4. Pastikan nominal sesuai, lalu bayar</p>
-                                                    <p>5. Pembayaran otomatis terdeteksi ✅</p>
-                                                </div>
-                                                <Button
-                                                    onClick={copyLink}
-                                                    variant="outline"
-                                                    disabled={!paymentData.url}
-                                                    className="w-full border-[3px] border-black text-black hover:bg-[#f0f0f0] font-black rounded-xl h-11"
-                                                >
-                                                    {copied ? (
-                                                        <><Check className="mr-2 w-4 h-4" />Tersalin!</>
-                                                    ) : (
-                                                        <><Copy className="mr-2 w-4 h-4" />Salin Link Pembayaran</>  
-                                                    )}
-                                                </Button>
-                                            </div>
-                                        )}
-
-                                        {/* ── VA: tampilkan nomor VA ── */}
-                                        {paymentData.channel_category === "va" && !!paymentData.va_number && (
-                                            <div className="bg-white border-[3px] border-black rounded-2xl p-5 shadow-neo-sm space-y-3">
-                                                <p className="text-xs font-black uppercase tracking-widest text-black/70">Nomor Virtual Account</p>
-                                                <p className="text-2xl font-black text-black break-all tracking-wider font-mono">{paymentData.va_number}</p>
-                                                <p className="text-xs font-bold text-black/70">Salin nomor VA lalu bayar dari m-banking / ATM. Pembayaran otomatis terdeteksi.</p>
-                                                <Button
-                                                    onClick={copyLink}
-                                                    variant="outline"
-                                                    className="w-full border-[3px] border-black text-black hover:bg-[#f0f0f0] font-black rounded-xl h-11"
-                                                >
-                                                    {copied ? (
-                                                        <><Check className="mr-2 w-4 h-4" />Tersalin!</>
-                                                    ) : (
-                                                        <><Copy className="mr-2 w-4 h-4" />Salin Nomor VA</>
-                                                    )}
-                                                </Button>
-                                            </div>
-                                        )}
-
-                                        {/* ── E-Wallet: tombol checkout ── */}
-                                        {paymentData.channel_category === "ewallet" && (
-                                            <div className="space-y-3">
-                                                <p className="text-sm font-bold text-black/70 text-center">
-                                                    Kamu akan diarahkan ke halaman checkout {paymentData.service_name}.
-                                                </p>
-                                                {paymentData.checkout_url ? (
-                                                    <a
-                                                        href={paymentData.checkout_url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center justify-center gap-2 w-full bg-black text-white border-[3px] border-black rounded-xl h-12 font-black hover:bg-black/80 transition-all"
-                                                    >
-                                                        <ExternalLink className="w-4 h-4" />
-                                                        Bayar dengan {paymentData.service_name}
-                                                    </a>
-                                                ) : (
-                                                    <a
-                                                        href={paymentData.url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center justify-center gap-2 w-full bg-black text-white border-[3px] border-black rounded-xl h-12 font-black hover:bg-black/80 transition-all"
-                                                    >
-                                                        <ExternalLink className="w-4 h-4" />
-                                                        Buka Halaman Pembayaran
-                                                    </a>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* ── Fallback: channel 14 (QRIS Realtime) hanya redirect_url ── */}
-                                        {paymentData.channel_category === "qris" && !paymentData.qr_image && !!paymentData.url && (
-                                            <a
-                                                href={paymentData.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex items-center justify-center gap-2 w-full bg-black text-white border-[3px] border-black rounded-xl h-12 font-black hover:bg-black/80 transition-all"
-                                            >
-                                                <QrCode className="w-4 h-4" />
-                                                Buka Halaman Pembayaran QRIS
-                                            </a>
-                                        )}
-
-                                        {/* Status Check Indicator */}
-                                        <div className="bg-white border-[3px] border-black shadow-neo-sm rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 w-2 h-full bg-[#c4b5fd] border-l-[3px] border-black" />
-                                            <p className="text-sm font-black text-black uppercase tracking-wide">Menunggu pembayaran...</p>
-                                            <div className="w-8 h-8 rounded-full border-[4px] border-black/20 border-t-black animate-spin" />
-                                            <span className="text-xs font-black text-black/50 uppercase tracking-widest">Auto-check setiap 5 detik</span>
-                                        </div>
-
-                                        {/* Expiry */}
-                                        {paymentData.expired_at && (
-                                            <div className="bg-secondary/50 border border-border rounded-xl p-3 flex items-center gap-3">
-                                                <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
-                                                <p className="text-sm text-muted-foreground">
-                                                    Berlaku hingga: <span className="font-bold text-foreground">{paymentData.expired_at}</span>
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : null}
+                            <div className="p-6 text-center space-y-5">
+                                <div className="w-16 h-16 rounded-2xl border-4 border-black bg-[#ffb3c6] flex items-center justify-center mx-auto -rotate-3 shadow-neo-sm">
+                                    <X className="w-10 h-10 text-black" strokeWidth={4} />
+                                </div>
+                                <p className="text-black font-bold text-base leading-relaxed">{paymentError}</p>
+                                <Button
+                                    onClick={closeErrorModal}
+                                    className="bg-black text-white hover:bg-black/80 font-black text-base px-8 rounded-xl border-[3px] border-black h-12 w-full uppercase"
+                                >
+                                    Tutup & Coba Lagi
+                                </Button>
                             </div>
                         </motion.div>
                     </motion.div>
