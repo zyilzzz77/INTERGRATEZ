@@ -49,8 +49,9 @@ export default function CheckoutPage() {
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const lang = searchParams.get("lang") || "id";
+    void searchParams; // kept for potential future use
 
+    const lang = (typeof params.lang === "string" ? params.lang : params.lang?.[0]) || "id";
     const paymentId = typeof params.paymentId === "string" ? params.paymentId : params.paymentId?.[0] || "";
 
     const [data, setData] = useState<CheckoutData | null>(null);
