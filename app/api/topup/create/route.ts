@@ -211,18 +211,32 @@ export async function POST(req: NextRequest) {
         const amountFromGateway = Number(gatewayData.amount);
         const finalAmount = Number.isFinite(amountFromGateway) ? amountFromGateway : totalAmount;
         const payUrl = gatewayData.redirect_url || gatewayData.checkout_url || "";
-        const qrImage =
-            gatewayData.qrcode_url ||
-            (gatewayData.qr_content
-                ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(gatewayData.qr_content)}`
-                : "");
-        const vaNumber = String(
-            gatewayData.va_number ||
-            gatewayData.virtual_account ||
-            gatewayData.payment_no ||
-            gatewayData.pay_no ||
-            ""
-        );
+
+        // Build QR image based on channel capability (verified from live API test)
+        let qrImage = "";
+        if (selectedChannel.hasQr) {
+            qrImage =
+                gatewayData.qrcode_url ||
+                (gatewayData.qr_content
+                    ? `https://api.qrserver.com/v1/create-qr-code/?size=480x480&data=${encodeURIComponent(gatewayData.qr_content)}`
+                    : "");
+        }
+
+        // Build VA number based on channel capability
+        const vaNumber = selectedChannel.hasVa
+            ? String(
+                gatewayData.virtual_account ||
+                gatewayData.va_number ||
+                gatewayData.payment_no ||
+                gatewayData.pay_no ||
+                ""
+            )
+            : "";
+
+        // Checkout URL for e-wallets
+        const checkoutUrl = selectedChannel.hasCheckoutUrl
+            ? (gatewayData.checkout_url || "")
+            : "";
 
         // Save transaction to DB
         const transaction = await prisma.transaction.create({
@@ -247,6 +261,7 @@ export async function POST(req: NextRequest) {
                 amount: finalAmount,
                 serviceId: selectedService,
                 serviceName: selectedChannel.name,
+                channelCategory: selectedChannel.category,
                 baseAmount,
                 appFee,
                 credits: creditsToGive,
@@ -254,6 +269,7 @@ export async function POST(req: NextRequest) {
                 qrImage,
                 vaNumber,
                 payUrl,
+                checkoutUrl,
                 expiredAt: gatewayData.expired_at || "",
             },
         });

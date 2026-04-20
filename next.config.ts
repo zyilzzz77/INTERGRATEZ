@@ -56,6 +56,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "v-mps.crazymaplestudios.com" },
       { protocol: "https", hostname: "s.neoxr.eu" },
       { protocol: "https", hostname: "files.catbox.moe" },
+      { protocol: "https", hostname: "larabert-qrgen.hf.space" },
+      { protocol: "https", hostname: "api.qrserver.com" },
     ],
     localPatterns: [
       {

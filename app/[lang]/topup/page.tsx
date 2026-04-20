@@ -36,6 +36,8 @@ interface PaymentData {
     qr_image: string;
     va_number?: string;
     service_name?: string;
+    channel_category?: "va" | "qris" | "ewallet";
+    checkout_url?: string;
     base_amount?: number;
     app_fee?: number;
 }
@@ -215,10 +217,12 @@ export default function TopUpPage() {
                 id: data.transaction.paymentId,
                 amount: data.transaction.amount,
                 expired_at: data.transaction.expiredAt || "",
-                url: data.transaction.payUrl || "",
+                url: data.transaction.payUrl || data.transaction.checkoutUrl || "",
                 qr_image: data.transaction.qrImage || "",
                 va_number: data.transaction.vaNumber || "",
                 service_name: data.transaction.serviceName || "",
+                channel_category: data.transaction.channelCategory || "va",
+                checkout_url: data.transaction.checkoutUrl || "",
                 base_amount: data.transaction.baseAmount || 0,
                 app_fee: data.transaction.appFee || 0,
             });
@@ -838,13 +842,16 @@ export default function TopUpPage() {
                                         </Button>
                                     </div>
                                 ) : paymentData ? (
-                                    <div className="space-y-6">
+                                    <div className="space-y-5">
                                         {/* Amount */}
                                         <div className="text-center">
                                             <p className="text-sm text-black/70 font-black uppercase tracking-widest mb-2">Total Pembayaran</p>
                                             <div className="inline-block bg-[#a0d1d6] px-4 py-2 border-[3px] border-black rounded-xl shadow-neo-sm -rotate-1">
                                                 <p className="text-4xl font-black text-black tracking-tight">{formatIDR(paymentData.amount)}</p>
                                             </div>
+                                            {paymentData.service_name && (
+                                                <p className="text-xs font-black text-black/60 mt-2 uppercase tracking-widest">{paymentData.service_name}</p>
+                                            )}
                                         </div>
 
                                         {!!paymentData.base_amount && !!paymentData.app_fee && (
@@ -860,101 +867,125 @@ export default function TopUpPage() {
                                             </div>
                                         )}
 
-                                        {!!paymentData.va_number && (
-                                            <div className="bg-white border-[3px] border-black rounded-2xl p-5 shadow-neo-sm">
-                                                <p className="text-xs font-black uppercase tracking-widest text-black/70">Nomor Virtual Account</p>
-                                                <p className="text-2xl font-black text-black mt-2 break-all">{paymentData.va_number}</p>
-                                                <p className="text-xs font-bold text-black/70 mt-2">
-                                                    Salin nomor VA lalu bayar dari m-banking / ATM.
-                                                </p>
-                                            </div>
-                                        )}
-
-                                        {!!paymentData.qr_image && (
-                                            <>
-                                                <div className="flex justify-center">
-                                                    <div className="bg-white border-[3px] border-black rounded-2xl p-4 shadow-neo-sm rotate-1">
+                                        {/* ── QRIS: tampilkan QR besar + instruksi scan ── */}
+                                        {paymentData.channel_category === "qris" && !!paymentData.qr_image && (
+                                            <div className="space-y-4">
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <div className="bg-white border-[4px] border-black rounded-2xl p-4 shadow-neo rotate-1">
                                                         <Image
                                                             src={paymentData.qr_image}
-                                                            alt="QR Code Pembayaran"
-                                                            width={180}
-                                                            height={180}
-                                                            className="rounded-lg"
+                                                            alt="QR Code Pembayaran QRIS"
+                                                            width={240}
+                                                            height={240}
+                                                            className="rounded-xl"
                                                             unoptimized
                                                         />
                                                     </div>
+                                                    <p className="text-xs font-black text-black/60 uppercase tracking-widest">Scan dengan kamera atau e-wallet</p>
                                                 </div>
-
-                                                <p className="text-center text-sm font-bold text-black bg-[#ffeb3b] p-3 border-2 border-black rounded-xl shadow-neo-sm mx-4">
-                                                    Scan QR di atas menggunakan aplikasi e-wallet kamu
-                                                </p>
-                                            </>
+                                                <div className="bg-[#ffeb3b] border-[3px] border-black rounded-2xl p-4 text-sm font-bold text-black space-y-1.5">
+                                                    <p className="font-black uppercase tracking-wide mb-2">🧭 Cara Bayar QRIS:</p>
+                                                    <p>1. Screenshot QR di atas</p>
+                                                    <p>2. Buka DANA / GoPay / OVO / ShopeePay / LinkAja</p>
+                                                    <p>3. Pilih <strong>Scan QR</strong> → pilih dari galeri foto</p>
+                                                    <p>4. Pastikan nominal sesuai, lalu bayar</p>
+                                                    <p>5. Pembayaran otomatis terdeteksi ✅</p>
+                                                </div>
+                                                <Button
+                                                    onClick={copyLink}
+                                                    variant="outline"
+                                                    disabled={!paymentData.url}
+                                                    className="w-full border-[3px] border-black text-black hover:bg-[#f0f0f0] font-black rounded-xl h-11"
+                                                >
+                                                    {copied ? (
+                                                        <><Check className="mr-2 w-4 h-4" />Tersalin!</>
+                                                    ) : (
+                                                        <><Copy className="mr-2 w-4 h-4" />Salin Link Pembayaran</>  
+                                                    )}
+                                                </Button>
+                                            </div>
                                         )}
 
-                                        {!paymentData.qr_image && !paymentData.va_number && (
-                                            <p className="text-center text-sm font-bold text-black bg-[#ffeb3b] p-3 border-2 border-black rounded-xl shadow-neo-sm mx-4">
-                                                Gunakan tombol link pembayaran untuk melanjutkan transaksi.
-                                            </p>
+                                        {/* ── VA: tampilkan nomor VA ── */}
+                                        {paymentData.channel_category === "va" && !!paymentData.va_number && (
+                                            <div className="bg-white border-[3px] border-black rounded-2xl p-5 shadow-neo-sm space-y-3">
+                                                <p className="text-xs font-black uppercase tracking-widest text-black/70">Nomor Virtual Account</p>
+                                                <p className="text-2xl font-black text-black break-all tracking-wider font-mono">{paymentData.va_number}</p>
+                                                <p className="text-xs font-bold text-black/70">Salin nomor VA lalu bayar dari m-banking / ATM. Pembayaran otomatis terdeteksi.</p>
+                                                <Button
+                                                    onClick={copyLink}
+                                                    variant="outline"
+                                                    className="w-full border-[3px] border-black text-black hover:bg-[#f0f0f0] font-black rounded-xl h-11"
+                                                >
+                                                    {copied ? (
+                                                        <><Check className="mr-2 w-4 h-4" />Tersalin!</>
+                                                    ) : (
+                                                        <><Copy className="mr-2 w-4 h-4" />Salin Nomor VA</>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        )}
+
+                                        {/* ── E-Wallet: tombol checkout ── */}
+                                        {paymentData.channel_category === "ewallet" && (
+                                            <div className="space-y-3">
+                                                <p className="text-sm font-bold text-black/70 text-center">
+                                                    Kamu akan diarahkan ke halaman checkout {paymentData.service_name}.
+                                                </p>
+                                                {paymentData.checkout_url ? (
+                                                    <a
+                                                        href={paymentData.checkout_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center justify-center gap-2 w-full bg-black text-white border-[3px] border-black rounded-xl h-12 font-black hover:bg-black/80 transition-all"
+                                                    >
+                                                        <ExternalLink className="w-4 h-4" />
+                                                        Bayar dengan {paymentData.service_name}
+                                                    </a>
+                                                ) : (
+                                                    <a
+                                                        href={paymentData.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center justify-center gap-2 w-full bg-black text-white border-[3px] border-black rounded-xl h-12 font-black hover:bg-black/80 transition-all"
+                                                    >
+                                                        <ExternalLink className="w-4 h-4" />
+                                                        Buka Halaman Pembayaran
+                                                    </a>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* ── Fallback: channel 14 (QRIS Realtime) hanya redirect_url ── */}
+                                        {paymentData.channel_category === "qris" && !paymentData.qr_image && !!paymentData.url && (
+                                            <a
+                                                href={paymentData.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center justify-center gap-2 w-full bg-black text-white border-[3px] border-black rounded-xl h-12 font-black hover:bg-black/80 transition-all"
+                                            >
+                                                <QrCode className="w-4 h-4" />
+                                                Buka Halaman Pembayaran QRIS
+                                            </a>
                                         )}
 
                                         {/* Status Check Indicator */}
-                                        <div className="bg-white border-[3px] border-black shadow-neo-sm rounded-xl p-5 flex flex-col items-center gap-4 relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 w-2 h-full bg-[#c4b5fd] border-l-[3px] border-black"></div>
-                                            <div className="flex items-center gap-3">
-                                                <p className="text-base font-black text-black uppercase tracking-wide">Menunggu pembayaran...</p>
-                                            </div>
-                                            {/* Spinner */}
-                                            <div className="w-10 h-10 rounded-full border-[4px] border-black/20 border-t-black animate-spin" />
+                                        <div className="bg-white border-[3px] border-black shadow-neo-sm rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-2 h-full bg-[#c4b5fd] border-l-[3px] border-black" />
+                                            <p className="text-sm font-black text-black uppercase tracking-wide">Menunggu pembayaran...</p>
+                                            <div className="w-8 h-8 rounded-full border-[4px] border-black/20 border-t-black animate-spin" />
                                             <span className="text-xs font-black text-black/50 uppercase tracking-widest">Auto-check setiap 5 detik</span>
                                         </div>
 
                                         {/* Expiry */}
-                                        <div className="bg-secondary/50 border border-border rounded-xl p-3 flex items-center gap-3">
-                                            <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
-                                            <p className="text-sm text-muted-foreground">
-                                                Berlaku hingga: <span className="font-bold text-foreground">{paymentData.expired_at}</span>
-                                            </p>
-                                        </div>
-
-                                        {/* Actions */}
-                                        <div className="flex gap-3">
-                                            <Button
-                                                onClick={copyLink}
-                                                variant="outline"
-                                                disabled={!paymentData.url && !paymentData.va_number}
-                                                className="flex-1 border-2 border-border text-foreground hover:bg-secondary font-bold rounded-xl h-12"
-                                            >
-                                                {copied ? (
-                                                    <>
-                                                        <Check className="mr-2 w-4 h-4" />
-                                                        Tersalin!
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Copy className="mr-2 w-4 h-4" />
-                                                        {paymentData.va_number ? "Salin No. VA" : "Salin Link"}
-                                                    </>
-                                                )}
-                                            </Button>
-                                            {paymentData.url ? (
-                                                <Button
-                                                    asChild
-                                                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl h-12"
-                                                >
-                                                    <a href={paymentData.url} target="_blank" rel="noopener noreferrer">
-                                                        <ExternalLink className="mr-2 w-4 h-4" />
-                                                        Buka Link
-                                                    </a>
-                                                </Button>
-                                            ) : (
-                                                <Button
-                                                    disabled
-                                                    className="flex-1 font-bold rounded-xl h-12"
-                                                >
-                                                    Link Tidak Ada
-                                                </Button>
-                                            )}
-                                        </div>
+                                        {paymentData.expired_at && (
+                                            <div className="bg-secondary/50 border border-border rounded-xl p-3 flex items-center gap-3">
+                                                <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+                                                <p className="text-sm text-muted-foreground">
+                                                    Berlaku hingga: <span className="font-bold text-foreground">{paymentData.expired_at}</span>
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : null}
                             </div>
