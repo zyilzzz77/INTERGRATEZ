@@ -183,25 +183,41 @@ export async function POST(req: NextRequest) {
             checkout_url?: string;
             qrcode_url?: string;
             qr_content?: string;
+            virtual_account?: string;
             expired_at?: string;
         };
 
-        const qrImage =
-            gatewayData.qrcode_url ||
-            (gatewayData.qr_content
-                ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(gatewayData.qr_content)}`
-                : "");
+        // Build QR image URL based on verified channel capability
+        let qrImage = "";
+        if (selectedChannel.hasQr) {
+            qrImage =
+                gatewayData.qrcode_url ||
+                (gatewayData.qr_content
+                    ? `https://api.qrserver.com/v1/create-qr-code/?size=480x480&data=${encodeURIComponent(gatewayData.qr_content)}`
+                    : "");
+        }
+
+        // Determine primary action URL
+        const actionUrl =
+            (selectedChannel.hasCheckoutUrl ? gatewayData.checkout_url : "") ||
+            gatewayData.redirect_url ||
+            "";
 
         return NextResponse.json({
             status: true,
             data: {
                 id: gatewayData.unique_code || gatewayData.pay_id || uniqueCode,
+                pay_id: gatewayData.pay_id || uniqueCode,
                 amount: Number(gatewayData.amount || amount),
                 service: finalService,
                 service_name: selectedChannel.name,
+                channel_category: selectedChannel.category,
                 expired_at: gatewayData.expired_at || "",
-                url: gatewayData.redirect_url || gatewayData.checkout_url || "",
+                url: actionUrl,
                 qr_image: qrImage,
+                qr_content: selectedChannel.hasQr ? (gatewayData.qr_content || "") : "",
+                virtual_account: selectedChannel.hasVa ? (gatewayData.virtual_account || "") : "",
+                checkout_url: selectedChannel.hasCheckoutUrl ? (gatewayData.checkout_url || "") : "",
             },
         });
     } catch (error) {
