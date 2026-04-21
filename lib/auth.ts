@@ -158,45 +158,6 @@ if (isDemoProviderReady) {
     );
 }
 
-// ─── Admin credentials provider ───────────────────────
-const adminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
-const adminPassword = (process.env.ADMIN_PASSWORD || "").trim();
-const isAdminProviderReady = !!adminEmail && !!adminPassword;
-
-if (isAdminProviderReady) {
-    providers.push(
-        Credentials({
-            id: "credentials-admin",
-            name: "Admin Login",
-            credentials: {
-                email: { label: "Email", type: "email" },
-                password: { label: "Password", type: "password" },
-            },
-            authorize: async (credentials) => {
-                const emailInput = typeof credentials?.email === "string"
-                    ? credentials.email.trim().toLowerCase()
-                    : "";
-                const passwordInput = typeof credentials?.password === "string"
-                    ? credentials.password
-                    : "";
-
-                if (!emailInput || !passwordInput) return null;
-                if (emailInput !== adminEmail || passwordInput !== adminPassword) return null;
-
-                // Admin must exist in DB with role=admin
-                const user = await prisma.user.findUnique({ where: { email: adminEmail } });
-                if (!user || user.role !== "admin") {
-                    console.warn("[Admin Auth] User not found or role is not admin:", adminEmail);
-                    return null;
-                }
-
-                console.log("[Admin Auth] Admin login successful:", adminEmail);
-                return { id: user.id, name: user.name, email: user.email, image: user.image };
-            },
-        })
-    );
-}
-
 if (process.env.NODE_ENV === "development" && demoLoginEnabled && !isDemoProviderReady) {
     console.warn(
         "[Auth] DEMO_LOGIN_ENABLED=true, tapi DEMO_LOGIN_EMAIL atau DEMO_LOGIN_PASSWORD belum diisi."

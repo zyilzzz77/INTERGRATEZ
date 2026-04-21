@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { verifyAdminSession } from "@/lib/admin-auth";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 
@@ -9,16 +9,10 @@ export const metadata = {
 };
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-    const session = await auth();
+    const adminSession = await verifyAdminSession();
 
-    if (!session?.user) {
+    if (!adminSession || adminSession.role !== "admin") {
         redirect("/admin/login");
-    }
-
-    // Check admin role from DB via session
-    const sessionUser = session.user as typeof session.user & { role?: string };
-    if (sessionUser.role !== "admin") {
-        redirect("/");
     }
 
     return <>{children}</>;

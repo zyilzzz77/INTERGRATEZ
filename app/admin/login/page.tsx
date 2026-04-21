@@ -18,19 +18,27 @@ export default function AdminLoginPage() {
         setLoading(true);
         setError("");
 
-        const result = await signIn("credentials-admin", {
-            email,
-            password,
-            redirect: false,
-        });
+        try {
+            const res = await fetch("/api/admin/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
 
-        if (result?.error || !result?.ok) {
-            setError("Email atau password salah.");
+            const data = await res.json();
+            
+            if (!res.ok || !data.success) {
+                setError(data.error || "Email atau password salah.");
+                setLoading(false);
+                return;
+            }
+
+            // Important: do a hard refresh/push to trigger a clean server layout load
+            window.location.href = "/admin";
+        } catch {
+            setError("Terjadi kesalahan jaringan.");
             setLoading(false);
-            return;
         }
-
-        router.push("/admin");
     };
 
     return (
