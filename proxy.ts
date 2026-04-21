@@ -62,8 +62,8 @@ export function proxy(request: NextRequest) {
     // 2. i18n Locale Routing Logic
     const { pathname } = request.nextUrl;
 
-    // Skip locale routing for API and static files if they accidentally bypass matcher
-    if (pathname.startsWith("/api/") || pathname.startsWith("/_next/") || pathname.includes(".")) {
+    // Skip locale routing for API, Admin, and static files if they accidentally bypass matcher
+    if (pathname.startsWith("/api/") || pathname.startsWith("/admin") || pathname.startsWith("/_next/") || pathname.includes(".")) {
         const response = NextResponse.next({
             request: {
                 headers: requestHeaders,
