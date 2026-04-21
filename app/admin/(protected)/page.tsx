@@ -83,12 +83,12 @@ function Sidebar({ active = "dashboard" }: { active?: string }) {
                             {label}
                         </button>
                     );
-                })}
+                }
             </nav>
 
             <div className="p-4 border-t-[3px] border-white/10">
                 <button
-                    onClick={async () => { await fetch("/api/admin/auth/logout", {method:"POST"}); window.location.href="/admin/login"; }})}
+                    onClick={async () => { await fetch("/api/admin/auth/logout", {method:"POST"}); window.location.href="/admin/login"; }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 font-bold text-sm transition-colors"
                 >
                     <LogOut className="w-4 h-4" strokeWidth={3} />
