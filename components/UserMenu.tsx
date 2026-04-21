@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { Coins, LogOut, CreditCard, User, ChevronDown, BookOpen, Headphones } from "lucide-react";
+import { LogOut, CreditCard, User, ChevronDown, BookOpen, Headphones, Crown } from "lucide-react";
 import { showToast } from "@/components/Toast";
 
 const DEMO_QUICK_EMAIL = process.env.NEXT_PUBLIC_DEMO_LOGIN_EMAIL || "reviewer-demo@inversave.local";
@@ -14,7 +14,7 @@ const DEMO_LOGIN_TOAST_KEY = "inversave:demo-login-success";
 export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
     const { data: session, status } = useSession();
     const [open, setOpen] = useState(false);
-    const [credits, setCredits] = useState<number | null>(null);
+    const [role, setRole] = useState("free");
     const [isGuest, setIsGuest] = useState(true);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -41,10 +41,10 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                 const res = await fetch("/api/user/credits");
                 if (!res.ok) return;
                 const data = await res.json();
-                setCredits(data.credits);
+                setRole(data.role);
                 setIsGuest(data.isGuest);
             } catch {
-                setCredits(null);
+                setRole("free");
             }
         };
         fetchCredits();
@@ -85,10 +85,10 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
     if (!session?.user) {
         return (
             <div className="flex items-center gap-2">
-                {/* Guest credits badge */}
+                {/* Guest status badge */}
                 <div className="flex items-center gap-1 rounded-xl bg-white border-[3px] border-black px-2.5 py-1 text-xs font-bold text-black shadow-neo-sm">
-                    <Coins className="h-3.5 w-3.5 text-orange-500" />
-                    <span>{credits ?? 100}</span>
+                    <User className="h-3.5 w-3.5 text-gray-400" />
+                    <span>Free</span>
                 </div>
                 <button
                     onClick={async (e) => {
@@ -186,10 +186,10 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                 onClick={() => setOpen(!open)}
                 className="flex items-center gap-2 rounded-xl bg-white border-[3px] border-black px-1.5 py-1 shadow-neo-sm hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo transition-all max-w-[200px]"
             >
-                {/* Credits badge */}
-                <div className="flex items-center gap-1 rounded-lg bg-[#fff6e8] px-2 py-0.5 text-xs shrink-0 border-2 border-black">
-                    <Coins className="h-3 w-3 text-orange-500" />
-                    <span className="font-bold text-black">{credits ?? "..."}</span>
+                {/* Role badge */}
+                <div className={`flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs shrink-0 border-2 border-black ${role === "vip" || role === "vip-max" || role === "admin" ? "bg-[#fff6e8] text-black" : "bg-gray-100/50 text-gray-700"}`}>
+                    {role === "vip" || role === "vip-max" || role === "admin" ? <Crown className="h-3 w-3 text-yellow-500" /> : <User className="h-3 w-3" />}
+                    <span className="font-bold text-black uppercase">{role === "vip-max" ? "VIP MAX" : role}</span>
                 </div>
                 {/* Avatar */}
                 {session.user.image ? (
@@ -236,21 +236,21 @@ export default function UserMenu({ dict, lang }: { dict: any; lang: string }) {
                         </div>
                     </div>
 
-                    {/* Credits */}
+                    {/* Role Status */}
                     <div className="border-b-[3px] border-black p-4 bg-white">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff6e8] border-2 border-black">
-                                    <Coins className="h-4 w-4 text-orange-500" />
+                                <div className={`flex h-8 w-8 items-center justify-center rounded-lg border-2 border-black ${role === "vip" || role === "vip-max" || role === "admin" ? "bg-[#fff6e8]" : "bg-gray-100"}`}>
+                                    {role === "vip" || role === "vip-max" || role === "admin" ? <Crown className="h-4 w-4 text-yellow-500" /> : <User className="h-4 w-4 text-gray-500" />}
                                 </div>
                                 <div>
-                                    <p className="text-xs font-bold text-gray-500">{dict.creditBalance || "Sisa Kredit"}</p>
-                                    <p className="text-lg font-black text-black">{credits ?? "..."}</p>
+                                    <p className="text-xs font-bold text-gray-500">{dict.accountStatus || "Status Akun"}</p>
+                                    <p className="text-lg font-black text-black capitalize">{role === "vip-max" ? "VIP MAX" : role}</p>
                                 </div>
                             </div>
-                            <span className={`rounded-lg px-2 py-0.5 text-[10px] font-black uppercase border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] ${isGuest ? "bg-gray-200 text-gray-700" : "bg-[#a0d1d6] text-black"
+                            <span className={`rounded-lg px-2 py-0.5 text-[10px] font-black uppercase border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] ${role === "vip" || role === "vip-max" || role === "admin" ? "bg-yellow-300 text-black" : "bg-gray-200 text-gray-700"
                                 }`}>
-                                {isGuest ? (dict.free || "Free") : (credits && credits > 100 ? (dict.premium || "Premium") : (dict.free || "Free"))}
+                                {isGuest ? (dict.free || "Free") : (role === "vip" || role === "vip-max" || role === "admin" ? "VIP" : (dict.free || "Free"))}
                             </span>
                         </div>
                     </div>

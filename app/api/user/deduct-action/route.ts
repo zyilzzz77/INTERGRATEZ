@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
         const canAfford = await deductCredit(action);
         if (!canAfford) {
             return NextResponse.json(
-                { success: false, error: "Kredit tidak mencukupi" },
+                { success: false, error: "Akses VIP Diperlukan" },
                 { status: 403, headers: CORS }
             );
         }

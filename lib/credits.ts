@@ -110,7 +110,7 @@ async function getOrCreateGuestCredit(ip: string, fingerprint: string) {
 }
 
 /**
- * Get credit info for the current user (authenticated or guest)
+ * Get role info for the current user (authenticated or guest)
  */
 export async function getCreditInfo(): Promise<CreditInfo> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -125,19 +125,18 @@ export async function getCreditInfo(): Promise<CreditInfo> {
     if (session?.user?.id) {
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
-            select: { credits: true, bonusCredits: true, creditsExpiry: true, role: true },
+            select: { creditsExpiry: true, role: true },
         });
 
         if (user) {
-            // Check if credits have expired
+            // Check if VIP expired
             if (user.creditsExpiry && new Date() > user.creditsExpiry) {
                 await prisma.user.update({
                     where: { id: session.user.id },
-                    data: { credits: 100, creditsExpiry: null, role: "free" },
+                    data: { role: "free", creditsExpiry: null },
                 });
                 return {
-                    credits: 100,
-                    bonusCredits: 0,
+                    credits: 0,
                     isGuest: false,
                     userId: session.user.id,
                     creditsExpiry: null,
@@ -146,8 +145,7 @@ export async function getCreditInfo(): Promise<CreditInfo> {
             }
 
             return {
-                credits: user.credits,
-                bonusCredits: user.bonusCredits,
+                credits: 0,
                 isGuest: false,
                 userId: session.user.id,
                 creditsExpiry: user.creditsExpiry,
@@ -156,23 +154,18 @@ export async function getCreditInfo(): Promise<CreditInfo> {
         }
     }
 
-    // Guest user — use IP + fingerprint from DB
-    const headersList = await headers();
-    const ip = getClientIp(headersList);
-    const fingerprint = getFingerprint(headersList);
-
-    const guestRecord = await getOrCreateGuestCredit(ip, fingerprint);
-
     return {
-        credits: guestRecord.credits,
+        credits: 0,
         isGuest: true,
+        role: "free"
     };
 }
 
 /**
- * Deduct 1 credit from the current user
- * Returns false if no credits remaining
- * Accepts an action param to allow unlimited streaming/download for VIP roles
+ * Check if user has access to a specific action.
+ * Replaces old credit deduction logic.
+ * - Drama/Streaming requires VIP
+ * - Other tools are unlimited
  */
 export async function deductCredit(action: string = "download"): Promise<boolean> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -183,107 +176,49 @@ export async function deductCredit(action: string = "download"): Promise<boolean
         // Treat as guest if auth fails
     }
 
+    const isDramaAction = action === "streaming" || action.includes("drama");
+
     if (session?.user?.id) {
-        const user = await prisma.user.findUnique({
+        let user = await prisma.user.findUnique({
             where: { id: session.user.id },
-            select: { credits: true, bonusCredits: true, creditsExpiry: true, role: true },
+            select: { creditsExpiry: true, role: true },
         });
 
-        if (!user) return false;
+        if (!user) return !isDramaAction; // Guest without DB record can use free tools
 
-        // Ensure user obj is mutable locally
-        let currentCredits = user.credits;
-        let currentBonus = user.bonusCredits;
         let currentRole = user.role;
         let currentExpiry = user.creditsExpiry;
 
-        // Check VIP expiry completely first:
+        // Check VIP expiry
         if (currentExpiry && new Date() > currentExpiry) {
-            // For those with unlimited/active bonus, when VIP expires, move bonus to credits
-            if (currentBonus > 0) {
-                await prisma.user.update({
-                    where: { id: session.user.id },
-                    data: { credits: currentBonus, bonusCredits: 0, creditsExpiry: null, role: "free" },
-                });
-                currentCredits = currentBonus;
-                currentBonus = 0;
-                currentRole = "free";
-                currentExpiry = null;
-            } else {
-                // If they expire and have no bonus, give them 100 free credits as standard
-                await prisma.user.update({
-                    where: { id: session.user.id },
-                    data: { credits: 100, creditsExpiry: null, role: "free" },
-                });
-                currentCredits = 100;
-                currentRole = "free";
-                currentExpiry = null;
-            }
+            await prisma.user.update({
+                where: { id: session.user.id },
+                data: { role: "free", creditsExpiry: null },
+            });
+            currentRole = "free";
+            currentExpiry = null;
         }
 
-        // Check credit depletion and rollover
-        if (currentCredits <= 0 && currentBonus > 0) {
-            // They ran out of normal credits but have bonus!
-            // According to logic, only 50k unlimitid waits for expiry, other bonuses are used immediately when 0
-            if (currentRole !== "vip-max") { // vip-max MUST wait for expiry as per instructions
-                await prisma.user.update({
-                    where: { id: session.user.id },
-                    data: { credits: currentBonus, bonusCredits: 0 },
-                });
-                currentCredits = currentBonus;
-                currentBonus = 0;
-            }
-        }
+        const isVip = currentRole === "vip" || currentRole === "vip-max" || currentRole === "admin";
 
-        // VIP features tracking (Streaming & Downloads) after rollovers applied
-        if (action === "streaming" && (currentRole === "vip" || currentRole === "vip-max")) {
-            await prisma.requestLog.create({
-                data: { userId: session.user.id, action: "streaming-vip" },
-            }).catch(() => { });
-            return true;
-        }
-
-        if (currentRole === "vip-max") {
-            await prisma.requestLog.create({
-                data: { userId: session.user.id, action: `vip-max-${action}` },
-            }).catch(() => { });
-            return true;
-        }
-
-        // If they still don't have credits, deny
-        if (currentCredits <= 0) return false;
-
-        // Standard Deduction
-        await prisma.user.update({
-            where: { id: session.user.id },
-            data: { credits: { decrement: 1 } },
-        });
-
+        // Log actions for analytics (optional but good)
         await prisma.requestLog.create({
-            data: { userId: session.user.id, action },
+            data: { userId: session.user.id, action: `${isVip ? 'vip' : 'free'}-${action}` },
         }).catch(() => { });
+
+        if (isDramaAction) {
+            return isVip;
+        }
+
+        // Unlimited tool access for logged in users
         return true;
     }
 
-    // Guest user — deduct from DB based on IP + fingerprint
-    const headersList = await headers();
-    const ip = getClientIp(headersList);
-    const fingerprint = getFingerprint(headersList);
+    // Guest user logic
+    if (isDramaAction) {
+        return false; // Guests cannot watch drama
+    }
 
-    const guestRecord = await getOrCreateGuestCredit(ip, fingerprint);
-
-    if (guestRecord.credits <= 0) return false;
-
-    // Deduct from all records with the same IP OR fingerprint (keep them in sync)
-    await prisma.guestCredit.updateMany({
-        where: {
-            OR: [
-                { ip },
-                ...(fingerprint !== "unknown" ? [{ fingerprint }] : []),
-            ],
-        },
-        data: { credits: { decrement: 1 } },
-    });
-
+    // Guests can use free tools unlimited as well (or we could limit them if needed, but user said remove credits)
     return true;
 }

@@ -62,7 +62,7 @@ async function handleSearch(req: NextRequest) {
             const canAfford = await deductCredit();
             if (!canAfford) {
                 return NextResponse.json(
-                    { success: false, error: "Kredit tidak mencukupi" },
+                    { success: false, error: "Akses VIP Diperlukan" },
                     { status: 403, headers: CORS },
                 );
             }
@@ -186,7 +186,7 @@ async function handleSearch(req: NextRequest) {
         const canAfford = await deductCredit();
         if (!canAfford) {
             return NextResponse.json(
-                { success: false, error: "Kredit tidak mencukupi" },
+                { success: false, error: "Akses VIP Diperlukan" },
                 { status: 403, headers: CORS },
             );
         }

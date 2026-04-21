@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
         // Deduct credit for watching an episode
         const canAfford = await deductCredit("streaming");
         if (!canAfford) {
-            return NextResponse.json({ error: "Kredit tidak mencukupi" }, { status: 403, headers: CORS });
+            return NextResponse.json({ error: "Akses VIP Diperlukan" }, { status: 403, headers: CORS });
         }
 
         const DRAMAWAVE_BASE = process.env.DRAMAWAVE_API_BASE_URL || "https://dramawave.dramabos.my.id";

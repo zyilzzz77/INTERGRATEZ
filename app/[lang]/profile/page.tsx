@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     const { lang } = await params;
     return constructMetadata({
         title: 'Profil Pengguna - Inversave',
-        description: 'Kelola profil, limit kredit, dan status penggunaan Anda di Inversave.',
+        description: 'Kelola profil dan status VIP Anda di Inversave.',
         url: `/${lang}/profile`,
         locale: lang === 'id' ? 'id_ID' : 'en_US',
         noIndex: true // Profile shouldn't be indexed
@@ -22,23 +22,20 @@ import {
     Fingerprint,
     Hash,
     Clock,
-    Coins,
     Key,
     Lock,
     Shield,
     MoreHorizontal,
-    Wallet,
     Users,
     Gem,
     Calendar,
     Cpu,
     Pencil,
-    BadgeCheck
+    BadgeCheck,
+    Crown
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import UserIpDisplay from "@/components/UserIpDisplay";
-import RealtimeCredits from "@/components/RealtimeCredits";
-import RealtimeBonus from "@/components/RealtimeBonus";
 import UnlimitedBadge from "@/components/UnlimitedBadge";
 
 export default async function ProfilePage({ params }: { params: Promise<{ lang: string }> }) {
@@ -62,8 +59,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ lang: 
         day: 'numeric', month: 'short', year: 'numeric'
     });
 
-    const isPremium = dbUser.role === "premium" || dbUser.role === "admin";
-    const isVip = dbUser.role === "vip" || dbUser.role === "vip-max";
+    const isVip = dbUser.role === "vip" || dbUser.role === "vip-max" || dbUser.role === "admin";
 
     return (
         <div className="min-h-screen bg-[#f6f6ee] pb-16 pt-28 sm:pt-[110px]">
@@ -101,7 +97,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ lang: 
                             </p>
                             <h1 className="text-xl sm:text-2xl font-black text-black flex items-center gap-2 truncate">
                                 <span className="truncate">{dbUser.name || "User Name"}</span>
-                                <BadgeCheck className="text-blue-600 h-5 w-5 shrink-0 fill-blue-600 stroke-white" />
+                                {isVip && <BadgeCheck className="text-blue-600 h-5 w-5 shrink-0 fill-blue-600 stroke-white" />}
                             </h1>
                             <div className="mt-2 flex flex-wrap gap-2 text-sm font-bold text-black/80">
                                 <span className="inline-flex items-center gap-1 rounded-lg bg-white border-[2px] border-black px-3 py-1 shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
@@ -114,8 +110,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ lang: 
 
                     {/* Action Buttons - horizontal scroll on mobile */}
                     <div className="flex items-center gap-3 overflow-x-auto pb-1 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-                        <Link href="/topup" className="flex items-center gap-1.5 rounded-xl bg-white border-[3px] border-black px-4 py-2 text-xs sm:text-sm font-black text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-transform hover:-translate-y-0.5 whitespace-nowrap shrink-0">
-                            <Key className="h-4 w-4" /> Top Up
+                        <Link href={`/${lang}/topup`} className="flex items-center gap-1.5 rounded-xl bg-[#ffeb3b] border-[3px] border-black px-4 py-2 text-xs sm:text-sm font-black text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-transform hover:-translate-y-0.5 whitespace-nowrap shrink-0">
+                            <Crown className="h-4 w-4" /> Beli VIP
                         </Link>
                         <button className="flex items-center gap-1.5 rounded-xl bg-white border-[3px] border-black px-4 py-2 text-xs sm:text-sm font-black text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-transform hover:-translate-y-0.5 whitespace-nowrap shrink-0">
                             <Lock className="h-4 w-4" /> Password
@@ -129,53 +125,43 @@ export default async function ProfilePage({ params }: { params: Promise<{ lang: 
                     </div>
                 </div>
 
-                {/* --- 4 STATS CARDS --- */}
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8">
-                    {/* Card 1 - Balance */}
-                    <div className="flex items-center gap-3 sm:gap-4 rounded-xl bg-white border-[3px] border-black p-3 sm:p-5 shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
-                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-[#a0d1d6] border-[2px] border-black shrink-0">
-                            <Wallet className="h-4 w-4 sm:h-6 sm:w-6 text-black" />
-                        </div>
-                        <div className="min-w-0">
-                            <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-black/70">Balance</p>
-                            <p className="text-sm sm:text-lg font-black text-black truncate">{dbUser.credits.toLocaleString()} Cr</p>
-                        </div>
-                    </div>
-
-                    {/* Card 2 - Role */}
-                    <div className="flex items-center gap-3 sm:gap-4 rounded-xl bg-white border-[3px] border-black p-3 sm:p-5 shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
-                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-[#a0d1d6] border-[2px] border-black shrink-0">
-                            <Users className="h-4 w-4 sm:h-6 sm:w-6 text-black" />
+                {/* --- 3 STATS CARDS --- */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-8">
+                    {/* Card 1 - Role */}
+                    <div className={`flex items-center gap-3 sm:gap-4 rounded-xl border-[3px] border-black p-3 sm:p-5 shadow-[6px_6px_0_0_rgba(0,0,0,1)] ${isVip ? "bg-yellow-100" : "bg-white"}`}>
+                        <div className={`flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg border-[2px] border-black shrink-0 ${isVip ? "bg-[#ffeb3b]" : "bg-[#a0d1d6]"}`}>
+                            {isVip ? <Crown className="h-4 w-4 sm:h-6 sm:w-6 text-black" /> : <Users className="h-4 w-4 sm:h-6 sm:w-6 text-black" />}
                         </div>
                         <div className="min-w-0 flex-1 flex justify-between items-center">
                             <div>
-                                <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-black/70">Role</p>
-                                <p className="text-sm sm:text-lg font-black text-black capitalize truncate">{dbUser.role}</p>
+                                <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-black/70">Status Akun</p>
+                                <p className="text-sm sm:text-lg font-black text-black capitalize truncate">{dbUser.role === 'vip-max' ? 'VIP MAX' : dbUser.role}</p>
                             </div>
-                            {isVip && <UnlimitedBadge />}
                         </div>
                     </div>
 
-                    {/* Card 3 - Premium */}
-                    <div className="flex items-center gap-3 sm:gap-4 rounded-xl bg-white border-[3px] border-black p-3 sm:p-5 shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
-                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-[#a0d1d6] border-[2px] border-black shrink-0">
-                            <Gem className={`h-4 w-4 sm:h-6 sm:w-6 ${isPremium ? 'text-green-600' : 'text-neutral-600'}`} />
+                    {/* Card 2 - Expiry */}
+                    {isVip && dbUser.creditsExpiry && (
+                        <div className="flex items-center gap-3 sm:gap-4 rounded-xl bg-white border-[3px] border-black p-3 sm:p-5 shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
+                            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-[#ffb3c6] border-[2px] border-black shrink-0">
+                                <Clock className="h-4 w-4 sm:h-6 sm:w-6 text-black" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-black/70">Berlaku Hingga</p>
+                                <p className="text-sm sm:text-lg font-black truncate text-black">
+                                    {new Date(dbUser.creditsExpiry).toLocaleDateString()}
+                                </p>
+                            </div>
                         </div>
-                        <div className="min-w-0">
-                            <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-black/70">Premium</p>
-                            <p className={`text-sm sm:text-lg font-black truncate ${isPremium ? 'text-green-700' : 'text-black'}`}>
-                                {isPremium ? 'Active' : 'Inactive'}
-                            </p>
-                        </div>
-                    </div>
+                    )}
 
-                    {/* Card 4 - Joined */}
+                    {/* Card 3 - Joined */}
                     <div className="flex items-center gap-3 sm:gap-4 rounded-xl bg-white border-[3px] border-black p-3 sm:p-5 shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
                         <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-[#a0d1d6] border-[2px] border-black shrink-0">
                             <Calendar className="h-4 w-4 sm:h-6 sm:w-6 text-black" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-black/70">Joined</p>
+                            <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-black/70">Bergabung</p>
                             <p className="text-sm sm:text-lg font-black text-black truncate">{joinedDate}</p>
                         </div>
                     </div>
@@ -183,41 +169,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ lang: 
 
                 {/* --- MAIN CONTENT AREA --- */}
                 <div className="grid grid-cols-1 gap-4 sm:gap-6">
-
-                    {/* Left: (mobile stats) */}
-                    <div>
-                        {/* Active Limit Header */}
-                        <div className="grid grid-cols-2 gap-3 sm:hidden mb-6">
-                            <div className="rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-4 ring-1 ring-amber-500/20">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="rounded-lg bg-amber-500/20 p-1.5">
-                                        <Coins className="h-4 w-4 text-amber-500" />
-                                    </div>
-                                    <span className="text-[10px] font-bold uppercase text-amber-500 tracking-wider">Active Limit</span>
-                                </div>
-                                <p className="text-2xl font-black text-amber-500">
-                                    <RealtimeCredits initialCredits={dbUser.credits} />
-                                </p>
-                            </div>
-                            <div className="rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-4 ring-1 ring-purple-500/20">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="rounded-lg bg-purple-500/20 p-1.5">
-                                        <Gem className="h-4 w-4 text-purple-500" />
-                                    </div>
-                                    <span className="text-[10px] font-bold uppercase text-purple-500 tracking-wider">Bonus Kredit</span>
-                                </div>
-                                <p className="text-2xl font-black text-purple-500">
-                                    <RealtimeBonus initialBonus={dbUser.bonusCredits} />
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right: Account Details */}
+                    {/* Account Details */}
                     <div className="rounded-2xl bg-white border-[3px] border-black p-4 sm:p-6 shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
                         <div className="flex items-center gap-2 mb-4 sm:mb-6">
                             <Fingerprint className="h-5 w-5 text-black" />
-                            <h2 className="text-sm sm:text-lg font-black text-black">Account Details</h2>
+                            <h2 className="text-sm sm:text-lg font-black text-black">Detail Akun</h2>
                         </div>
 
                         <div className="flex flex-col gap-2.5 sm:gap-3">
@@ -227,28 +183,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ lang: 
                                 <div className="min-w-0">
                                     <p className="text-[10px] sm:text-xs font-black text-black/70">Email</p>
                                     <p className="text-xs sm:text-sm font-black text-black truncate">{dbUser.email}</p>
-                                </div>
-                            </div>
-
-                            {/* Limit */}
-                            <div className="flex items-center gap-3 sm:gap-4 rounded-xl bg-[#f6f6ee] p-3 sm:p-4 border-[2px] border-black">
-                                <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-black shrink-0" />
-                                <div className="min-w-0">
-                                    <p className="text-[10px] sm:text-xs font-black text-black/70">Limit</p>
-                                    <p className="text-xs sm:text-sm font-black text-black truncate">
-                                        <RealtimeCredits initialCredits={dbUser.credits} />
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Bonus Limit */}
-                            <div className="flex items-center gap-3 sm:gap-4 rounded-xl bg-[#f6f6ee] p-3 sm:p-4 border-[2px] border-black">
-                                <Gem className="h-4 w-4 sm:h-5 sm:w-5 text-black shrink-0" />
-                                <div className="min-w-0">
-                                    <p className="text-[10px] sm:text-xs font-black text-black/70">Bonus Kredit</p>
-                                    <p className="text-xs sm:text-sm font-black text-purple-700 truncate">
-                                        <RealtimeBonus initialBonus={dbUser.bonusCredits} />
-                                    </p>
                                 </div>
                             </div>
 
@@ -271,7 +205,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ lang: 
                                 <div className="flex items-center gap-3 sm:gap-4 rounded-xl bg-[#f6f6ee] p-3 sm:p-4 border-[2px] border-black">
                                     <Cpu className="h-4 w-4 sm:h-5 sm:w-5 text-black shrink-0" />
                                     <div className="min-w-0">
-                                        <p className="text-[10px] sm:text-xs font-black text-black/70">Credits Expiry</p>
+                                        <p className="text-[10px] sm:text-xs font-black text-black/70">Masa Aktif VIP</p>
                                         <p className="text-xs sm:text-sm font-black text-black truncate">
                                             {new Date(dbUser.creditsExpiry).toLocaleDateString()}
                                         </p>

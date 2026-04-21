@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
         const canAfford = await deductCredit();
         if (!canAfford) {
-            return NextResponse.json({ error: "Kredit tidak mencukupi" }, { status: 403, headers: CORS });
+            return NextResponse.json({ error: "Akses VIP Diperlukan" }, { status: 403, headers: CORS });
         }
 
         const NEOXR_BASE = process.env.NEOXR_API_BASE_URL || "https://api.neoxr.eu";

@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
         if (!isRefresh) {
             const canAfford = await deductCredit("streaming");
             if (!canAfford) {
-                return NextResponse.json({ error: "Kredit tidak mencukupi. Silakan top up." }, { status: 403, headers: CORS });
+                return NextResponse.json({ error: "Akses VIP Diperlukan. Silakan top up." }, { status: 403, headers: CORS });
             }
         }
 
