@@ -83,7 +83,7 @@ function Sidebar({ active = "dashboard" }: { active?: string }) {
                             {label}
                         </button>
                     );
-                }
+                })}
             </nav>
 
             <div className="p-4 border-t-[3px] border-white/10">

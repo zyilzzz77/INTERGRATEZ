@@ -67,7 +67,7 @@ function Sidebar({ active }: { active: string }) {
                             <Icon className="w-4 h-4" strokeWidth={3} />{label}
                         </button>
                     );
-                }
+                })}
             </nav>
             <div className="p-4 border-t-[3px] border-white/10">
                 <button onClick={async () => { await fetch("/api/admin/auth/logout", {method:"POST"}); window.location.href="/admin/login"; }}
