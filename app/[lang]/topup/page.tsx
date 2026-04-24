@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Zap, Coins, Clock, ChevronRight, QrCode, Loader2, X, Check, History, Gem } from "lucide-react";
@@ -85,7 +85,7 @@ const vipPackages = [
 /* ─── Component ──────────────────────────────────────── */
 const SESSION_KEY = "inversave_checkout_";
 
-export default function TopUpPage() {
+function TopUpContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
@@ -810,5 +810,13 @@ export default function TopUpPage() {
                 )}
             </AnimatePresence>
         </div>
+    );
+}
+
+export default function TopUpPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+            <TopUpContent />
+        </Suspense>
     );
 }
